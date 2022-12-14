@@ -3,6 +3,7 @@ import numpy as np
 from sys import getsizeof
 from folktables import ACSDataSource, ACSEmployment, ACSIncome, ACSTravelTime, ACSPublicCoverage, ACSMobility
 
+
 class ACSMobilityDataset():
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
@@ -30,11 +31,12 @@ class ACSMobilityDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
     def update_X_data(self, X_data):
-        '''
+        """
         To save simulated nulls
-        '''
+        """
         self.X_data = X_data
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+
 
 class ACSPublicCoverageDataset():
     def __init__(self, state, year, with_nulls=False):
@@ -49,7 +51,7 @@ class ACSPublicCoverageDataset():
         self.categorical_columns = ['MAR','SEX','DIS','ESP','CIT','MIG','MIL','ANC','NATIVITY','DEAR','DEYE','DREM','ESR','ST','FER','RAC1P']
         self.numerical_columns = ['AGEP', 'SCHL', 'PINCP']
 
-        if with_nulls==True:
+        if with_nulls is True:
             X_data = acs_data[self.features]
         else:
             X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
@@ -63,11 +65,12 @@ class ACSPublicCoverageDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
     def update_X_data(self, X_data):
-        '''
+        """
         To save simulated nulls
-        '''
+        """
         self.X_data = X_data
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+
 
 class ACSTravelTimeDataset():
     def __init__(self, state, year, with_nulls=False):
@@ -96,9 +99,9 @@ class ACSTravelTimeDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
     def update_X_data(self, X_data):
-        '''
+        """
         To save simulated nulls
-        '''
+        """
         self.X_data = X_data
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
     
@@ -130,20 +133,21 @@ class ACSIncomeDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
     def update_X_data(self, X_data):
-        '''
+        """
         To save simulated nulls
-        '''
+        """
         self.X_data = X_data
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
+
 class ACSEmploymentDataset():
     def __init__(self, state, year, with_nulls=False, optimize=True):
-        '''
+        """
         Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
         We do this to retain the nulls as task wrappers handle nulls by imputing as a special category
         Alternatively, we could have altered the configuration from here:
         https://github.com/zykls/folktables/blob/main/folktables/acs.py
-        '''
+        """
         data_source = ACSDataSource(
             survey_year=year,
             horizon='1-Year',
@@ -171,22 +175,22 @@ class ACSEmploymentDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
     def update_X_data(self, X_data):
-        '''
+        """
         To save simulated nulls
-        '''
+        """
         self.X_data = X_data
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
 class ACSDataset_from_demodq():
-    ''' Following https://github.com/schelterlabs/demographic-data-quality '''
+    """ Following https://github.com/schelterlabs/demographic-data-quality """
     def __init__(self, state, year, with_nulls=False, optimize=True):
-        '''
+        """
         Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
         We do this to retain the nulls as task wrappers handle nulls by imputing as a special category
         Alternatively, we could have altered the configuration from here:
         https://github.com/zykls/folktables/blob/main/folktables/acs.py
-        '''
+        """
         data_source = ACSDataSource(
             survey_year=year,
             horizon='1-Year',
@@ -212,18 +216,17 @@ class ACSDataset_from_demodq():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
     def update_X_data(self, X_data):
-        '''
+        """
         To save simulated nulls
-        '''
+        """
         self.X_data = X_data
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
 def optimize_data_loading(data, categorical):
-    '''
+    """
     Optimizing the dataset size by downcasting categorical columns
-    '''
+    """
     for column in categorical:
         data[column] = pd.to_numeric(data[column], downcast='integer')
     return data
-

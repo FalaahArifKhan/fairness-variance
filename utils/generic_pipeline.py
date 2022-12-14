@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from utils.common_helpers import *
 
+
 class GenericPipeline():
     def __init__(self, dataset, protected_groups, priv_values, base_model=None, encoder=None, metric_names=None):
         self.features = dataset.features
@@ -82,5 +83,3 @@ class GenericPipeline():
     
     def fit_model_incremental(self, base_model):
         return
-
-    
