@@ -1,6 +1,3 @@
-import pandas as pd
-import numpy as np
-from scipy import stats
 from utils.common_helpers import *
 
 
@@ -28,8 +25,8 @@ class GenericAnalyzer():
 
         for group_name in self.test_groups.keys():
             X_test_group = self.test_groups[group_name]
-            results[group_name] = confusion_matrix_metrics(self.y_test[self.test_groups[group_name].index],
-                                                           y_pred_all[self.test_groups[group_name].index])
+            results[group_name] = confusion_matrix_metrics(self.y_test[X_test_group.index],
+                                                           y_pred_all[X_test_group.index])
 
         self.results = results
         return results

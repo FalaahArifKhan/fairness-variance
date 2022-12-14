@@ -1,0 +1,2 @@
+,Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+0,Folktables_GA_2018,DecisionTreeClassifier,0.8272,0.8278,"{'criterion': 'gini', 'max_depth': 10, 'max_features': 0.6}"

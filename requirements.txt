@@ -4,3 +4,5 @@ pandas
 scikit-learn
 sklearn-utils
 seaborn
+folktables
+xgboost==1.7.2

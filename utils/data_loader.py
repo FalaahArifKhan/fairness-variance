@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sys import getsizeof
+
 from folktables import ACSDataSource, ACSEmployment, ACSIncome, ACSTravelTime, ACSPublicCoverage, ACSMobility
 
 
@@ -141,7 +142,7 @@ class ACSIncomeDataset():
 
 
 class ACSEmploymentDataset():
-    def __init__(self, state, year, with_nulls=False, optimize=True):
+    def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True):
         """
         Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
         We do this to retain the nulls as task wrappers handle nulls by imputing as a special category
@@ -151,7 +152,8 @@ class ACSEmploymentDataset():
         data_source = ACSDataSource(
             survey_year=year,
             horizon='1-Year',
-            survey='person'
+            survey='person',
+            root_dir=root_dir
         )
         acs_data = data_source.get_data(states=state, download=True)
         self.features = ACSEmployment.features
@@ -159,7 +161,7 @@ class ACSEmploymentDataset():
         self.categorical_columns = ['MAR', 'MIL', 'ESP', 'MIG', 'DREM', 'NATIVITY', 'DIS', 'DEAR', 'DEYE', 'SEX', 'RAC1P', 'RELP', 'CIT', 'ANC','SCHL']
         self.numerical_columns = ['AGEP']
 
-        if with_nulls==True:
+        if with_nulls is True:
             X_data = acs_data[self.features]
         else:
             X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))

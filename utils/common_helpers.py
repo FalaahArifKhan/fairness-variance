@@ -2,6 +2,43 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from sklearn.metrics import confusion_matrix
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+
+def get_column_transformer(X_train, categorical_columns, numerical_columns):
+    return ColumnTransformer(transformers=[
+            ('categorical_features', OneHotEncoder(categories=[list(set(X_train[col])) for col in categorical_columns], sparse=False),
+             categorical_columns),
+            ('numerical_features', StandardScaler(), numerical_columns)
+        ])
+
+
+def get_dummies(data, categorical_columns, numerical_columns):
+    """
+    Return a dataset made by one-hot encoding for categorical columns and concatenate with numerical columns
+    """
+    feature_df = pd.get_dummies(data[categorical_columns], columns=categorical_columns)
+    for col in numerical_columns:
+        if col in data.columns:
+            feature_df[col] = data[col]
+    return feature_df
+
+
+def make_features_dfs(X_train, X_test, dataset):
+    X_train_features = get_dummies(X_train, dataset.categorical_columns, dataset.numerical_columns)
+    X_test_features = get_dummies(X_test, dataset.categorical_columns, dataset.numerical_columns)
+
+    # Align columns
+    features_columns = list(set(X_train_features.columns) & set(X_test_features.columns))
+    X_train_features = X_train_features[features_columns]
+    X_test_features = X_test_features[features_columns]
+
+    scaler = StandardScaler()
+    X_train_features[features_columns] = scaler.fit_transform(X_train_features[features_columns])
+    X_test_features[features_columns] = scaler.transform(X_test_features[features_columns])
+
+    return X_train_features, X_test_features
 
 
 def partition_by_group_intersectional(df, column_names, priv_values):
@@ -21,8 +58,8 @@ def partition_by_group_binary(df, column_name, priv_value):
 def set_protected_groups(X_test, column_names, priv_values):
     groups={}
     groups[column_names[0]+'_'+column_names[1]+'_priv'], groups[column_names[0]+'_'+column_names[1]+'_dis'] = partition_by_group_intersectional(X_test, column_names, priv_values)
-    groups[column_names[0]+'_priv'], groups[column_names[0]+'_dis'] =  partition_by_group_binary(X_test, column_names[0], priv_values[0])
-    groups[column_names[1]+'_priv'], groups[column_names[1]+'_dis'] =  partition_by_group_binary(X_test, column_names[1], priv_values[1])
+    groups[column_names[0]+'_priv'], groups[column_names[0]+'_dis'] = partition_by_group_binary(X_test, column_names[0], priv_values[0])
+    groups[column_names[1]+'_priv'], groups[column_names[1]+'_dis'] = partition_by_group_binary(X_test, column_names[1], priv_values[1])
     return groups
 
 
