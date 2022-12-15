@@ -25,6 +25,12 @@ def get_dummies(data, categorical_columns, numerical_columns):
     return feature_df
 
 
+def create_tuned_base_model(init_model, model_name, models_tuned_params_df):
+    model_params = eval(models_tuned_params_df.loc[models_tuned_params_df['Model_Name'] == model_name,
+                                                   'Model_Best_Params'].iloc[0])
+    return init_model.set_params(**model_params)
+
+
 def make_features_dfs(X_train, X_test, dataset):
     X_train_features = get_dummies(X_train, dataset.categorical_columns, dataset.numerical_columns)
     X_test_features = get_dummies(X_test, dataset.categorical_columns, dataset.numerical_columns)

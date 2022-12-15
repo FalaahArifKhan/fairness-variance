@@ -1,3 +1,0 @@
-,Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-0,Folktables_GA_2018,LogisticRegression,0.8092,0.8100,"{'max_iter': 50, 'penalty': 'none', 'solver': 'lbfgs'}"
-1,Folktables_GA_2018,DecisionTreeClassifier,0.8229,0.8236,"{'criterion': 'gini', 'max_depth': 10, 'max_features': 0.6}"

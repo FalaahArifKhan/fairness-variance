@@ -1,5 +1,7 @@
 from sklearn.model_selection import train_test_split
-from utils.common_helpers import *
+
+from utils.common_helpers import make_features_dfs
+from utils.common_helpers import set_protected_groups
 
 
 class GenericPipeline():
@@ -20,12 +22,30 @@ class GenericPipeline():
         self.y_test = None
         self.X_val = None
         self.y_val = None
+        self.X_train_val = None
+        self.y_train_val = None
         self.test_groups = None
         self.encoder = encoder
         self.base_model = base_model
         self.pipeline = None
         self.metric_names = metric_names
         self.results = {}
+
+    def create_preprocessed_train_test_split(self, dataset, test_set_fraction, seed):
+        X_train, X_test, y_train, y_test = train_test_split(dataset.X_data, dataset.y_data,
+                                                            test_size=test_set_fraction,
+                                                            random_state=seed)
+        print("Baseline X_train shape: ", X_train.shape)
+        print("Baseline X_test shape: ", X_test.shape)
+
+        X_train_features, X_test_features = make_features_dfs(X_train, X_test, dataset)
+        self.X_train_val = X_train_features
+        self.X_test = X_test_features
+        self.y_train_val = y_train
+        self.y_test = y_test
+        self.test_groups = set_protected_groups(X_test, self.protected_groups, self.priv_values)
+
+        return self.X_train_val, self.y_train_val, self.X_test, self.y_test
 
     def create_train_test_val_split(self, SEED, sample_size=None):
         X_, X_test, y_, y_test = train_test_split(self.X_data, self.y_data, test_size=0.2, random_state=SEED)
