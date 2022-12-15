@@ -51,7 +51,7 @@ def create_average_metrics_df(dataset_name, model_names,
 
 def visualize_fairness_metrics_for_prediction_metric(models_average_results_dct, prediction_metric):
     sns.set_style("darkgrid")
-    x_lim = 0.3
+    x_lim = 1.0
     priv_dis_pairs = [('SEX_RAC1P_priv', 'SEX_RAC1P_dis'),
                       ('SEX_priv', 'SEX_dis'),
                       ('RAC1P_priv', 'RAC1P_dis')]
@@ -66,7 +66,7 @@ def display_fairness_plot(models_average_results_dct, prediction_metric,
     set_size(15, 8, ax)
 
     # List of all markers -- https://matplotlib.org/stable/api/markers_api.html
-    markers = ['.', 'o', '+', '*', '|', '<', '>', '^', 'v', '1', 's', 'x', 'D', 'P', 'H']
+    markers = ['o', '*', '|', '<', '>', '^', 'v', '1', 's', 'x', 'D', 'P', 'H']
     model_names = models_average_results_dct.keys()
     shapes = []
     for idx, model_name in enumerate(model_names):

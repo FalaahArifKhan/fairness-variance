@@ -26,7 +26,7 @@ class ACSMobilityDataset():
         self.X_data = X_data[self.categorical_columns].astype('str')
         for col in self.numerical_columns:
             self.X_data[col] = X_data[col]
-            
+
         self.y_data = acs_data[self.target].apply(lambda x: int(x == 1))
 
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
