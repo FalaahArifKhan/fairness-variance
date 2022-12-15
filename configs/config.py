@@ -3,6 +3,7 @@ from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
 
@@ -51,6 +52,15 @@ MODELS_CONFIG = [
             'n_estimators': [100, 200, 300],
             'max_depth': range(5, 16, 5),
             'objective':  ['binary:logistic'],
+        }
+    },
+    {
+        'model_name': 'KNeighborsClassifier',
+        'model': KNeighborsClassifier(),
+        'params': {
+            'n_neighbors' : [5, 7, 9, 11, 13, 15],
+            'weights' : ['uniform', 'distance'],
+            'metric' : ['minkowski', 'euclidean', 'manhattan']
         }
     },
     {

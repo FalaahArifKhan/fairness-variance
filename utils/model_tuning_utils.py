@@ -141,14 +141,19 @@ def test_ML_models(best_results_df, config_models, n_folds, samples_per_fold,
     idx = 0
     # find the best model among defined in config_models
     for model_config in config_models:
-        print(f"Tuning {model_config['model_name']}...")
-        cur_model, cur_f1_score, cur_accuracy, cur_params = validate_model(deepcopy(model_config['model']),
-                                                                           X_train, y_train, model_config['params'],
-                                                                           n_folds, samples_per_fold)
-        print(f'Tuning for {model_config["model_name"]} is finished')
+        try:
+            print(f"Tuning {model_config['model_name']}...")
+            cur_model, cur_f1_score, cur_accuracy, cur_params = validate_model(deepcopy(model_config['model']),
+                                                                               X_train, y_train, model_config['params'],
+                                                                               n_folds, samples_per_fold)
+            print(f'Tuning for {model_config["model_name"]} is finished')
 
-        test_f1_score, test_accuracy, cur_model_pred = test_evaluation(cur_model, model_config['model_name'], cur_params,
-                                                                       X_train, y_train, X_test, y_test, dataset_title, show_plots, debug_mode)
+            test_f1_score, test_accuracy, cur_model_pred = test_evaluation(cur_model, model_config['model_name'], cur_params,
+                                                                           X_train, y_train, X_test, y_test, dataset_title, show_plots, debug_mode)
+        except Exception as err:
+            print(f"ERROR with {model_config['model_name']}: ", err)
+            continue
+
         # save test results of each model in dataframe
         results_df.loc[idx] = [dataset_title,
                                model_config['model_name'],
