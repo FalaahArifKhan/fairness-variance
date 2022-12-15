@@ -78,7 +78,8 @@ def validate_model(model, x, y, params, n_folds, samples_per_fold):
                                },
                                refit="F1_Score",
                                n_jobs=-1,
-                               cv=folds_iterator(n_folds, samples_per_fold, x.shape[0]))
+                               cv=folds_iterator(n_folds, samples_per_fold, x.shape[0]),
+                               verbose=10)
     grid_search.fit(x, y.values.ravel())
     best_index = grid_search.best_index_
 
@@ -171,4 +172,4 @@ def test_ML_models(best_results_df, config_models, n_folds, samples_per_fold,
                                                      best_params,
                                                      best_model_pred]
 
-    return results_df
+    return results_df, best_results_df

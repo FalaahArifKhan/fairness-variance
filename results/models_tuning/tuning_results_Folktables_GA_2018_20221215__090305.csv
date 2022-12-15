@@ -1,0 +1,2 @@
+,Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+0,Folktables_GA_2018,DecisionTreeClassifier,0.8259,0.8261,"{'criterion': 'entropy', 'max_depth': 10, 'max_features': 0.6}"
