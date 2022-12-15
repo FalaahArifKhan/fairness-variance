@@ -1,8 +1,7 @@
+import os
 import pandas as pd
 import seaborn as sns
 
-from os import listdir
-from os.path import isfile, join
 from matplotlib import pyplot as plt
 
 
@@ -18,40 +17,69 @@ def set_size(w,h, ax=None):
     ax.figure.set_size_inches(figw, figh)
 
 
-def display_result_plots(results_dir):
+def create_average_metrics_df(dataset_name, model_names,
+                              results_path=os.path.join('..', '..', 'results', 'hypothesis_space', 'final_metrics')):
+    results_filenames = [filename for filename in os.listdir(results_path)]
+    models_average_results_dct = dict()
+    for model_name in model_names:
+        model_results_filenames = [filename for filename in results_filenames if 'Average_Metrics' not in filename
+                                   and dataset_name in filename
+                                   and model_name in filename]
+
+        model_results_dfs = []
+        for model_results_filename in model_results_filenames:
+            model_results_df = pd.read_csv(f'{results_path}/{model_results_filename}')
+            model_results_df.set_index('index', inplace = True)
+            model_results_dfs.append(model_results_df)
+
+        model_average_results_df = None
+        for model_results_df in model_results_dfs:
+            if model_average_results_df is None:
+                model_average_results_df = model_results_df
+            else:
+                model_average_results_df += model_results_df
+
+        model_average_results_df = model_average_results_df / len(model_results_dfs)
+        models_average_results_dct[model_name] = model_average_results_df
+
+        filename = f'Average_Metrics_{dataset_name}_{model_name}.csv'
+        model_average_results_df.reset_index().to_csv(f'{results_path}/{filename}', index=False)
+        print(f'File with average metrics for {model_name} is created')
+
+    return models_average_results_dct
+
+
+def visualize_fairness_metrics_for_prediction_metric(models_average_results_dct, prediction_metric):
     sns.set_style("darkgrid")
-    results = dict()
-    filenames = [f for f in listdir(results_dir) if isfile(join(results_dir, f))]
-
-    for filename in filenames:
-        results_df = pd.read_csv(results_dir + filename)
-        results[f'{results_df.iloc[0]["Base_Model_Name"]}_{results_df.iloc[0]["N_Estimators"]}_estimators'] = results_df
-
-    y_metrics = ['SPD_Race', 'SPD_Sex', 'SPD_Race_Sex', 'EO_Race', 'EO_Sex', 'EO_Race_Sex']
-    x_metrics = ['Label_Stability', 'General_Ensemble_Accuracy', 'Std']
-    for x_metric in x_metrics:
-        for y_metric in y_metrics:
-            x_lim = 0.3 if x_metric == 'SD' else 1.0
-            display_uncertainty_plot(results, x_metric, y_metric, x_lim)
+    x_lim = 0.3
+    priv_dis_pairs = [('SEX_RAC1P_priv', 'SEX_RAC1P_dis'),
+                      ('SEX_priv', 'SEX_dis'),
+                      ('RAC1P_priv', 'RAC1P_dis')]
+    for fairness_metric_priv, fairness_metric_dis in priv_dis_pairs:
+        display_fairness_plot(models_average_results_dct, prediction_metric,
+                              fairness_metric_priv, fairness_metric_dis, x_lim)
 
 
-def display_uncertainty_plot(results, x_metric, y_metric, x_lim):
+def display_fairness_plot(models_average_results_dct, prediction_metric,
+                          fairness_metric_priv, fairness_metric_dis, x_lim):
     fig, ax = plt.subplots()
     set_size(15, 8, ax)
 
     # List of all markers -- https://matplotlib.org/stable/api/markers_api.html
     markers = ['.', 'o', '+', '*', '|', '<', '>', '^', 'v', '1', 's', 'x', 'D', 'P', 'H']
-    techniques = results.keys()
+    model_names = models_average_results_dct.keys()
     shapes = []
-    for idx, technique in enumerate(techniques):
-        a = ax.scatter(results[technique][x_metric], results[technique][y_metric], marker=markers[idx], s=100)
+    for idx, model_name in enumerate(model_names):
+        a = ax.scatter(float(models_average_results_dct[model_name][fairness_metric_priv].loc[prediction_metric]),
+                       float(models_average_results_dct[model_name][fairness_metric_dis].loc[prediction_metric]),
+                       marker=markers[idx], s=100)
         shapes.append(a)
 
     plt.axhline(y=0.0, color='r', linestyle='-')
-    plt.xlabel(x_metric)
-    plt.ylabel(y_metric)
+    plt.xlabel(fairness_metric_priv)
+    plt.ylabel(fairness_metric_dis)
     plt.xlim(0, x_lim)
-    plt.title(f'{x_metric} [{y_metric}]', fontsize=20)
-    ax.legend(shapes, techniques, fontsize=12, title='Markers')
+    plt.title(f'{fairness_metric_priv} vs {fairness_metric_dis} based on {prediction_metric}', fontsize=20)
+    ax.legend(shapes, model_names, fontsize=12, title='Markers')
 
     plt.show()

@@ -45,4 +45,5 @@ class GenericAnalyzer():
         now = datetime.now(timezone.utc)
         date_time_str = now.strftime("%Y%m%d__%H%M%S")
         filename = f"Hypothesis_Space_Metrics_{dataset_name}_Experiment_{exp_num}_{base_model_name}_{date_time_str}.csv"
+        metrics_df = metrics_df.reset_index()
         metrics_df.to_csv(f'{save_dir_path}/{filename}', index=False)

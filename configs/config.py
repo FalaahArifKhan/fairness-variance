@@ -68,8 +68,8 @@ MODELS_CONFIG = [
     #     'model_name': 'SVC',
     #     'model': SVC(random_state=SEED),
     #     'params': {
-    #         'C': [10, 100],
-    #         'gamma': [0.01, 0.001],
+    #         'C': [10, 100, 1000],
+    #         'gamma': [0.01, 0.001, 0.0001],
     #         'kernel': ['rbf'],
     #     }
     # },
