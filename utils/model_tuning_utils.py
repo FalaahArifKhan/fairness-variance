@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 from pprint import pprint
 from copy import deepcopy
+from datetime import datetime
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
@@ -142,11 +143,11 @@ def test_ML_models(best_results_df, config_models, n_folds, samples_per_fold,
     # find the best model among defined in config_models
     for model_config in config_models:
         try:
-            print(f"Tuning {model_config['model_name']}...")
+            print(f"{datetime.now().strftime('%Y/%m/%d, %H:%M:%S')}: Tuning {model_config['model_name']}...")
             cur_model, cur_f1_score, cur_accuracy, cur_params = validate_model(deepcopy(model_config['model']),
                                                                                X_train, y_train, model_config['params'],
                                                                                n_folds, samples_per_fold)
-            print(f'Tuning for {model_config["model_name"]} is finished')
+            print(f'{datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}: Tuning for {model_config["model_name"]} is finished')
 
             test_f1_score, test_accuracy, cur_model_pred = test_evaluation(cur_model, model_config['model_name'], cur_params,
                                                                            X_train, y_train, X_test, y_test, dataset_title, show_plots, debug_mode)

@@ -15,6 +15,7 @@ DATASET_CONFIG = {
     'year': 2018,
 }
 
+
 MODELS_CONFIG = [
     {
         'model_name': 'LogisticRegression',
@@ -63,13 +64,13 @@ MODELS_CONFIG = [
             'metric' : ['minkowski', 'euclidean', 'manhattan']
         }
     },
-    {
-        'model_name': 'SVC',
-        'model': SVC(random_state=SEED),
-        'params': {
-            'C': [0.1, 1, 10, 100, 1000],
-            'gamma': [0.1, 0.01, 0.001, 0.0001],
-            'kernel': ['rbf'],
-        }
-    },
+    # {
+    #     'model_name': 'SVC',
+    #     'model': SVC(random_state=SEED),
+    #     'params': {
+    #         'C': [10, 100],
+    #         'gamma': [0.01, 0.001],
+    #         'kernel': ['rbf'],
+    #     }
+    # },
 ]
