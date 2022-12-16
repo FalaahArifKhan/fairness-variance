@@ -38,6 +38,9 @@ def create_average_metrics_df(dataset_name, model_names,
                                    and dataset_name in filename
                                    and model_name in filename]
 
+        if len(model_results_filenames) == 0:
+            continue
+
         model_results_dfs = []
         for model_results_filename in model_results_filenames:
             model_results_df = pd.read_csv(f'{results_path}/{model_results_filename}')
