@@ -26,15 +26,15 @@ MODELS_CONFIG = [
     #         'max_iter': range(50, 251, 50),
     #     }
     # },
-    # {
-    #     'model_name': 'DecisionTreeClassifier',
-    #     'model': DecisionTreeClassifier(random_state=SEED),
-    #     'params': {
-    #         "max_depth": [5, 10, 20, 30],
-    #         "max_features": [0.6, 'sqrt'],
-    #         "criterion": ["gini", "entropy"]
-    #     }
-    # },
+    {
+        'model_name': 'DecisionTreeClassifier',
+        'model': DecisionTreeClassifier(random_state=SEED),
+        'params': {
+            "max_depth": [5, 10, 20, 30],
+            "max_features": [0.6, 'sqrt'],
+            "criterion": ["gini", "entropy"]
+        }
+    },
     # {
     #     'model_name': 'RandomForestClassifier',
     #     'model': RandomForestClassifier(random_state=SEED),
@@ -64,14 +64,14 @@ MODELS_CONFIG = [
     #         'metric' : ['minkowski', 'euclidean', 'manhattan']
     #     }
     # },
-    {
-        'model_name': 'MLPClassifier_1L_100',
-        'model': MLPClassifier(hidden_layer_sizes=(100,)),
-        'params': {}
-    },
-    {
-        'model_name': 'MLPClassifier_3L_100_50_100',
-        'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
-        'params': {}
-    },
+    # {
+    #     'model_name': 'MLPClassifier_1L_100',
+    #     'model': MLPClassifier(hidden_layer_sizes=(100,)),
+    #     'params': {}
+    # },
+    # {
+    #     'model_name': 'MLPClassifier_3L_100_50_100',
+    #     'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
+    #     'params': {}
+    # },
 ]

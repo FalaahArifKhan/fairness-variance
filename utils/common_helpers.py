@@ -1,17 +1,33 @@
+import os
+import logging
 import pandas as pd
-import numpy as np
-from scipy import stats
+from datetime import datetime, timezone
 from sklearn.metrics import confusion_matrix
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import StandardScaler
+
+from utils.custom_classes.custom_logger import CustomHandler
 
 
-def get_column_transformer(X_train, categorical_columns, numerical_columns):
-    return ColumnTransformer(transformers=[
-            ('categorical_features', OneHotEncoder(categories=[list(set(X_train[col])) for col in categorical_columns], sparse=False),
-             categorical_columns),
-            ('numerical_features', StandardScaler(), numerical_columns)
-        ])
+def get_logger():
+    logger = logging.getLogger('root')
+    logger.setLevel('INFO')
+    logging.disable(logging.DEBUG)
+
+    if logger.hasHandlers():
+        logger.handlers.clear()
+    logger.addHandler(CustomHandler())
+
+    return logger
+
+
+def save_metrics_to_file(metrics_df, result_filename, save_dir_path):
+    os.makedirs(save_dir_path, exist_ok=True)
+
+    now = datetime.now(timezone.utc)
+    date_time_str = now.strftime("%Y%m%d__%H%M%S")
+    filename = f"{result_filename}_{date_time_str}.csv"
+    metrics_df = metrics_df.reset_index()
+    metrics_df.to_csv(f'{save_dir_path}/{filename}', index=False)
 
 
 def get_dummies(data, categorical_columns, numerical_columns):

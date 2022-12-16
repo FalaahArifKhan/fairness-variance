@@ -17,6 +17,18 @@ def set_size(w,h, ax=None):
     ax.figure.set_size_inches(figw, figh)
 
 
+def plot_generic(x, y, xlabel, ylabel, x_lim, y_lim, plot_title):
+    sns.set_style("darkgrid")
+    plt.figure(figsize=(20,10))
+    plt.scatter(x, y)
+    plt.xlim(0, x_lim)
+    plt.ylim(0, y_lim)
+    plt.xlabel(xlabel, fontsize=14)
+    plt.ylabel(ylabel, fontsize=14)
+    plt.title(plot_title, fontsize=20)
+    plt.show()
+
+
 def create_average_metrics_df(dataset_name, model_names,
                               results_path=os.path.join('..', '..', 'results', 'hypothesis_space', 'final_metrics')):
     results_filenames = [filename for filename in os.listdir(results_path)]
