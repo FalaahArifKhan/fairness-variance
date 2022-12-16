@@ -38,6 +38,9 @@ def create_average_metrics_df(dataset_name, model_names,
                                    and dataset_name in filename
                                    and model_name in filename]
 
+        if len(model_results_filenames) == 0:
+            continue
+
         model_results_dfs = []
         for model_results_filename in model_results_filenames:
             model_results_df = pd.read_csv(f'{results_path}/{model_results_filename}')
@@ -61,18 +64,19 @@ def create_average_metrics_df(dataset_name, model_names,
     return models_average_results_dct
 
 
-def visualize_fairness_metrics_for_prediction_metric(models_average_results_dct, prediction_metric):
+def visualize_fairness_metrics_for_prediction_metric(models_average_results_dct, x_metric, y_metrics: list):
     sns.set_style("darkgrid")
-    x_lim = 1.0
+    x_lim = 0.5
     priv_dis_pairs = [('SEX_RAC1P_priv', 'SEX_RAC1P_dis'),
                       ('SEX_priv', 'SEX_dis'),
                       ('RAC1P_priv', 'RAC1P_dis')]
-    for fairness_metric_priv, fairness_metric_dis in priv_dis_pairs:
-        display_fairness_plot(models_average_results_dct, prediction_metric,
-                              fairness_metric_priv, fairness_metric_dis, x_lim)
+    for y_metric in y_metrics:
+        for fairness_metric_priv, fairness_metric_dis in priv_dis_pairs:
+            display_fairness_plot(models_average_results_dct, x_metric, y_metric,
+                                  fairness_metric_priv, fairness_metric_dis, x_lim)
 
 
-def display_fairness_plot(models_average_results_dct, prediction_metric,
+def display_fairness_plot(models_average_results_dct, x_metric, y_metric,
                           fairness_metric_priv, fairness_metric_dis, x_lim):
     fig, ax = plt.subplots()
     set_size(15, 8, ax)
@@ -82,16 +86,18 @@ def display_fairness_plot(models_average_results_dct, prediction_metric,
     model_names = models_average_results_dct.keys()
     shapes = []
     for idx, model_name in enumerate(model_names):
-        a = ax.scatter(float(models_average_results_dct[model_name][fairness_metric_priv].loc[prediction_metric]),
-                       float(models_average_results_dct[model_name][fairness_metric_dis].loc[prediction_metric]),
-                       marker=markers[idx], s=100)
+        x_val = abs(models_average_results_dct[model_name][fairness_metric_priv].loc[x_metric] - \
+                    models_average_results_dct[model_name][fairness_metric_dis].loc[x_metric])
+        y_val = abs(models_average_results_dct[model_name][fairness_metric_priv].loc[y_metric] - \
+                    models_average_results_dct[model_name][fairness_metric_dis].loc[y_metric])
+        a = ax.scatter(x_val, y_val, marker=markers[idx], s=100)
         shapes.append(a)
 
     plt.axhline(y=0.0, color='r', linestyle='-')
-    plt.xlabel(fairness_metric_priv)
-    plt.ylabel(fairness_metric_dis)
-    plt.xlim(0, x_lim)
-    plt.title(f'{fairness_metric_priv} vs {fairness_metric_dis} based on {prediction_metric}', fontsize=20)
+    plt.xlabel(f'{x_metric} Difference')
+    plt.ylabel(f'{y_metric} Difference')
+    plt.xlim(-0.01, x_lim)
+    plt.title(f'{fairness_metric_priv}-{fairness_metric_dis} difference for {x_metric} and {y_metric}', fontsize=20)
     ax.legend(shapes, model_names, fontsize=12, title='Markers')
 
     plt.show()
