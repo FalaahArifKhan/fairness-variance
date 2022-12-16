@@ -45,16 +45,16 @@ MODELS_CONFIG = [
             "max_features": [0.6, 'auto', 'sqrt']
         }
     },
-    {
-        'model_name': 'XGBClassifier',
-        'model': XGBClassifier(random_state=SEED, verbosity = 0),
-        'params': {
-            'learning_rate': [0.1],
-            'n_estimators': [100, 200, 300],
-            'max_depth': range(5, 16, 5),
-            'objective':  ['binary:logistic'],
-        }
-    },
+    # {
+    #     'model_name': 'XGBClassifier',
+    #     'model': XGBClassifier(random_state=SEED, verbosity = 0),
+    #     'params': {
+    #         'learning_rate': [0.1],
+    #         'n_estimators': [100, 200, 300],
+    #         'max_depth': range(5, 16, 5),
+    #         'objective':  ['binary:logistic'],
+    #     }
+    # },
     {
         'model_name': 'KNeighborsClassifier',
         'model': KNeighborsClassifier(),
@@ -64,14 +64,14 @@ MODELS_CONFIG = [
             'metric' : ['minkowski', 'euclidean', 'manhattan']
         }
     },
-    {
-        'model_name': 'MLPClassifier_1L_100',
-        'model': MLPClassifier(hidden_layer_sizes=(100,)),
-        'params': {}
-    },
-    {
-        'model_name': 'MLPClassifier_3L_100_50_100',
-        'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
-        'params': {}
-    },
+    # {
+    #     'model_name': 'MLPClassifier_1L_100',
+    #     'model': MLPClassifier(hidden_layer_sizes=(100,)),
+    #     'params': {}
+    # },
+    # {
+    #     'model_name': 'MLPClassifier_3L_100_50_100',
+    #     'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
+    #     'params': {}
+    # },
 ]
