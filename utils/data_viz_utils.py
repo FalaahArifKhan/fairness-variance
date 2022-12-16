@@ -67,17 +67,18 @@ def create_average_metrics_df(dataset_name, model_names,
 def visualize_fairness_metrics_for_prediction_metric(models_average_results_dct, x_metric, y_metrics: list):
     sns.set_style("darkgrid")
     x_lim = 0.5
+    y_lim = 0.22
     priv_dis_pairs = [('SEX_RAC1P_priv', 'SEX_RAC1P_dis'),
                       ('SEX_priv', 'SEX_dis'),
                       ('RAC1P_priv', 'RAC1P_dis')]
     for y_metric in y_metrics:
         for fairness_metric_priv, fairness_metric_dis in priv_dis_pairs:
             display_fairness_plot(models_average_results_dct, x_metric, y_metric,
-                                  fairness_metric_priv, fairness_metric_dis, x_lim)
+                                  fairness_metric_priv, fairness_metric_dis, x_lim, y_lim)
 
 
 def display_fairness_plot(models_average_results_dct, x_metric, y_metric,
-                          fairness_metric_priv, fairness_metric_dis, x_lim):
+                          fairness_metric_priv, fairness_metric_dis, x_lim, y_lim):
     fig, ax = plt.subplots()
     set_size(15, 8, ax)
 
@@ -97,6 +98,7 @@ def display_fairness_plot(models_average_results_dct, x_metric, y_metric,
     plt.xlabel(f'{x_metric} Difference')
     plt.ylabel(f'{y_metric} Difference')
     plt.xlim(-0.01, x_lim)
+    plt.ylim(-0.01, y_lim)
     plt.title(f'{fairness_metric_priv}-{fairness_metric_dis} difference for {x_metric} and {y_metric}', fontsize=20)
     ax.legend(shapes, model_names, fontsize=12, title='Markers')
 
