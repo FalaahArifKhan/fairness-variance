@@ -28,6 +28,12 @@ class FairnessAnalyzer(AbstractSubgroupsAnalyzer):
         }
 
     def compute_subgroups_metrics(self, models_predictions, save_results, result_filename, save_dir_path):
+        """
+        Compute variance metrics for subgroups
+
+        :param models_predictions: dict of lists, where key is a model index and value is model predictions based on X_test
+        :return: dict of dicts, where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup
+        """
         models_predictions = {
             model_idx: pd.Series(models_predictions[model_idx], index=self.y_test.index)
             for model_idx in models_predictions.keys()
