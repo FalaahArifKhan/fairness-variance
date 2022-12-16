@@ -17,24 +17,24 @@ DATASET_CONFIG = {
 
 
 MODELS_CONFIG = [
-    {
-        'model_name': 'LogisticRegression',
-        'model': LogisticRegression(random_state=SEED),
-        'params': {
-            'penalty': ['none', 'l2'],
-            'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-            'max_iter': range(50, 251, 50),
-        }
-    },
-    {
-        'model_name': 'DecisionTreeClassifier',
-        'model': DecisionTreeClassifier(random_state=SEED),
-        'params': {
-            "max_depth": [5, 10, 20, 30],
-            "max_features": [0.6, 'sqrt'],
-            "criterion": ["gini", "entropy"]
-        }
-    },
+    # {
+    #     'model_name': 'LogisticRegression',
+    #     'model': LogisticRegression(random_state=SEED),
+    #     'params': {
+    #         'penalty': ['none', 'l2'],
+    #         'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
+    #         'max_iter': range(50, 251, 50),
+    #     }
+    # },
+    # {
+    #     'model_name': 'DecisionTreeClassifier',
+    #     'model': DecisionTreeClassifier(random_state=SEED),
+    #     'params': {
+    #         "max_depth": [5, 10, 20, 30],
+    #         "max_features": [0.6, 'sqrt'],
+    #         "criterion": ["gini", "entropy"]
+    #     }
+    # },
     {
         'model_name': 'RandomForestClassifier',
         'model': RandomForestClassifier(random_state=SEED),
