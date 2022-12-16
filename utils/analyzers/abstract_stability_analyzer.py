@@ -19,9 +19,7 @@ class AbstractStabilityAnalyzer(metaclass=ABCMeta):
         :param base_model: base model for stability measuring
         :param base_model_name: model name like 'HoeffdingTreeClassifier' or 'LogisticRegression'
         :param bootstrap_fraction: [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
-        :param train_pd_dataset: pandas train dataset
-        :param test_pd_dataset: pandas test dataset
-        :param test_y_true: y value from test_pd_dataset
+        :param X_train, y_train, X_test, y_test: default (train + val, test) splits
         :param dataset_name: str, like 'Folktables' or 'Phishing'
         :param n_estimators: a number of estimators in ensemble to measure evaluation_model stability
         """
@@ -77,10 +75,6 @@ class AbstractStabilityAnalyzer(metaclass=ABCMeta):
         y_preds, uq_labels, prediction_stats = count_prediction_stats(self.y_test.values, self.models_predictions)
         self.__logger.info(f'Successfully computed predict proba metrics')
 
-        # Count metrics based on label predictions to visualize plots
-        labels_means_lst, labels_stds_lst, labels_iqr_lst, labels_conf_interval_df = compute_stability_metrics(uq_labels)
-        self.__logger.info(f'Successfully computed predict labels metrics')
-
         self.__update_metrics(prediction_stats.accuracy,
                               prediction_stats.means_lst,
                               prediction_stats.stds_lst,
@@ -94,8 +88,12 @@ class AbstractStabilityAnalyzer(metaclass=ABCMeta):
 
         # Display plots if needed
         if make_plots:
+            # Count metrics based on label predictions to visualize plots
+            labels_means_lst, labels_stds_lst, labels_iqr_lst, labels_conf_interval_df = compute_stability_metrics(uq_labels)
+            self.__logger.info(f'Successfully computed predict labels metrics')
             per_sample_accuracy_lst = prediction_stats.per_sample_accuracy_lst
             label_stability_lst = prediction_stats.label_stability_lst
+
             plot_generic(labels_means_lst, labels_stds_lst, "Mean of probability", "Standard deviation", x_lim=1.01, y_lim=0.5, plot_title="Probability mean vs Standard deviation")
             plot_generic(labels_stds_lst, label_stability_lst, "Standard deviation", "Label stability", x_lim=0.5, y_lim=1.01, plot_title="Standard deviation vs Label stability")
             plot_generic(labels_means_lst, label_stability_lst, "Mean", "Label stability", x_lim=1.01, y_lim=1.01, plot_title="Mean vs Label stability")

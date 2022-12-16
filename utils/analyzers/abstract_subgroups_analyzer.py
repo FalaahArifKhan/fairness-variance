@@ -37,7 +37,6 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         return self.fairness_metrics_dict
 
     def save_metrics_to_file(self, result_filename, save_dir_path):
-        print('self.fairness_metrics_dict -- ', self.fairness_metrics_dict)
         metrics_df = pd.DataFrame(self.fairness_metrics_dict)
         os.makedirs(save_dir_path, exist_ok=True)
 
