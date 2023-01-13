@@ -1,6 +1,7 @@
 numpy
 matplotlib
 pandas
+altair
 scikit-learn==1.2.0
 tqdm==4.64.1
 sklearn-utils
