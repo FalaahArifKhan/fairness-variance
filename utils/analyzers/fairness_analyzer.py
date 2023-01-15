@@ -15,16 +15,15 @@ class FairnessAnalyzer(AbstractSubgroupsAnalyzer):
 
     def _compute_metrics(self, y_test, group_models_predictions):
         _, _, prediction_stats = count_prediction_stats(y_test, group_models_predictions)
-        precision = 4
         return {
-            'General_Ensemble_Accuracy': np.round(prediction_stats.accuracy, precision),
-            'Mean': np.round(np.mean(prediction_stats.means_lst), precision),
-            'Std': np.round(np.mean(prediction_stats.stds_lst), precision),
-            'IQR': np.round(np.mean(prediction_stats.iqr_lst), precision),
-            'Entropy': np.round(np.mean(prediction_stats.entropy_lst), precision),
-            'Jitter': np.round(prediction_stats.jitter, precision),
-            'Per_Sample_Accuracy': np.round(np.mean(prediction_stats.per_sample_accuracy_lst), precision),
-            'Label_Stability': np.round(np.mean(prediction_stats.label_stability_lst), precision),
+            'General_Ensemble_Accuracy': prediction_stats.accuracy,
+            'Mean': np.mean(prediction_stats.means_lst),
+            'Std': np.mean(prediction_stats.stds_lst),
+            'IQR': np.mean(prediction_stats.iqr_lst),
+            'Entropy': np.mean(prediction_stats.entropy_lst),
+            'Jitter': prediction_stats.jitter,
+            'Per_Sample_Accuracy': np.mean(prediction_stats.per_sample_accuracy_lst),
+            'Label_Stability': np.mean(prediction_stats.label_stability_lst),
         }
 
     def compute_subgroups_metrics(self, models_predictions, save_results, result_filename, save_dir_path):
