@@ -2,11 +2,11 @@ import os
 import pandas as pd
 
 from configs.constants import ModelSetting
-from utils.analyzers.fairness_analyzer import FairnessAnalyzer
-from utils.analyzers.batch_stability_analyzer import BatchStabilityAnalyzer
+from utils.analyzers.subgroups_variance_calculator import SubgroupsVarianceCalculator
+from utils.analyzers.batch_overall_variance_analyzer import BatchOverallVarianceAnalyzer
 
 
-class StabilityFairnessAnalyzer:
+class SubgroupsVarianceAnalyzer:
     def __init__(self, model_setting, n_estimators: int, base_model, base_model_name: str,
                  X_train, y_train, X_test, y_test,
                  protected_groups, priv_values, test_groups: dict,
@@ -26,18 +26,18 @@ class StabilityFairnessAnalyzer:
         :param dataset_name: the name of dataset, used for correct results naming
         """
         if model_setting == ModelSetting.BATCH:
-            stability_analyzer = BatchStabilityAnalyzer(base_model, base_model_name,
-                                                        X_train, y_train, X_test, y_test,
-                                                        dataset_name, target_column, n_estimators)
+            overall_variance_analyzer = BatchOverallVarianceAnalyzer(base_model, base_model_name,
+                                                                     X_train, y_train, X_test, y_test,
+                                                                     dataset_name, target_column, n_estimators)
         else:
             raise ValueError('model_setting is incorrect or not supported')
 
-        self.dataset_name = stability_analyzer.dataset_name
-        self.n_estimators = stability_analyzer.n_estimators
-        self.base_model_name = stability_analyzer.base_model_name
+        self.dataset_name = overall_variance_analyzer.dataset_name
+        self.n_estimators = overall_variance_analyzer.n_estimators
+        self.base_model_name = overall_variance_analyzer.base_model_name
 
-        self.__stability_analyzer = stability_analyzer
-        self.__fairness_analyzer = FairnessAnalyzer(X_test, y_test, protected_groups, priv_values, test_groups)
+        self.__overall_variance_analyzer = overall_variance_analyzer
+        self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(X_test, y_test, protected_groups, priv_values, test_groups)
         self.stability_metrics_dct = dict()
         self.fairness_metrics_dct = dict()
 
@@ -50,13 +50,13 @@ class StabilityFairnessAnalyzer:
         :param save_results: bool if we need to save metrics in a file
         :param make_plots: bool, if display plots for analysis
         """
-        y_preds, y_test_true = self.__stability_analyzer.compute_metrics(make_plots, save_results=False)
-        self.stability_metrics_dct = self.__stability_analyzer.get_metrics_dict()
+        y_preds, y_test_true = self.__overall_variance_analyzer.compute_metrics(make_plots, save_results=False)
+        self.stability_metrics_dct = self.__overall_variance_analyzer.get_metrics_dict()
 
         # Count and display fairness metrics
-        self.__fairness_analyzer.set_overall_stability_metrics(self.stability_metrics_dct)
-        self.fairness_metrics_dct = self.__fairness_analyzer.compute_subgroups_metrics(
-            self.__stability_analyzer.models_predictions, save_results, result_filename, save_dir_path
+        self.__subgroups_variance_calculator.set_overall_stability_metrics(self.stability_metrics_dct)
+        self.fairness_metrics_dct = self.__subgroups_variance_calculator.compute_subgroups_metrics(
+            self.__overall_variance_analyzer.models_predictions, save_results, result_filename, save_dir_path
         )
 
         return y_preds, pd.DataFrame(self.fairness_metrics_dct)

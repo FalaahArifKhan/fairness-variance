@@ -2,7 +2,7 @@ from utils.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyze
 from utils.common_helpers import confusion_matrix_metrics
 
 
-class BiasAnalyzer(AbstractSubgroupsAnalyzer):
+class SubgroupsStatisticalBiasAnalyzer(AbstractSubgroupsAnalyzer):
     def __init__(self, X_test, y_test, protected_groups, priv_values, test_groups=None):
         super().__init__(X_test, y_test, protected_groups, priv_values, test_groups)
 

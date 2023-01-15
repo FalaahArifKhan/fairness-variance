@@ -12,7 +12,7 @@ from utils.stability_utils import generate_bootstrap
 from utils.stability_utils import count_prediction_stats, compute_stability_metrics
 
 
-class AbstractStabilityAnalyzer(metaclass=ABCMeta):
+class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
     def __init__(self, base_model, base_model_name: str, bootstrap_fraction: float,
                  X_train, y_train, X_test, y_test, dataset_name: str, n_estimators: int):
         """
