@@ -9,12 +9,17 @@ from folktables import ACSDataSource, ACSEmployment, ACSIncome, ACSTravelTime, A
 class CompasDataset():
     def __init__(self, dataset_path):
         df = pd.read_csv(dataset_path)
-        self.features = ['juv_fel_count', 'juv_misd_count', 'juv_other_count',
-                         'priors_count', 'age_cat_25 - 45', 'age_cat_Greater than 45',
-                         'age_cat_Less than 25', 'c_charge_degree_F', 'c_charge_degree_M']
+
+        int_columns = ['recidivism', 'age', 'age_cat_25 - 45', 'age_cat_Greater than 45',
+                       'age_cat_Less than 25', 'c_charge_degree_F', 'c_charge_degree_M', 'sex']
+        int_columns_dct = {col: "int" for col in int_columns}
+        df = df.astype(int_columns_dct)
+
         self.target = 'recidivism'
-        self.numerical_columns = ['juv_fel_count', 'juv_misd_count', 'juv_other_count','priors_count']
-        self.categorical_columns = ['age_cat_25 - 45', 'age_cat_Greater than 45','age_cat_Less than 25', 'c_charge_degree_F', 'c_charge_degree_M']
+        self.numerical_columns = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count']
+        self.categorical_columns = ['race', 'age_cat_25 - 45', 'age_cat_Greater than 45',
+                                    'age_cat_Less than 25', 'c_charge_degree_F', 'c_charge_degree_M', 'sex']
+        self.features = self.numerical_columns + self.categorical_columns
 
         self.X_data = df[self.features]
         self.y_data = df[self.target]
