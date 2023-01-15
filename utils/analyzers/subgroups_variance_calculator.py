@@ -5,7 +5,7 @@ from utils.stability_utils import count_prediction_stats
 from utils.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
 
 
-class FairnessAnalyzer(AbstractSubgroupsAnalyzer):
+class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
     def __init__(self, X_test, y_test, protected_groups, priv_values, test_groups=None):
         super().__init__(X_test, y_test, protected_groups, priv_values, test_groups)
         self.overall_stability_metrics = None
