@@ -57,8 +57,8 @@ def make_features_dfs(X_train, X_test, dataset):
     X_test_features = X_test_features[features_columns]
 
     scaler = StandardScaler()
-    X_train_features[features_columns] = scaler.fit_transform(X_train_features[features_columns])
-    X_test_features[features_columns] = scaler.transform(X_test_features[features_columns])
+    X_train_features[dataset.numerical_columns] = scaler.fit_transform(X_train_features[dataset.numerical_columns])
+    X_test_features[dataset.numerical_columns] = scaler.transform(X_test_features[dataset.numerical_columns])
 
     return X_train_features, X_test_features
 
