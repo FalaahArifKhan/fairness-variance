@@ -64,14 +64,14 @@ MODELS_CONFIG = [
             'metric' : ['minkowski', 'euclidean', 'manhattan']
         }
     },
-    # {
-    #     'model_name': 'MLPClassifier_1L_100',
-    #     'model': MLPClassifier(hidden_layer_sizes=(100,)),
-    #     'params': {}
-    # },
-    # {
-    #     'model_name': 'MLPClassifier_3L_100_50_100',
-    #     'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
-    #     'params': {}
-    # },
+    {
+        'model_name': 'MLPClassifier_1L_100',
+        'model': MLPClassifier(hidden_layer_sizes=(100,)),
+        'params': {}
+    },
+    {
+        'model_name': 'MLPClassifier_3L_100_50_100',
+        'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
+        'params': {}
+    },
 ]

@@ -29,8 +29,7 @@ def plot_generic(x, y, xlabel, ylabel, x_lim, y_lim, plot_title):
     plt.show()
 
 
-def create_average_metrics_df(dataset_name, model_names,
-                              results_path=os.path.join('..', '..', 'results', 'hypothesis_space', 'final_metrics')):
+def create_average_metrics_df(dataset_name, model_names, results_path):
     results_filenames = [filename for filename in os.listdir(results_path)]
     models_average_results_dct = dict()
     for model_name in model_names:
