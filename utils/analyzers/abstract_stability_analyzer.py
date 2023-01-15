@@ -122,28 +122,29 @@ class AbstractStabilityAnalyzer(metaclass=ABCMeta):
 
     def __update_metrics(self, accuracy, means_lst, stds_lst, iqr_lst, conf_interval_df, entropy_lst, jitter_lst,
                          per_sample_accuracy, label_stability):
-        self.general_accuracy = np.round(accuracy, 4)
-        self.mean = np.round(np.mean(means_lst), 4)
-        self.std = np.round(np.mean(stds_lst), 4)
-        self.iqr = np.round(np.mean(iqr_lst), 4)
+        self.general_accuracy = accuracy
+        self.mean = np.mean(means_lst)
+        self.std = np.mean(stds_lst)
+        self.iqr = np.mean(iqr_lst)
         # self.conf_interval = tuple(conf_interval_df.mean.values.round(4))
-        self.entropy = np.round(np.mean(entropy_lst), 4)
-        self.jitter = np.round(jitter_lst, 4)
-        self.per_sample_accuracy = np.round(np.mean(per_sample_accuracy), 4)
-        self.label_stability = np.round(np.mean(label_stability), 4)
+        self.entropy = np.mean(entropy_lst)
+        self.jitter = jitter_lst
+        self.per_sample_accuracy = np.mean(per_sample_accuracy)
+        self.label_stability = np.mean(label_stability)
 
     def print_metrics(self):
+        precision = 4
         print('\n')
         print("#" * 30, " Stability metrics ", "#" * 30)
-        print(f'General Ensemble Accuracy: {self.general_accuracy}\n'
-              f'Mean: {self.mean}\n'
-              f'Std: {self.std}\n'
-              f'IQR: {self.iqr}\n'
+        print(f'General Ensemble Accuracy: {np.round(self.general_accuracy, precision)}\n'
+              f'Mean: {np.round(self.mean, precision)}\n'
+              f'Std: {np.round(self.std, precision)}\n'
+              f'IQR: {np.round(self.iqr, precision)}\n'
               # f'Confidence Interval: {self.conf_interval}\n'
-              f'Entropy: {self.entropy}\n'
-              f'Jitter: {self.jitter}\n'
-              f'Per sample accuracy: {self.per_sample_accuracy}\n'
-              f'Label stability: {self.label_stability}\n\n')
+              f'Entropy: {np.round(self.entropy, precision)}\n'
+              f'Jitter: {np.round(self.jitter, precision)}\n'
+              f'Per sample accuracy: {np.round(self.per_sample_accuracy, precision)}\n'
+              f'Label stability: {np.round(self.label_stability, precision)}\n\n')
 
     def get_metrics_dict(self):
         return {
