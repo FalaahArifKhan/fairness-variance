@@ -47,7 +47,7 @@ class GenericPipeline():
 
         return self.X_train_val, self.y_train_val, self.X_test, self.y_test
 
-    def create_train_test_split_with_extra_test_groups(self, dataset, test_set_fraction, seed):
+    def create_train_test_split_without_sensitive_attrs(self, dataset, test_set_fraction, seed):
         X_train, X_test, y_train, y_test = train_test_split(dataset.X_data, dataset.y_data,
                                                             test_size=test_set_fraction,
                                                             random_state=seed)
@@ -59,7 +59,11 @@ class GenericPipeline():
         self.X_test = X_test_features
         self.y_train_val = y_train
         self.y_test = y_test
-        self.test_groups = set_sensitive_attributes(X_test, self.sensitive_attributes, self.priv_values)
+
+        full_df = dataset.dataset
+        cols_with_sensitive_attrs = set(list(dataset.X_data.columns) + self.sensitive_attributes)
+        X_test_with_sensitive_attrs = full_df[cols_with_sensitive_attrs].loc[X_test.index]
+        self.test_groups = set_sensitive_attributes(X_test_with_sensitive_attrs, self.sensitive_attributes, self.priv_values)
 
         return self.X_train_val, self.y_train_val, self.X_test, self.y_test
 
