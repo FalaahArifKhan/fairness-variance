@@ -77,7 +77,7 @@ def partition_by_group_binary(df, column_name, priv_value):
     return priv, dis
 
 
-def set_protected_groups(X_test, column_names, priv_values):
+def set_sensitive_attributes(X_test, column_names, priv_values):
     groups={}
     groups[column_names[0]+'_'+column_names[1]+'_priv'], groups[column_names[0]+'_'+column_names[1]+'_dis'] = partition_by_group_intersectional(X_test, column_names, priv_values)
     groups[column_names[0]+'_priv'], groups[column_names[0]+'_dis'] = partition_by_group_binary(X_test, column_names[0], priv_values[0])

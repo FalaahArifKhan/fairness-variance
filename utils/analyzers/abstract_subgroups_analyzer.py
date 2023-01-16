@@ -4,17 +4,17 @@ import pandas as pd
 from datetime import datetime, timezone
 from abc import ABCMeta, abstractmethod
 
-from utils.common_helpers import set_protected_groups
+from utils.common_helpers import set_sensitive_attributes
 
 
 class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
-    def __init__(self, X_test, y_test, protected_groups, priv_values, test_groups=None):
-        self.protected_groups = protected_groups
+    def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups=None):
+        self.sensitive_attributes = sensitive_attributes
         self.priv_values = priv_values
         self.X_test = X_test
         self.y_test = y_test
         self.test_groups = test_groups if test_groups \
-            else set_protected_groups(self.X_test, self.protected_groups, self.priv_values)
+            else set_sensitive_attributes(self.X_test, self.sensitive_attributes, self.priv_values)
         self.fairness_metrics_dict = {}
 
     @abstractmethod

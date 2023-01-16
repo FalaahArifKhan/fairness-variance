@@ -2,13 +2,13 @@ import pandas as pd
 
 
 class MetricsComposer:
-    def __init__(self, protected_groups, metrics_conf_matrix):
-        self.protected_groups = protected_groups
+    def __init__(self, sensitive_attributes, metrics_conf_matrix):
+        self.sensitive_attributes = sensitive_attributes
         self.metrics_conf_matrix = metrics_conf_matrix
 
     def compose_metrics(self):
         groups_metrics_dct = dict()
-        for protected_group in self.protected_groups:
+        for protected_group in self.sensitive_attributes:
             dis_group = protected_group + '_dis'
             priv_group = protected_group + '_priv'
             cfm = self.metrics_conf_matrix

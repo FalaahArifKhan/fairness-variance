@@ -6,7 +6,7 @@ from sys import getsizeof
 from folktables import ACSDataSource, ACSEmployment, ACSIncome, ACSTravelTime, ACSPublicCoverage, ACSMobility
 
 
-class CompasDataset():
+class CompasDataset:
     def __init__(self, dataset_path):
         df = pd.read_csv(dataset_path)
 
@@ -28,7 +28,7 @@ class CompasDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSMobilityDataset():
+class ACSMobilityDataset:
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -62,7 +62,7 @@ class ACSMobilityDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSPublicCoverageDataset():
+class ACSPublicCoverageDataset:
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -96,7 +96,7 @@ class ACSPublicCoverageDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSTravelTimeDataset():
+class ACSTravelTimeDataset:
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -130,7 +130,7 @@ class ACSTravelTimeDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
     
 
-class ACSIncomeDataset():
+class ACSIncomeDataset:
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -164,7 +164,7 @@ class ACSIncomeDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSEmploymentDataset():
+class ACSEmploymentDataset:
     def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True):
         """
         Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
@@ -207,7 +207,7 @@ class ACSEmploymentDataset():
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSDataset_from_demodq():
+class ACSDataset_from_demodq:
     """ Following https://github.com/schelterlabs/demographic-data-quality """
     def __init__(self, state, year, with_nulls=False, optimize=True):
         """

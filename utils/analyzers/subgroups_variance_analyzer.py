@@ -9,7 +9,7 @@ from utils.analyzers.batch_overall_variance_analyzer import BatchOverallVariance
 class SubgroupsVarianceAnalyzer:
     def __init__(self, model_setting, n_estimators: int, base_model, base_model_name: str,
                  X_train, y_train, X_test, y_test,
-                 protected_groups, priv_values, test_groups: dict,
+                 sensitive_attributes, priv_values, test_groups: dict,
                  target_column: str, dataset_name: str):
         """
 
@@ -18,7 +18,7 @@ class SubgroupsVarianceAnalyzer:
         :param base_model: the base model to analyze
         :param base_model_name: the model name to save metrics in correspondent file if needed
         :param X_train, y_train, X_test, y_test: default (train + val, test) splits
-        :param protected_groups: protected groups (e.g., race or sex) to compute metrics
+        :param sensitive_attributes: protected groups (e.g., race or sex) to compute metrics
             for privilege and dis-privilege subgroups
         :param priv_values: list of privilege group values like (SEX_priv, RAC1P_priv) --> (1, 1)
         :param test_groups: dict, rows from X_test for each of subgroups; used for metrics computation for subgroups
@@ -37,7 +37,7 @@ class SubgroupsVarianceAnalyzer:
         self.base_model_name = overall_variance_analyzer.base_model_name
 
         self.__overall_variance_analyzer = overall_variance_analyzer
-        self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(X_test, y_test, protected_groups, priv_values, test_groups)
+        self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(X_test, y_test, sensitive_attributes, priv_values, test_groups)
         self.stability_metrics_dct = dict()
         self.fairness_metrics_dct = dict()
 

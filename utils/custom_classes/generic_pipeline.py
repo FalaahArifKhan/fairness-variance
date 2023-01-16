@@ -1,18 +1,18 @@
 from sklearn.model_selection import train_test_split
 
 from utils.common_helpers import make_features_dfs
-from utils.common_helpers import set_protected_groups
+from utils.common_helpers import set_sensitive_attributes
 
 
 class GenericPipeline():
-    def __init__(self, dataset, protected_groups, priv_values, base_model=None, encoder=None, metric_names=None):
+    def __init__(self, dataset, sensitive_attributes, priv_values, base_model=None, encoder=None, metric_names=None):
         self.features = dataset.features
         self.target = dataset.target
         self.categorical_columns = dataset.categorical_columns
         self.numerical_columns = dataset.numerical_columns
         self.X_data = dataset.X_data
         self.y_data = dataset.y_data
-        self.protected_groups = protected_groups
+        self.sensitive_attributes = sensitive_attributes
         self.priv_values = priv_values
         self.columns_with_nulls = dataset.columns_with_nulls
         self.columns_without_nulls = list(set(self.features) - set(self.columns_with_nulls)) #For NullPredictors
@@ -43,7 +43,23 @@ class GenericPipeline():
         self.X_test = X_test_features
         self.y_train_val = y_train
         self.y_test = y_test
-        self.test_groups = set_protected_groups(X_test, self.protected_groups, self.priv_values)
+        self.test_groups = set_sensitive_attributes(X_test, self.sensitive_attributes, self.priv_values)
+
+        return self.X_train_val, self.y_train_val, self.X_test, self.y_test
+
+    def create_train_test_split_with_extra_test_groups(self, dataset, test_set_fraction, seed):
+        X_train, X_test, y_train, y_test = train_test_split(dataset.X_data, dataset.y_data,
+                                                            test_size=test_set_fraction,
+                                                            random_state=seed)
+        print("Baseline X_train shape: ", X_train.shape)
+        print("Baseline X_test shape: ", X_test.shape)
+
+        X_train_features, X_test_features = make_features_dfs(X_train, X_test, dataset)
+        self.X_train_val = X_train_features
+        self.X_test = X_test_features
+        self.y_train_val = y_train
+        self.y_test = y_test
+        self.test_groups = set_sensitive_attributes(X_test, self.sensitive_attributes, self.priv_values)
 
         return self.X_train_val, self.y_train_val, self.X_test, self.y_test
 
@@ -58,7 +74,8 @@ class GenericPipeline():
         self.y_test = y_test
         self.X_val = X_val
         self.y_val = y_val
-        self.test_groups = set_protected_groups(self.X_test, self.protected_groups, self.priv_values)
+        self.test_groups = set_sensitive_attributes(self.X_test, self.sensitive_attributes, self.priv_values)
+
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
 
     def create_train_test_val_split_balanced(self, SEED, sample_size=None, group_by='SEX'):
@@ -72,7 +89,8 @@ class GenericPipeline():
         self.y_test = y_test
         self.X_val = X_val
         self.y_val = y_val
-        self.test_groups = set_protected_groups(self.X_test, self.protected_groups, self.priv_values)
+        self.test_groups = set_sensitive_attributes(self.X_test, self.sensitive_attributes, self.priv_values)
+
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
 
     def set_train_test_val_data_by_index(self, train_idx, test_idx, val_idx):
@@ -82,7 +100,8 @@ class GenericPipeline():
         self.y_test = self.y_data.loc[test_idx]
         self.X_val = self.X_data.loc[val_idx]
         self.y_val = self.y_data.loc[val_idx]
-        self.groups = set_protected_groups(self.X_test, self.protected_groups, self.priv_values)
+        self.groups = set_sensitive_attributes(self.X_test, self.sensitive_attributes, self.priv_values)
+
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
     
     def construct_pipeline(self):
