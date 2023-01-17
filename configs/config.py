@@ -21,7 +21,8 @@ MODELS_CONFIG = [
         'model_name': 'LogisticRegression',
         'model': LogisticRegression(random_state=SEED),
         'params': {
-            'penalty': ['none', 'l2'],
+            'penalty': ['l1', 'l2'],
+            'C' : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100],
             'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
             'max_iter': range(50, 251, 50),
         }
@@ -30,7 +31,8 @@ MODELS_CONFIG = [
         'model_name': 'DecisionTreeClassifier',
         'model': DecisionTreeClassifier(random_state=SEED),
         'params': {
-            "max_depth": [5, 10, 20, 30],
+            "max_depth": [2, 5, 10, 20, 30],
+            "min_samples_split" : [0.01, 0.02, 0.05, 0.1],
             "max_features": [0.6, 'sqrt'],
             "criterion": ["gini", "entropy"]
         }
@@ -41,7 +43,7 @@ MODELS_CONFIG = [
         'params': {
             "max_depth": [3, 4, 6, 10],
             "min_samples_leaf": [1, 2, 4],
-            "n_estimators": [10, 20, 50, 100],
+            "n_estimators": [50, 100, 500, 700],
             "max_features": [0.6, 'auto', 'sqrt']
         }
     },
@@ -50,28 +52,28 @@ MODELS_CONFIG = [
         'model': XGBClassifier(random_state=SEED, verbosity = 0),
         'params': {
             'learning_rate': [0.1],
-            'n_estimators': [100, 200, 300],
-            'max_depth': range(5, 16, 5),
-            'objective':  ['binary:logistic'],
+            'n_estimators': [100, 200, 300, 500],
+            'max_depth': [3,5,7,10],
+            'lambda':  [1,10,100]
         }
     },
     {
         'model_name': 'KNeighborsClassifier',
         'model': KNeighborsClassifier(),
         'params': {
-            'n_neighbors' : [5, 7, 9, 11, 13, 15],
+            'n_neighbors' : [5, 7, 9, 11, 13, 15, 25],
             'weights' : ['uniform', 'distance'],
             'metric' : ['minkowski', 'euclidean', 'manhattan']
         }
     },
-    # {
-    #     'model_name': 'MLPClassifier_1L_100',
-    #     'model': MLPClassifier(hidden_layer_sizes=(100,)),
-    #     'params': {}
-    # },
-    # {
-    #     'model_name': 'MLPClassifier_3L_100_50_100',
-    #     'model': MLPClassifier(hidden_layer_sizes=(100, 50, 100)),
-    #     'params': {}
-    # },
+    {
+        'model_name': 'MLPClassifier',
+        'model': MLPClassifier(random_state=SEED),
+        'params': {
+            'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
+            'activation': ['logistic', 'tanh', 'relu'],
+            'solver': ['lbfgs', 'sgd', 'adam'],
+            'learning_rate': ['constant', 'invscaling', 'adaptive']
+        }
+    }
 ]

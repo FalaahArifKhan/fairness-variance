@@ -187,7 +187,7 @@ class ACSIncomeDataset:
 
 
 class ACSEmploymentDataset:
-    def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True):
+    def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True, subsample=None):
         """
         Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
         We do this to retain the nulls as task wrappers handle nulls by imputing as a special category
@@ -201,6 +201,9 @@ class ACSEmploymentDataset:
             root_dir=root_dir
         )
         acs_data = data_source.get_data(states=state, download=True)
+        if subsample !=None:
+            acs_data = acs_data.sample(subsample)
+
         self.features = ACSEmployment.features
         self.target = ACSEmployment.target
         self.categorical_columns = ['MAR', 'MIL', 'ESP', 'MIG', 'DREM', 'NATIVITY', 'DIS', 'DEAR', 'DEYE', 'SEX', 'RAC1P', 'RELP', 'CIT', 'ANC','SCHL']
