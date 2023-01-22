@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import StandardScaler
 
+from utils.custom_classes.generic_pipeline import GenericPipeline
 from utils.custom_classes.custom_logger import CustomHandler
 
 
@@ -26,7 +27,8 @@ def save_metrics_to_file(metrics_df, result_filename, save_dir_path):
     now = datetime.now(timezone.utc)
     date_time_str = now.strftime("%Y%m%d__%H%M%S")
     filename = f"{result_filename}_{date_time_str}.csv"
-    metrics_df = metrics_df.reset_index()
+    # metrics_df = metrics_df.reset_index()
+    # metrics_df = metrics_df.rename(columns={"index": "Metric"})
     metrics_df.to_csv(f'{save_dir_path}/{filename}', index=False)
 
 
@@ -39,6 +41,17 @@ def get_dummies(data, categorical_columns, numerical_columns):
         if col in data.columns:
             feature_df[col] = data[col]
     return feature_df
+
+
+def create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction):
+    base_pipeline = GenericPipeline(dataset, sensitive_attributes, priv_values)
+    _ = base_pipeline.create_train_test_split_without_sensitive_attrs(dataset, test_set_fraction, seed=model_seed)
+
+    print('\nProtected groups splits:')
+    for g in base_pipeline.test_groups.keys():
+        print(g, base_pipeline.test_groups[g].shape)
+
+    return base_pipeline
 
 
 def create_tuned_base_model(init_model, model_name, models_tuned_params_df):
@@ -96,5 +109,6 @@ def confusion_matrix_metrics(y_true, y_preds):
     metrics['Accuracy'] = (TP+TN)/(TP+TN+FP+FN)
     metrics['F1'] = (2*TP)/(2*TP+FP+FN)
     metrics['Selection-Rate'] = (TP+FP)/(TP+FP+TN+FN)
-    metrics['Positive-Rate'] = (TP+FP)/(TP+FN) 
+    metrics['Positive-Rate'] = (TP+FP)/(TP+FN)
+
     return metrics
