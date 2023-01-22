@@ -13,7 +13,7 @@ from sklearn.metrics import make_scorer, accuracy_score, f1_score
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
 from configs.config import *
-from utils.common_helpers import make_features_dfs
+from utils.preprocessing import make_features_dfs
 
 
 def folds_iterator(n_folds, samples_per_fold, size):

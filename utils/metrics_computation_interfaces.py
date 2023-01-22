@@ -5,17 +5,23 @@ from datetime import datetime, timezone
 from IPython.display import display
 
 from configs.constants import ModelSetting
-from utils.common_helpers import create_base_pipeline
+from utils.custom_initializers import create_base_pipeline, create_tuned_base_model
 from utils.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
-from utils.common_helpers import create_tuned_base_model, save_metrics_to_file
+from utils.common_helpers import save_metrics_to_file
 from utils.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
 
 
 def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction, sensitive_attributes, priv_values,
-                          model_seed, dataset_name, base_model_name, save_results=True, save_results_dir_path=None):
+                          model_seed, dataset_name, base_model_name,
+                          save_results=True, save_results_dir_path=None, debug_mode=False):
     base_pipeline = create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction)
-    print('\n\nX train and validation set: ')
-    display(base_pipeline.X_train_val.head(10))
+    if debug_mode:
+        print('\nProtected groups splits:')
+        for g in base_pipeline.test_groups.keys():
+            print(g, base_pipeline.test_groups[g].shape)
+
+        print('\n\nX train and validation set: ')
+        display(base_pipeline.X_train_val.head(10))
 
     # Compute variance metrics for subgroups
     stability_fairness_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
@@ -55,7 +61,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction, 
 
 def run_metrics_computation(dataset, test_set_fraction, dataset_name, model_seed: int,
                             config, models_tuned_params_df, n_estimators, sensitive_attributes, priv_values,
-                            save_results=True, save_results_dir_path=None, display_mode=False) -> dict:
+                            save_results=True, save_results_dir_path=None, debug_mode=False) -> dict:
     """
     Find variance and bias metrics for each model in config.MODELS_CONFIG.
     Save results in results/config.MODELS_CONFIG folder.
@@ -78,10 +84,11 @@ def run_metrics_computation(dataset, test_set_fraction, dataset_name, model_seed
                                                      dataset_name=dataset_name,
                                                      base_model_name=model_name,
                                                      save_results=save_results,
-                                                     save_results_dir_path=save_results_dir_path)
+                                                     save_results_dir_path=save_results_dir_path,
+                                                     debug_mode=debug_mode)
             model_metrics_df['Model_Name'] = model_name
             models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
-            if display_mode:
+            if debug_mode:
                 print(f'\n[{model_name}] Metrics confusion matrix:')
                 display(model_metrics_df)
         except Exception as err:
@@ -94,7 +101,7 @@ def run_metrics_computation(dataset, test_set_fraction, dataset_name, model_seed
 
 def compute_metrics_multiple_runs(dataset, test_set_fraction, dataset_name,
                                   config, models_tuned_params_df, n_estimators, sensitive_attributes, priv_values,
-                                  runs_seed_lst: list, save_results_dir_path: str):
+                                  runs_seed_lst: list, save_results_dir_path: str, debug_mode=False):
     start_datetime = datetime.now(timezone.utc)
     os.makedirs(save_results_dir_path, exist_ok=True)
 
@@ -102,7 +109,7 @@ def compute_metrics_multiple_runs(dataset, test_set_fraction, dataset_name,
     for run_num, run_seed in enumerate(runs_seed_lst):
         models_metrics_dct = run_metrics_computation(dataset, test_set_fraction, dataset_name, run_seed,
                                                      config, models_tuned_params_df, n_estimators, sensitive_attributes, priv_values,
-                                                     save_results=False, display_mode=True)
+                                                     save_results=False, debug_mode=debug_mode)
 
         # Concatenate with previous results and save them in an overwrite mode each time for backups
         for model_name in models_metrics_dct.keys():
