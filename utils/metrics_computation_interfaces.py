@@ -11,6 +11,7 @@ from utils.common_helpers import save_metrics_to_file
 from utils.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
 
 
+# TODO: create MetricsCalculator
 def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction, sensitive_attributes, priv_values,
                           model_seed, dataset_name, base_model_name,
                           save_results=True, save_results_dir_path=None, debug_mode=False):

@@ -29,8 +29,8 @@ def plot_generic(x, y, xlabel, ylabel, x_lim, y_lim, plot_title):
     plt.show()
 
 
-def create_average_metrics_df(dataset_name, model_names, results_path):
-    results_filenames = [filename for filename in os.listdir(results_path)]
+def create_average_metrics_df(dataset_name, model_names, metrics_path):
+    results_filenames = [filename for filename in os.listdir(metrics_path)]
     models_average_results_dct = dict()
     for model_name in model_names:
         model_results_filenames = [filename for filename in results_filenames if 'Average_Metrics' not in filename
@@ -42,7 +42,7 @@ def create_average_metrics_df(dataset_name, model_names, results_path):
 
         model_results_dfs = []
         for model_results_filename in model_results_filenames:
-            model_results_df = pd.read_csv(f'{results_path}/{model_results_filename}')
+            model_results_df = pd.read_csv(f'{metrics_path}/{model_results_filename}')
             model_results_df.set_index('index', inplace = True)
             model_results_dfs.append(model_results_df)
 
@@ -57,7 +57,7 @@ def create_average_metrics_df(dataset_name, model_names, results_path):
         models_average_results_dct[model_name] = model_average_results_df
 
         filename = f'Average_Metrics_{dataset_name}_{model_name}.csv'
-        model_average_results_df.reset_index().to_csv(f'{results_path}/{filename}', index=False)
+        model_average_results_df.reset_index().to_csv(f'{metrics_path}/{filename}', index=False)
         print(f'File with average metrics for {model_name} is created')
 
     return models_average_results_dct

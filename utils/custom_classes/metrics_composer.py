@@ -2,16 +2,17 @@ import pandas as pd
 
 
 class MetricsComposer:
-    def __init__(self, sensitive_attributes, metrics_conf_matrix):
+    def __init__(self, sensitive_attributes, model_metrics_df):
         self.sensitive_attributes = sensitive_attributes
-        self.metrics_conf_matrix = metrics_conf_matrix
+        self.model_metrics_df = model_metrics_df
 
     def compose_metrics(self):
         groups_metrics_dct = dict()
         for protected_group in self.sensitive_attributes:
             dis_group = protected_group + '_dis'
             priv_group = protected_group + '_priv'
-            cfm = self.metrics_conf_matrix
+            cfm = self.model_metrics_df
+            cfm = cfm.set_index('Metric')
 
             groups_metrics_dct[protected_group] = {
                 # Bias metrics
@@ -28,4 +29,7 @@ class MetricsComposer:
                 'Jitter_Parity': cfm[dis_group]['Jitter'] - cfm[priv_group]['Jitter'],
             }
 
-        return pd.DataFrame(groups_metrics_dct)
+        model_composed_metrics_df = pd.DataFrame(groups_metrics_dct).reset_index()
+        model_composed_metrics_df = model_composed_metrics_df.rename(columns={"index": "Metric"})
+
+        return model_composed_metrics_df
