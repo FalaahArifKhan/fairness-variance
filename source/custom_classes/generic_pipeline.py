@@ -5,7 +5,12 @@ from source.utils.common_helpers import create_test_groups
 
 
 class GenericPipeline:
+    """
+    Custom class that is used in many internal functions for convenience.
+    It contains general attributes for different metrics computation pipelines and useful custom methods.
+    """
     def __init__(self, dataset, sensitive_attributes, priv_values, base_model=None, encoder=None, metric_names=None):
+        # Parse dataset attributes
         self.full_df = dataset.dataset
         self.features = dataset.features
         self.target = dataset.target
@@ -13,14 +18,18 @@ class GenericPipeline:
         self.numerical_columns = dataset.numerical_columns
         self.X_data = dataset.X_data
         self.y_data = dataset.y_data
+        self.columns_with_nulls = dataset.columns_with_nulls
+
+        # Set input parameters
         self.sensitive_attributes = sensitive_attributes
         self.priv_values = priv_values
-        self.columns_with_nulls = dataset.columns_with_nulls
-        self.columns_without_nulls = list(set(self.features) - set(self.columns_with_nulls)) # For NullPredictors
         self.encoder = encoder
         self.base_model = base_model
         self.metric_names = metric_names
 
+        self.columns_without_nulls = list(set(self.features) - set(self.columns_with_nulls)) # For NullPredictors
+
+        # Uninitialized attributes
         self.X_train = None
         self.y_train = None
         self.X_test = None
@@ -30,8 +39,6 @@ class GenericPipeline:
         self.X_train_val = None
         self.y_train_val = None
         self.test_groups = None
-        self.pipeline = None
-        self.results = {}
 
     def create_preprocessed_train_test_split(self, dataset, test_set_fraction, seed):
         X_train, X_test, y_train, y_test = train_test_split(self.X_data, self.y_data,

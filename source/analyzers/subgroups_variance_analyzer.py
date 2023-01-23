@@ -1,15 +1,14 @@
 import pandas as pd
 
 from configs.constants import ModelSetting
+from source.custom_classes.generic_pipeline import GenericPipeline
 from source.analyzers.subgroups_variance_calculator import SubgroupsVarianceCalculator
 from source.analyzers.batch_overall_variance_analyzer import BatchOverallVarianceAnalyzer
 
 
 class SubgroupsVarianceAnalyzer:
     def __init__(self, model_setting, n_estimators: int, base_model, base_model_name: str, bootstrap_fraction: float,
-                 X_train, y_train, X_test, y_test,
-                 sensitive_attributes, priv_values, test_groups: dict,
-                 target_column: str, dataset_name: str):
+                 base_pipeline: GenericPipeline, dataset_name: str):
         """
 
         :param model_setting: constant from ModelSetting
@@ -26,8 +25,9 @@ class SubgroupsVarianceAnalyzer:
         """
         if model_setting == ModelSetting.BATCH:
             overall_variance_analyzer = BatchOverallVarianceAnalyzer(base_model, base_model_name, bootstrap_fraction,
-                                                                     X_train, y_train, X_test, y_test,
-                                                                     dataset_name, target_column, n_estimators)
+                                                                     base_pipeline.X_train_val, base_pipeline.y_train_val,
+                                                                     base_pipeline.X_test, base_pipeline.y_test,
+                                                                     dataset_name, base_pipeline.target, n_estimators)
         else:
             raise ValueError('model_setting is incorrect or not supported')
 
@@ -36,7 +36,10 @@ class SubgroupsVarianceAnalyzer:
         self.base_model_name = overall_variance_analyzer.base_model_name
 
         self.__overall_variance_analyzer = overall_variance_analyzer
-        self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(X_test, y_test, sensitive_attributes, priv_values, test_groups)
+        self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(base_pipeline.X_test, base_pipeline.y_test,
+                                                                           base_pipeline.sensitive_attributes,
+                                                                           base_pipeline.priv_values,
+                                                                           base_pipeline.test_groups)
         self.stability_metrics_dct = dict()
         self.fairness_metrics_dct = dict()
 

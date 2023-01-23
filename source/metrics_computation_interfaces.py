@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from IPython.display import display
 
 from configs.constants import ModelSetting
-from configs.models_config import reset_model_seed
+from configs.models_config_for_tuning import reset_model_seed
 from source.custom_initializers import create_base_pipeline
 from source.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
 from source.utils.common_helpers import save_metrics_to_file
@@ -28,12 +28,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
 
     # Compute variance metrics for subgroups
     subgroups_variance_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
-                                                            bootstrap_fraction,
-                                                            base_pipeline.X_train_val, base_pipeline.y_train_val,
-                                                            base_pipeline.X_test, base_pipeline.y_test,
-                                                            base_pipeline.sensitive_attributes, base_pipeline.priv_values,
-                                                            base_pipeline.test_groups,
-                                                            base_pipeline.target, dataset_name)
+                                                            bootstrap_fraction, base_pipeline, dataset_name)
 
     y_preds, variance_metrics_df = subgroups_variance_analyzer.compute_metrics(save_results=save_results,
                                                                                result_filename=None,
