@@ -6,14 +6,10 @@ from abc import ABCMeta, abstractmethod
 
 
 class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
-    # def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups=None):
-    def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups):
-        self.sensitive_attributes = sensitive_attributes
-        self.priv_values = priv_values
+    def __init__(self, X_test, y_test, sensitive_attributes_dct, test_groups):
+        self.sensitive_attributes_dct = sensitive_attributes_dct
         self.X_test = X_test
         self.y_test = y_test
-        # self.test_groups = test_groups if test_groups \
-        #     else create_test_groups(self.X_test, self.sensitive_attributes, self.priv_values)
         self.test_groups = test_groups
         self.fairness_metrics_dict = {}
 

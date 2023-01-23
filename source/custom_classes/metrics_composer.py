@@ -2,19 +2,19 @@ import pandas as pd
 
 
 class MetricsComposer:
-    def __init__(self, sensitive_attributes, model_metrics_df):
-        self.sensitive_attributes = sensitive_attributes
+    def __init__(self, sensitive_attributes_dct, model_metrics_df):
+        self.sensitive_attributes_dct = sensitive_attributes_dct
         self.model_metrics_df = model_metrics_df
 
     def compose_metrics(self):
         groups_metrics_dct = dict()
-        for protected_group in self.sensitive_attributes:
-            dis_group = protected_group + '_dis'
-            priv_group = protected_group + '_priv'
+        for sensitive_attr in self.sensitive_attributes_dct.keys():
+            dis_group = sensitive_attr + '_dis'
+            priv_group = sensitive_attr + '_priv'
             cfm = self.model_metrics_df
             cfm = cfm.set_index('Metric')
 
-            groups_metrics_dct[protected_group] = {
+            groups_metrics_dct[sensitive_attr] = {
                 # Bias metrics
                 'Equalized_Odds_TPR': cfm[dis_group]['TPR'] - cfm[priv_group]['TPR'],
                 'Equalized_Odds_FPR': cfm[dis_group]['FPR'] - cfm[priv_group]['FPR'],

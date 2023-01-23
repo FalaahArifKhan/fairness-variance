@@ -3,5 +3,4 @@ test_set_fraction: 0.2
 bootstrap_fraction: 0.8
 n_estimators: 10
 runs_seed_lst: [100, 200]
-sensitive_attributes: ['sex', 'race']
-priv_values: [0, 'Caucasian']
+sensitive_attributes_dct: {'sex': 0, 'race': 'Caucasian', 'sex&race': None}

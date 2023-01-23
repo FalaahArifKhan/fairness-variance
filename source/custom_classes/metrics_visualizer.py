@@ -7,10 +7,10 @@ from source.custom_classes.metrics_composer import MetricsComposer
 
 
 class MetricsVisualizer:
-    def __init__(self, metrics_path, dataset_name, model_names, sensitive_attributes):
+    def __init__(self, metrics_path, dataset_name, model_names, sensitive_attributes_dct):
         self.dataset_name = dataset_name
         self.model_names = model_names
-        self.sensitive_attributes = sensitive_attributes
+        self.sensitive_attributes_dct = sensitive_attributes_dct
 
         # Read models metrics dfs
         metrics_filenames = [filename for filename in os.listdir(metrics_path)]
@@ -40,7 +40,7 @@ class MetricsVisualizer:
         # Create a composed metrics df
         models_composed_metrics_df = pd.DataFrame()
         for model_name in models_average_metrics_dct.keys():
-            metrics_composer = MetricsComposer(sensitive_attributes, models_average_metrics_dct[model_name])
+            metrics_composer = MetricsComposer(sensitive_attributes_dct, models_average_metrics_dct[model_name])
             model_composed_metrics_df = metrics_composer.compose_metrics()
             model_composed_metrics_df['Model_Name'] = model_name
             models_composed_metrics_df = pd.concat([models_composed_metrics_df, model_composed_metrics_df])

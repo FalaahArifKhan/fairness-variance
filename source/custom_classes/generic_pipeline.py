@@ -9,7 +9,7 @@ class GenericPipeline:
     Custom class that is used in many internal functions for convenience.
     It contains general attributes for different metrics computation pipelines and useful custom methods.
     """
-    def __init__(self, dataset, sensitive_attributes, priv_values, base_model=None, encoder=None, metric_names=None):
+    def __init__(self, dataset, sensitive_attributes_dct, base_model=None, encoder=None, metric_names=None):
         # Parse dataset attributes
         self.full_df = dataset.dataset
         self.features = dataset.features
@@ -21,8 +21,7 @@ class GenericPipeline:
         self.columns_with_nulls = dataset.columns_with_nulls
 
         # Set input parameters
-        self.sensitive_attributes = sensitive_attributes
-        self.priv_values = priv_values
+        self.sensitive_attributes_dct = sensitive_attributes_dct
         self.encoder = encoder
         self.base_model = base_model
         self.metric_names = metric_names
@@ -52,7 +51,7 @@ class GenericPipeline:
         self.X_test = X_test_features
         self.y_train_val = y_train
         self.y_test = y_test
-        self.test_groups = create_test_groups(X_test, self.full_df, self.sensitive_attributes, self.priv_values)
+        self.test_groups = create_test_groups(X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train_val, self.y_train_val, self.X_test, self.y_test
 
@@ -67,7 +66,7 @@ class GenericPipeline:
         self.y_test = y_test
         self.X_val = X_val
         self.y_val = y_val
-        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes, self.priv_values)
+        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
 
@@ -82,7 +81,7 @@ class GenericPipeline:
         self.y_test = y_test
         self.X_val = X_val
         self.y_val = y_val
-        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes, self.priv_values)
+        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
 
@@ -93,7 +92,7 @@ class GenericPipeline:
         self.y_test = self.y_data.loc[test_idx]
         self.X_val = self.X_data.loc[val_idx]
         self.y_val = self.y_data.loc[val_idx]
-        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes, self.priv_values)
+        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
     

@@ -37,8 +37,7 @@ class SubgroupsVarianceAnalyzer:
 
         self.__overall_variance_analyzer = overall_variance_analyzer
         self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(base_pipeline.X_test, base_pipeline.y_test,
-                                                                           base_pipeline.sensitive_attributes,
-                                                                           base_pipeline.priv_values,
+                                                                           base_pipeline.sensitive_attributes_dct,
                                                                            base_pipeline.test_groups)
         self.stability_metrics_dct = dict()
         self.fairness_metrics_dct = dict()

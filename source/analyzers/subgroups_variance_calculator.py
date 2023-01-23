@@ -6,8 +6,8 @@ from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyz
 
 
 class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
-    def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups=None):
-        super().__init__(X_test, y_test, sensitive_attributes, priv_values, test_groups)
+    def __init__(self, X_test, y_test, sensitive_attributes_dct, test_groups=None):
+        super().__init__(X_test, y_test, sensitive_attributes_dct, test_groups)
         self.overall_stability_metrics = None
 
     def set_overall_stability_metrics(self, overall_stability_metrics):

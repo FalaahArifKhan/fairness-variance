@@ -13,11 +13,12 @@ from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatis
 
 
 def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: float, bootstrap_fraction: float,
-                          sensitive_attributes, priv_values, model_seed, dataset_name, base_model_name,
+                          sensitive_attributes_dct, model_seed, dataset_name, base_model_name,
                           save_results=True, save_results_dir_path=None, debug_mode=False):
     base_model = reset_model_seed(base_model, model_seed)
     print('Model random_state: ', base_model.get_params().get('random_state', None))
-    base_pipeline = create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction)
+
+    base_pipeline = create_base_pipeline(dataset, sensitive_attributes_dct, model_seed, test_set_fraction)
     if debug_mode:
         print('\nProtected groups splits:')
         for g in base_pipeline.test_groups.keys():
@@ -37,8 +38,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
 
     # Compute bias metrics for subgroups
     bias_analyzer = SubgroupsStatisticalBiasAnalyzer(base_pipeline.X_test, base_pipeline.y_test,
-                                                     base_pipeline.sensitive_attributes, base_pipeline.priv_values,
-                                                     base_pipeline.test_groups)
+                                                     base_pipeline.sensitive_attributes_dct, base_pipeline.test_groups)
     dtc_res = bias_analyzer.compute_subgroups_metrics(y_preds,
                                                       save_results=False,
                                                       result_filename=None,
@@ -59,7 +59,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
 
 
 def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, dataset_name, model_seed: int,
-                            models_config, n_estimators, sensitive_attributes, priv_values,
+                            models_config, n_estimators, sensitive_attributes_dct,
                             save_results=True, save_results_dir_path=None, debug_mode=False) -> dict:
     """
     Find variance and bias metrics for each model in config.MODELS_CONFIG.
@@ -74,23 +74,23 @@ def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, data
                                       desc="Analyze models in one run"):
         print('#' * 30, f' [Model {model_idx + 1} / {num_models}] Analyze {model_name} ', '#' * 30)
         model_seed += 1
-        try:
-            base_model = models_config[model_name]
-            model_metrics_df = compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction,
-                                                     bootstrap_fraction, sensitive_attributes, priv_values,
-                                                     model_seed=model_seed,
-                                                     dataset_name=dataset_name,
-                                                     base_model_name=model_name,
-                                                     save_results=save_results,
-                                                     save_results_dir_path=save_results_dir_path,
-                                                     debug_mode=debug_mode)
-            model_metrics_df['Model_Name'] = model_name
-            models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
-            if debug_mode:
-                print(f'\n[{model_name}] Metrics confusion matrix:')
-                display(model_metrics_df)
-        except Exception as err:
-            print(f'ERROR with {model_name}: ', err)
+        # try:
+        base_model = models_config[model_name]
+        model_metrics_df = compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction,
+                                                 bootstrap_fraction, sensitive_attributes_dct,
+                                                 model_seed=model_seed,
+                                                 dataset_name=dataset_name,
+                                                 base_model_name=model_name,
+                                                 save_results=save_results,
+                                                 save_results_dir_path=save_results_dir_path,
+                                                 debug_mode=debug_mode)
+        model_metrics_df['Model_Name'] = model_name
+        models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
+        if debug_mode:
+            print(f'\n[{model_name}] Metrics confusion matrix:')
+            display(model_metrics_df)
+        # except Exception as err:
+            #     print(f'ERROR with {model_name}: ', err)
 
         print('\n\n\n')
 
@@ -105,7 +105,7 @@ def compute_metrics_multiple_runs(dataset, config, models_config, save_results_d
     for run_num, run_seed in enumerate(config.runs_seed_lst):
         models_metrics_dct = run_metrics_computation(dataset, config.test_set_fraction, config.bootstrap_fraction,
                                                      config.dataset_name, run_seed, models_config, config.n_estimators,
-                                                     config.sensitive_attributes, config.priv_values,
+                                                     config.sensitive_attributes_dct,
                                                      save_results=False, debug_mode=debug_mode)
 
         # Concatenate with previous results and save them in an overwrite mode each time for backups
