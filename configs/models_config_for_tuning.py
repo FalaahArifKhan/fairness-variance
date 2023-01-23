@@ -9,10 +9,6 @@ from sklearn.neural_network import MLPClassifier
 
 MODELS_TUNING_SEED = 42
 MODELS_TUNING_TEST_SET_FRACTION = 0.2
-# FOLKTABLES_DATASET_CONFIG = {
-#     'state': "GA",
-#     'year': 2018,
-# }
 
 # Redefine this function if your models have another method to redefine their seed parameter
 def reset_model_seed(model, new_seed):
@@ -32,36 +28,36 @@ MODELS_CONFIG = [
             "criterion": ["gini", "entropy"]
         }
     },
-    # {
-    #     'model_name': 'LogisticRegression',
-    #     'model': LogisticRegression(random_state=MODELS_TUNING_SEED),
-    #     'params': {
-    #         'penalty': ['l1', 'l2'],
-    #         'C' : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100],
-    #         'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-    #         'max_iter': range(50, 251, 50),
-    #     }
-    # },
-    # {
-    #     'model_name': 'RandomForestClassifier',
-    #     'model': RandomForestClassifier(random_state=MODELS_TUNING_SEED),
-    #     'params': {
-    #         "max_depth": [3, 4, 6, 10],
-    #         "min_samples_leaf": [1, 2, 4],
-    #         "n_estimators": [50, 100, 500, 700],
-    #         "max_features": [0.6, 'auto', 'sqrt']
-    #     }
-    # },
-    # {
-    #     'model_name': 'XGBClassifier',
-    #     'model': XGBClassifier(random_state=MODELS_TUNING_SEED, verbosity=0),
-    #     'params': {
-    #         'learning_rate': [0.1],
-    #         'n_estimators': [100, 200, 300, 500],
-    #         'max_depth': [3,5,7,10],
-    #         'lambda':  [1,10,100]
-    #     }
-    # },
+    {
+        'model_name': 'LogisticRegression',
+        'model': LogisticRegression(random_state=MODELS_TUNING_SEED),
+        'params': {
+            'penalty': ['l1', 'l2'],
+            'C' : [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100],
+            'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
+            'max_iter': range(50, 251, 50),
+        }
+    },
+    {
+        'model_name': 'RandomForestClassifier',
+        'model': RandomForestClassifier(random_state=MODELS_TUNING_SEED),
+        'params': {
+            "max_depth": [3, 4, 6, 10],
+            "min_samples_leaf": [1, 2, 4],
+            "n_estimators": [50, 100, 500, 700],
+            "max_features": [0.6, 'auto', 'sqrt']
+        }
+    },
+    {
+        'model_name': 'XGBClassifier',
+        'model': XGBClassifier(random_state=MODELS_TUNING_SEED, verbosity=0),
+        'params': {
+            'learning_rate': [0.1],
+            'n_estimators': [100, 200, 300, 500],
+            'max_depth': [3,5,7,10],
+            'lambda':  [1,10,100]
+        }
+    },
     {
         'model_name': 'KNeighborsClassifier',
         'model': KNeighborsClassifier(),
