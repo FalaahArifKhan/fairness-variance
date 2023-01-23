@@ -55,6 +55,53 @@ class CompasWithoutSensitiveAttrsDataset(BaseDataset):
         )
 
 
+class ACSEmploymentDataset:
+    def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True, subsample=None):
+        """
+        Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
+        We do this to retain the nulls as task wrappers handle nulls by imputing as a special category
+        Alternatively, we could have altered the configuration from here:
+        https://github.com/zykls/folktables/blob/main/folktables/acs.py
+        """
+        data_source = ACSDataSource(
+            survey_year=year,
+            horizon='1-Year',
+            survey='person',
+            root_dir=root_dir
+        )
+        acs_data = data_source.get_data(states=state, download=True)
+        if subsample is not None:
+            acs_data = acs_data.sample(subsample)
+
+        self.dataset = acs_data
+        self.features = ACSEmployment.features
+        self.target = ACSEmployment.target
+        self.categorical_columns = ['MAR', 'MIL', 'ESP', 'MIG', 'DREM', 'NATIVITY', 'DIS', 'DEAR', 'DEYE', 'SEX', 'RAC1P', 'RELP', 'CIT', 'ANC','SCHL']
+        self.numerical_columns = ['AGEP']
+
+        if with_nulls is True:
+            X_data = acs_data[self.features]
+        else:
+            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+
+        if optimize==True:
+            X_data = optimize_data_loading(X_data, self.categorical_columns)
+
+        self.X_data = X_data[self.categorical_columns].astype('str')
+        for col in self.numerical_columns:
+            self.X_data[col] = X_data[col]
+        self.y_data = acs_data[self.target].apply(lambda x: int(x == 1))
+
+        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+
+    def update_X_data(self, X_data):
+        """
+        To save simulated nulls
+        """
+        self.X_data = X_data
+        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+
+
 class ACSMobilityDataset:
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
@@ -180,52 +227,6 @@ class ACSIncomeDataset:
             self.X_data[col] = X_data[col]
             
         self.y_data = acs_data[self.target].apply(lambda x: int(x > 50000))
-
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
-
-    def update_X_data(self, X_data):
-        """
-        To save simulated nulls
-        """
-        self.X_data = X_data
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
-
-
-class ACSEmploymentDataset:
-    def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True, subsample=None):
-        """
-        Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
-        We do this to retain the nulls as task wrappers handle nulls by imputing as a special category
-        Alternatively, we could have altered the configuration from here:
-        https://github.com/zykls/folktables/blob/main/folktables/acs.py
-        """
-        data_source = ACSDataSource(
-            survey_year=year,
-            horizon='1-Year',
-            survey='person',
-            root_dir=root_dir
-        )
-        acs_data = data_source.get_data(states=state, download=True)
-        if subsample is not None:
-            acs_data = acs_data.sample(subsample)
-
-        self.features = ACSEmployment.features
-        self.target = ACSEmployment.target
-        self.categorical_columns = ['MAR', 'MIL', 'ESP', 'MIG', 'DREM', 'NATIVITY', 'DIS', 'DEAR', 'DEYE', 'SEX', 'RAC1P', 'RELP', 'CIT', 'ANC','SCHL']
-        self.numerical_columns = ['AGEP']
-
-        if with_nulls is True:
-            X_data = acs_data[self.features]
-        else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
-
-        if optimize==True:
-            X_data = optimize_data_loading(X_data, self.categorical_columns)
-
-        self.X_data = X_data[self.categorical_columns].astype('str')
-        for col in self.numerical_columns:
-            self.X_data[col] = X_data[col]
-        self.y_data = acs_data[self.target].apply(lambda x: int(x == 1))
 
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
