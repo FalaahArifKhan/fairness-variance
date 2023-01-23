@@ -1,0 +1,7 @@
+test_set_fraction: 0.2
+bootstrap_fraction: 0.8
+dataset_name: COMPAS_Without_Sensitive_Attributes
+runs_seed_lst: [100, 200]
+n_estimators: 100
+sensitive_attributes: ['sex', 'race']
+priv_values: [0, 'Caucasian']

@@ -12,8 +12,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import make_scorer, accuracy_score, f1_score
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
-from configs.config import *
-from utils.preprocessing import make_features_dfs
+from configs.models_config import MODELS_TUNING_TEST_SET_FRACTION, MODELS_TUNING_SEED, MODELS_CONFIG
+from source.preprocessing import make_features_dfs
 
 
 def folds_iterator(n_folds, samples_per_fold, size):
@@ -34,7 +34,9 @@ def test_baseline_models(dataset, dataset_name, n_folds = 3):
 
     :return: a dataframe of metrics, measured for each model and its best parameters
     """
-    X_train, X_test, y_train, y_test = train_test_split(dataset.X_data, dataset.y_data, test_size=TEST_SET_FRACTION, random_state=SEED)
+    X_train, X_test, y_train, y_test = train_test_split(dataset.X_data, dataset.y_data,
+                                                        test_size=MODELS_TUNING_TEST_SET_FRACTION,
+                                                        random_state=MODELS_TUNING_SEED)
     print("Baseline X_train shape: ", X_train.shape)
     print("Baseline X_test shape: ", X_test.shape)
 

@@ -2,10 +2,9 @@ import os
 import altair as alt
 import pandas as pd
 import seaborn as sns
-from altair import datum
 from IPython.display import display
 
-from utils.custom_classes.metrics_composer import MetricsComposer
+from source.custom_classes.metrics_composer import MetricsComposer
 
 
 class MetricsVisualizer:
@@ -90,7 +89,7 @@ class MetricsVisualizer:
         if default_plot_metric is None:
             default_plot_metric = metrics_lst[0]
 
-        df_for_model_metrics_chart = self.melted_models_composed_metrics_df.loc[melted_df['Metric'].isin(metrics_lst)]
+        df_for_model_metrics_chart = self.melted_models_composed_metrics_df.loc[self.melted_models_composed_metrics_df['Metric'].isin(metrics_lst)]
 
         radio_select = alt.selection_single(fields=['Metric'], init={'Metric': default_plot_metric}, empty="none")
         color_condition = alt.condition(radio_select,

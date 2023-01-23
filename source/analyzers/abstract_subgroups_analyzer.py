@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timezone
 from abc import ABCMeta, abstractmethod
 
-from utils.common_helpers import create_test_groups
+from source.utils.common_helpers import create_test_groups
 
 
 class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):

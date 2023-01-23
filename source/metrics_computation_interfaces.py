@@ -5,14 +5,14 @@ from datetime import datetime, timezone
 from IPython.display import display
 
 from configs.constants import ModelSetting
-from utils.custom_initializers import create_base_pipeline, create_tuned_base_model
-from utils.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
-from utils.common_helpers import save_metrics_to_file
-from utils.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
+from source.custom_initializers import create_base_pipeline, create_tuned_base_model
+from source.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
+from source.utils.common_helpers import save_metrics_to_file
+from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
 
 
-# TODO: create MetricsCalculator
-def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction, sensitive_attributes, priv_values,
+def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: float, bootstrap_fraction: float,
+                          sensitive_attributes, priv_values,
                           model_seed, dataset_name, base_model_name,
                           save_results=True, save_results_dir_path=None, debug_mode=False):
     base_pipeline = create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction)
@@ -26,6 +26,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction, 
 
     # Compute variance metrics for subgroups
     stability_fairness_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
+                                                            bootstrap_fraction,
                                                             base_pipeline.X_train_val, base_pipeline.y_train_val,
                                                             base_pipeline.X_test, base_pipeline.y_test,
                                                             base_pipeline.sensitive_attributes, base_pipeline.priv_values,

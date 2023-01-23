@@ -1,4 +1,4 @@
-from utils.custom_classes.generic_pipeline import GenericPipeline
+from source.custom_classes.generic_pipeline import GenericPipeline
 
 
 def create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction):

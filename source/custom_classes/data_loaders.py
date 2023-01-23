@@ -1,9 +1,9 @@
-import os
 import pandas as pd
 import numpy as np
-from sys import getsizeof
 
 from folktables import ACSDataSource, ACSEmployment, ACSIncome, ACSTravelTime, ACSPublicCoverage, ACSMobility
+
+from source.custom_classes.base_dataset import BaseDataset
 
 
 class CompasDataset:
@@ -28,26 +28,31 @@ class CompasDataset:
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class CompasWithoutSensitiveAttrsDataset:
+class CompasWithoutSensitiveAttrsDataset(BaseDataset):
     def __init__(self, dataset_path):
+        # Read a dataset
         df = pd.read_csv(dataset_path)
 
+        # Initial data types transformation
         int_columns = ['recidivism', 'age', 'age_cat_25 - 45', 'age_cat_Greater than 45',
                        'age_cat_Less than 25', 'c_charge_degree_F', 'c_charge_degree_M', 'sex']
         int_columns_dct = {col: "int" for col in int_columns}
         df = df.astype(int_columns_dct)
 
-        self.target = 'recidivism'
-        self.numerical_columns = ['juv_fel_count', 'juv_misd_count', 'juv_other_count','priors_count']
-        self.categorical_columns = ['age_cat_25 - 45', 'age_cat_Greater than 45','age_cat_Less than 25',
+        # Define params
+        target = 'recidivism'
+        numerical_columns = ['juv_fel_count', 'juv_misd_count', 'juv_other_count','priors_count']
+        categorical_columns = ['age_cat_25 - 45', 'age_cat_Greater than 45','age_cat_Less than 25',
                                     'c_charge_degree_F', 'c_charge_degree_M']
-        self.features = self.numerical_columns + self.categorical_columns
+        features = numerical_columns + categorical_columns
 
-        self.X_data = df[self.features]
-        self.y_data = df[self.target]
-        self.dataset = df
-
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        super().__init__(
+            pandas_df=df,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns
+        )
 
 
 class ACSMobilityDataset:

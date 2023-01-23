@@ -1,5 +1,5 @@
-from utils.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
-from utils.common_helpers import confusion_matrix_metrics
+from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
+from source.utils.common_helpers import confusion_matrix_metrics
 
 
 class SubgroupsStatisticalBiasAnalyzer(AbstractSubgroupsAnalyzer):

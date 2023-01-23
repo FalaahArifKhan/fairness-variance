@@ -1,16 +1,15 @@
-from configs.config import BOOTSTRAP_FRACTION
-from utils.analyzers.abstract_overall_variance_analyzer import AbstractOverallVarianceAnalyzer
+from source.analyzers.abstract_overall_variance_analyzer import AbstractOverallVarianceAnalyzer
 
 
 class BatchOverallVarianceAnalyzer(AbstractOverallVarianceAnalyzer):
-    def __init__(self, base_model, base_model_name: str,
+    def __init__(self, base_model, base_model_name: str, bootstrap_fraction: float,
                  X_train, y_train, X_test, y_test, target_column: str,
                  dataset_name: str, n_estimators: int):
         """
         :param target_column: name of the y-column
         :param n_estimators: a number of estimators in ensemble to measure evaluation_model stability
         """
-        super().__init__(base_model, base_model_name, BOOTSTRAP_FRACTION,
+        super().__init__(base_model, base_model_name, bootstrap_fraction,
                          X_train, y_train, X_test, y_test, dataset_name, n_estimators)
         self.target_column = target_column
 

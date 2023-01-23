@@ -1,13 +1,12 @@
-import os
 import pandas as pd
 
 from configs.constants import ModelSetting
-from utils.analyzers.subgroups_variance_calculator import SubgroupsVarianceCalculator
-from utils.analyzers.batch_overall_variance_analyzer import BatchOverallVarianceAnalyzer
+from source.analyzers.subgroups_variance_calculator import SubgroupsVarianceCalculator
+from source.analyzers.batch_overall_variance_analyzer import BatchOverallVarianceAnalyzer
 
 
 class SubgroupsVarianceAnalyzer:
-    def __init__(self, model_setting, n_estimators: int, base_model, base_model_name: str,
+    def __init__(self, model_setting, n_estimators: int, base_model, base_model_name: str, bootstrap_fraction: float,
                  X_train, y_train, X_test, y_test,
                  sensitive_attributes, priv_values, test_groups: dict,
                  target_column: str, dataset_name: str):
@@ -26,7 +25,7 @@ class SubgroupsVarianceAnalyzer:
         :param dataset_name: the name of dataset, used for correct results naming
         """
         if model_setting == ModelSetting.BATCH:
-            overall_variance_analyzer = BatchOverallVarianceAnalyzer(base_model, base_model_name,
+            overall_variance_analyzer = BatchOverallVarianceAnalyzer(base_model, base_model_name, bootstrap_fraction,
                                                                      X_train, y_train, X_test, y_test,
                                                                      dataset_name, target_column, n_estimators)
         else:

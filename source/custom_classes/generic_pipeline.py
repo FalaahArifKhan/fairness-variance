@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 
-from utils.preprocessing import make_features_dfs
-from utils.common_helpers import create_test_groups
+from source.preprocessing import make_features_dfs
+from source.utils.common_helpers import create_test_groups
 
 
 class GenericPipeline:

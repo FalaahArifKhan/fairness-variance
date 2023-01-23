@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from utils.stability_utils import count_prediction_stats
-from utils.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
+from source.utils.stability_utils import count_prediction_stats
+from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
 
 
 class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):

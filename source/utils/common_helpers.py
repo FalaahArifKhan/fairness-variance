@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timezone
 from sklearn.metrics import confusion_matrix
 
-from utils.custom_classes.custom_logger import CustomHandler
+from source.custom_classes.custom_logger import CustomHandler
 
 
 def get_logger():
