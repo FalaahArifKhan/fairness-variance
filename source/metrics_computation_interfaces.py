@@ -5,16 +5,18 @@ from datetime import datetime, timezone
 from IPython.display import display
 
 from configs.constants import ModelSetting
-from source.custom_initializers import create_base_pipeline, create_tuned_base_model
+from configs.models_config import reset_model_seed
+from source.custom_initializers import create_base_pipeline
 from source.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
 from source.utils.common_helpers import save_metrics_to_file
 from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
 
 
 def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: float, bootstrap_fraction: float,
-                          sensitive_attributes, priv_values,
-                          model_seed, dataset_name, base_model_name,
+                          sensitive_attributes, priv_values, model_seed, dataset_name, base_model_name,
                           save_results=True, save_results_dir_path=None, debug_mode=False):
+    base_model = reset_model_seed(base_model, model_seed)
+    print('Model random_state: ', base_model.get_params().get('random_state', None))
     base_pipeline = create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction)
     if debug_mode:
         print('\nProtected groups splits:')
@@ -25,7 +27,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
         display(base_pipeline.X_train_val.head(10))
 
     # Compute variance metrics for subgroups
-    stability_fairness_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
+    subgroups_variance_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
                                                             bootstrap_fraction,
                                                             base_pipeline.X_train_val, base_pipeline.y_train_val,
                                                             base_pipeline.X_test, base_pipeline.y_test,
@@ -33,7 +35,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
                                                             base_pipeline.test_groups,
                                                             base_pipeline.target, dataset_name)
 
-    y_preds, variance_metrics_df = stability_fairness_analyzer.compute_metrics(save_results=save_results,
+    y_preds, variance_metrics_df = subgroups_variance_analyzer.compute_metrics(save_results=save_results,
                                                                                result_filename=None,
                                                                                save_dir_path=None,
                                                                                make_plots=False)
@@ -61,8 +63,8 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
     return metrics_df
 
 
-def run_metrics_computation(dataset, test_set_fraction, dataset_name, model_seed: int,
-                            config, models_tuned_params_df, n_estimators, sensitive_attributes, priv_values,
+def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, dataset_name, model_seed: int,
+                            models_config, n_estimators, sensitive_attributes, priv_values,
                             save_results=True, save_results_dir_path=None, debug_mode=False) -> dict:
     """
     Find variance and bias metrics for each model in config.MODELS_CONFIG.
@@ -71,17 +73,16 @@ def run_metrics_computation(dataset, test_set_fraction, dataset_name, model_seed
     :param exp_num: the number of experiment; is used to name the result file with metrics
     """
     models_metrics_dct = dict()
-    num_models = len(config.MODELS_CONFIG)
-    for model_idx in tqdm(range(len(config.MODELS_CONFIG))):
-        model_name = config.MODELS_CONFIG[model_idx]["model_name"]
+    num_models = len(models_config)
+    for model_idx, model_name in tqdm(enumerate(models_config.keys()),
+                                      total=num_models,
+                                      desc="Analyze models in one run"):
         print('#' * 30, f' [Model {model_idx + 1} / {num_models}] Analyze {model_name} ', '#' * 30)
         model_seed += 1
         try:
-            base_model = create_tuned_base_model(config.MODELS_CONFIG[model_idx]['model'],
-                                                 model_name,
-                                                 models_tuned_params_df)
+            base_model = models_config[model_name]
             model_metrics_df = compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction,
-                                                     sensitive_attributes, priv_values,
+                                                     bootstrap_fraction, sensitive_attributes, priv_values,
                                                      model_seed=model_seed,
                                                      dataset_name=dataset_name,
                                                      base_model_name=model_name,
@@ -101,16 +102,15 @@ def run_metrics_computation(dataset, test_set_fraction, dataset_name, model_seed
     return models_metrics_dct
 
 
-def compute_metrics_multiple_runs(dataset, test_set_fraction, dataset_name,
-                                  config, models_tuned_params_df, n_estimators, sensitive_attributes, priv_values,
-                                  runs_seed_lst: list, save_results_dir_path: str, debug_mode=False):
+def compute_metrics_multiple_runs(dataset, config, models_config, save_results_dir_path: str, debug_mode=False) -> dict:
     start_datetime = datetime.now(timezone.utc)
     os.makedirs(save_results_dir_path, exist_ok=True)
 
     multiple_runs_metrics_dct = dict()
-    for run_num, run_seed in enumerate(runs_seed_lst):
-        models_metrics_dct = run_metrics_computation(dataset, test_set_fraction, dataset_name, run_seed,
-                                                     config, models_tuned_params_df, n_estimators, sensitive_attributes, priv_values,
+    for run_num, run_seed in enumerate(config.runs_seed_lst):
+        models_metrics_dct = run_metrics_computation(dataset, config.test_set_fraction, config.bootstrap_fraction,
+                                                     config.dataset_name, run_seed, models_config, config.n_estimators,
+                                                     config.sensitive_attributes, config.priv_values,
                                                      save_results=False, debug_mode=debug_mode)
 
         # Concatenate with previous results and save them in an overwrite mode each time for backups
@@ -123,7 +123,7 @@ def compute_metrics_multiple_runs(dataset, test_set_fraction, dataset_name,
             else:
                 multiple_runs_metrics_dct[model_name] = pd.concat([multiple_runs_metrics_dct[model_name], model_metrics_df])
 
-            result_filename = f'Metrics_{dataset_name}_{model_name}_{n_estimators}_Estimators_{start_datetime.strftime("%Y%m%d__%H%M%S")}.csv'
+            result_filename = f'Metrics_{config.dataset_name}_{model_name}_{config.n_estimators}_Estimators_{start_datetime.strftime("%Y%m%d__%H%M%S")}.csv'
             multiple_runs_metrics_dct[model_name].to_csv(f'{save_results_dir_path}/{result_filename}', index=False, mode='w')
 
     return multiple_runs_metrics_dct

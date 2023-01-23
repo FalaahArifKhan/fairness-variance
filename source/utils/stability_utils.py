@@ -24,7 +24,7 @@ def count_prediction_stats(y_test, uq_results):
     else:
         results = pd.DataFrame(uq_results).transpose()
 
-    means_lst, stds_lst, iqr_lst, conf_interval_df = compute_stability_metrics(results)
+    means_lst, stds_lst, iqr_lst = compute_stability_metrics(results)
 
     # Convert predict proba results of each model to correspondent labels
     uq_labels = results.applymap(lambda x: int(x<0.5))

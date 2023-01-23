@@ -38,7 +38,7 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
             for model_idx in models_predictions.keys()
         }
 
-        results = {}
+        results = dict()
         results['overall'] = self.overall_stability_metrics
         for group_name in self.test_groups.keys():
             X_test_group = self.test_groups[group_name]

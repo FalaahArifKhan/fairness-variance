@@ -1,4 +1,24 @@
+import yaml
+from munch import DefaultMunch
+
 from source.custom_classes.generic_pipeline import GenericPipeline
+
+
+def create_config_obj(config_yaml_path):
+    with open(config_yaml_path) as f:
+        config_dct = yaml.load(f, Loader=yaml.FullLoader)
+
+    return DefaultMunch.fromDict(config_dct)
+
+
+def create_models_config_from_tuned_params_df(models_config_for_tuning, models_tuned_params_df):
+    experiment_models_config = dict()
+    for model_idx in range(len(models_config_for_tuning)):
+        model_name = models_config_for_tuning[model_idx]["model_name"]
+        base_model = create_tuned_base_model(models_config_for_tuning[model_idx]['model'], model_name, models_tuned_params_df)
+        experiment_models_config[model_name] = base_model
+
+    return experiment_models_config
 
 
 def create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction):

@@ -2,7 +2,6 @@ import os
 import altair as alt
 import pandas as pd
 import seaborn as sns
-from IPython.display import display
 
 from source.custom_classes.metrics_composer import MetricsComposer
 
@@ -55,7 +54,9 @@ class MetricsVisualizer:
                                                                                       var_name="Subgroup",
                                                                                       value_name="Value")
 
-    def visualize_overall_metrics(self, metrics_names, reversed_metrics_names=[], x_label="Prediction Metrics"):
+    def visualize_overall_metrics(self, metrics_names, reversed_metrics_names=None, x_label="Prediction Metrics"):
+        if reversed_metrics_names is None:
+            reversed_metrics_names = []
         metrics_names = set(metrics_names + reversed_metrics_names)
 
         overall_metrics_df = pd.DataFrame()

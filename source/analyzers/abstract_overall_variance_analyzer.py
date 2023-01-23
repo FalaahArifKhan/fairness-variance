@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from copy import deepcopy
+from tqdm import tqdm
 from abc import ABCMeta, abstractmethod
 
 from source.utils.common_helpers import get_logger
@@ -42,7 +43,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         self.mean = None
         self.std = None
         self.iqr = None
-        # self.conf_interval = None
         self.entropy = None
         self.jitter = None
         self.per_sample_accuracy = None
@@ -78,7 +78,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
                               prediction_stats.means_lst,
                               prediction_stats.stds_lst,
                               prediction_stats.iqr_lst,
-                              None,
                               prediction_stats.entropy_lst,
                               prediction_stats.jitter,
                               prediction_stats.per_sample_accuracy_lst,
@@ -88,7 +87,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         # Display plots if needed
         if make_plots:
             # Count metrics based on label predictions to visualize plots
-            labels_means_lst, labels_stds_lst, labels_iqr_lst, labels_conf_interval_df = compute_stability_metrics(uq_labels)
+            labels_means_lst, labels_stds_lst, labels_iqr_lst = compute_stability_metrics(uq_labels)
             self.__logger.info(f'Successfully computed predict labels metrics')
             per_sample_accuracy_lst = prediction_stats.per_sample_accuracy_lst
             label_stability_lst = prediction_stats.label_stability_lst
@@ -109,23 +108,24 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples
         """
         models_predictions = {idx: [] for idx in range(self.n_estimators)}
-        for idx in range(self.n_estimators):
-            self.__logger.info(f'Start testing of classifier {idx + 1} / {self.n_estimators}')
+        print('\n')
+        self.__logger.info('Start classifiers testing by bootstrap')
+        for idx in tqdm(range(self.n_estimators), desc="Classifiers testing by bootstrap"):
             classifier = self.models_lst[idx]
             X_sample, y_sample = generate_bootstrap(self.X_train, self.y_train, boostrap_size, with_replacement)
             classifier = self._fit_model(classifier, X_sample, y_sample)
             models_predictions[idx] = self._batch_predict_proba(classifier, self.X_test)
-            self.__logger.info(f'Classifier {idx + 1} / {self.n_estimators} was tested')
 
+        print('\n')
+        self.__logger.info('Successfully tested classifiers by bootstrap')
         return models_predictions
 
-    def __update_metrics(self, accuracy, means_lst, stds_lst, iqr_lst, conf_interval_df, entropy_lst, jitter_lst,
+    def __update_metrics(self, accuracy, means_lst, stds_lst, iqr_lst, entropy_lst, jitter_lst,
                          per_sample_accuracy, label_stability):
         self.general_accuracy = accuracy
         self.mean = np.mean(means_lst)
         self.std = np.mean(stds_lst)
         self.iqr = np.mean(iqr_lst)
-        # self.conf_interval = tuple(conf_interval_df.mean.values.round(4))
         self.entropy = np.mean(entropy_lst)
         self.jitter = jitter_lst
         self.per_sample_accuracy = np.mean(per_sample_accuracy)
@@ -139,7 +139,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
               f'Mean: {np.round(self.mean, precision)}\n'
               f'Std: {np.round(self.std, precision)}\n'
               f'IQR: {np.round(self.iqr, precision)}\n'
-              # f'Confidence Interval: {self.conf_interval}\n'
               f'Entropy: {np.round(self.entropy, precision)}\n'
               f'Jitter: {np.round(self.jitter, precision)}\n'
               f'Per sample accuracy: {np.round(self.per_sample_accuracy, precision)}\n'
@@ -151,7 +150,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
             'Mean': self.mean,
             'Std': self.std,
             'IQR': self.iqr,
-            # 'Confidence Interval': self.conf_interval,
             'Entropy': self.entropy,
             'Jitter': self.jitter,
             'Per_Sample_Accuracy': self.per_sample_accuracy,
@@ -159,7 +157,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         }
 
     def save_metrics_to_file(self):
-        metrics_to_report = {}
+        metrics_to_report = dict()
         metrics_to_report['Dataset_Name'] = [self.dataset_name]
         metrics_to_report['Base_Model_Name'] = [self.base_model_name]
         metrics_to_report['N_Estimators'] = [self.n_estimators]
@@ -168,7 +166,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         metrics_to_report['Mean'] = [self.mean]
         metrics_to_report['Std'] = [self.std]
         metrics_to_report['IQR'] = [self.iqr]
-        # metrics_to_report['Confidence Interval'] = [self.conf_interval]
         metrics_to_report['Entropy'] = [self.entropy]
         metrics_to_report['Jitter'] = [self.jitter]
         metrics_to_report['Per_Sample_Accuracy'] = [self.per_sample_accuracy]

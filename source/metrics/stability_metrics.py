@@ -71,10 +71,8 @@ def compute_stability_metrics(results):
     means_lst = results.mean().values
     stds_lst = results.std().values
     iqr_lst = sp.stats.iqr(results, axis=0)
-    conf_interval_df = pd.DataFrame(np.apply_along_axis(compute_conf_interval, 1, results.transpose().values),
-                                    columns=['lower_bound', 'upper_bound'])
 
-    return means_lst, stds_lst, iqr_lst, conf_interval_df
+    return means_lst, stds_lst, iqr_lst
 
 
 def compute_per_sample_accuracy(y_test, results):

@@ -4,17 +4,17 @@ import pandas as pd
 from datetime import datetime, timezone
 from abc import ABCMeta, abstractmethod
 
-from source.utils.common_helpers import create_test_groups
-
 
 class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
-    def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups=None):
+    # def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups=None):
+    def __init__(self, X_test, y_test, sensitive_attributes, priv_values, test_groups):
         self.sensitive_attributes = sensitive_attributes
         self.priv_values = priv_values
         self.X_test = X_test
         self.y_test = y_test
-        self.test_groups = test_groups if test_groups \
-            else create_test_groups(self.X_test, self.sensitive_attributes, self.priv_values)
+        # self.test_groups = test_groups if test_groups \
+        #     else create_test_groups(self.X_test, self.sensitive_attributes, self.priv_values)
+        self.test_groups = test_groups
         self.fairness_metrics_dict = {}
 
     @abstractmethod
@@ -24,7 +24,7 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
     def compute_subgroups_metrics(self, y_preds, save_results, result_filename, save_dir_path):
         y_pred_all = pd.Series(y_preds, index=self.y_test.index)
 
-        results = {}
+        results = dict()
         results['overall'] = self._compute_metrics(self.y_test, y_pred_all)
         for group_name in self.test_groups.keys():
             X_test_group = self.test_groups[group_name]

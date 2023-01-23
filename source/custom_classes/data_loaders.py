@@ -68,7 +68,7 @@ class ACSMobilityDataset:
         self.categorical_columns = ['MAR','SEX','DIS','ESP','CIT','MIL','ANC','NATIVITY','RELP','DEAR','DEYE','DREM','RAC1P','GCL','COW','ESR']
         self.numerical_columns = ['AGEP', 'SCHL', 'PINCP', 'WKHP', 'JWMNP']
 
-        if with_nulls==True:
+        if with_nulls:
             X_data = acs_data[self.features]
         else:
             X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
@@ -136,7 +136,7 @@ class ACSTravelTimeDataset:
         self.categorical_columns = ['MAR','SEX','DIS','ESP','MIG','RELP','RAC1P','PUMA','ST','CIT','OCCP','POWPUMA','POVPIP']
         self.numerical_columns = ['AGEP', 'SCHL']
 
-        if with_nulls==True:
+        if with_nulls:
             X_data = acs_data[self.features]
         else:
             X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
@@ -206,7 +206,7 @@ class ACSEmploymentDataset:
             root_dir=root_dir
         )
         acs_data = data_source.get_data(states=state, download=True)
-        if subsample !=None:
+        if subsample is not None:
             acs_data = acs_data.sample(subsample)
 
         self.features = ACSEmployment.features

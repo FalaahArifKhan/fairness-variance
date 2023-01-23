@@ -86,7 +86,7 @@ class GenericPipeline:
         self.y_test = self.y_data.loc[test_idx]
         self.X_val = self.X_data.loc[val_idx]
         self.y_val = self.y_data.loc[val_idx]
-        self.groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes, self.priv_values)
+        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes, self.priv_values)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
     
