@@ -3,7 +3,7 @@ from utils.custom_classes.generic_pipeline import GenericPipeline
 
 def create_base_pipeline(dataset, sensitive_attributes, priv_values, model_seed, test_set_fraction):
     base_pipeline = GenericPipeline(dataset, sensitive_attributes, priv_values)
-    _ = base_pipeline.create_train_test_split_without_sensitive_attrs(dataset, test_set_fraction, seed=model_seed)
+    _ = base_pipeline.create_preprocessed_train_test_split(dataset, test_set_fraction, seed=model_seed)
 
     return base_pipeline
 

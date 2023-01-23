@@ -43,11 +43,31 @@ def partition_by_group_binary(df, column_name, priv_value):
     return priv, dis
 
 
-def set_sensitive_attributes(X_test, column_names, priv_values):
+def check_sensitive_attrs_in_columns(df_columns, sensitive_attributes):
+    for sensitive_attr in sensitive_attributes:
+        if sensitive_attr not in df_columns:
+            return False
+
+    return True
+
+
+def create_test_groups(X_test, full_df, sensitive_attributes, priv_values):
+    # Check if input sensitive attributes are in X_test.columns.
+    # If no, add them only to create test groups
+    if check_sensitive_attrs_in_columns(X_test.columns, sensitive_attributes):
+        X_test_with_sensitive_attrs = X_test
+    else:
+        cols_with_sensitive_attrs = set(list(X_test.columns) + sensitive_attributes)
+        X_test_with_sensitive_attrs = full_df[cols_with_sensitive_attrs].loc[X_test.index]
+
     groups = {}
-    groups[column_names[0]+'_'+column_names[1]+'_priv'], groups[column_names[0]+'_'+column_names[1]+'_dis'] = partition_by_group_intersectional(X_test, column_names, priv_values)
-    groups[column_names[0]+'_priv'], groups[column_names[0]+'_dis'] = partition_by_group_binary(X_test, column_names[0], priv_values[0])
-    groups[column_names[1]+'_priv'], groups[column_names[1]+'_dis'] = partition_by_group_binary(X_test, column_names[1], priv_values[1])
+    groups[sensitive_attributes[0] + '_' + sensitive_attributes[1] + '_priv'], groups[sensitive_attributes[0] + '_' + sensitive_attributes[1] + '_dis'] = \
+        partition_by_group_intersectional(X_test_with_sensitive_attrs, sensitive_attributes, priv_values)
+    groups[sensitive_attributes[0] + '_priv'], groups[sensitive_attributes[0] + '_dis'] = \
+        partition_by_group_binary(X_test_with_sensitive_attrs, sensitive_attributes[0], priv_values[0])
+    groups[sensitive_attributes[1] + '_priv'], groups[sensitive_attributes[1] + '_dis'] = \
+        partition_by_group_binary(X_test_with_sensitive_attrs, sensitive_attributes[1], priv_values[1])
+
     return groups
 
 

@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timezone
 from abc import ABCMeta, abstractmethod
 
-from utils.common_helpers import set_sensitive_attributes
+from utils.common_helpers import create_test_groups
 
 
 class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
@@ -14,7 +14,7 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         self.X_test = X_test
         self.y_test = y_test
         self.test_groups = test_groups if test_groups \
-            else set_sensitive_attributes(self.X_test, self.sensitive_attributes, self.priv_values)
+            else create_test_groups(self.X_test, self.sensitive_attributes, self.priv_values)
         self.fairness_metrics_dict = {}
 
     @abstractmethod

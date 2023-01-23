@@ -122,7 +122,7 @@ def compute_metrics_multiple_runs(dataset, test_set_fraction, dataset_name,
             else:
                 multiple_runs_metrics_dct[model_name] = pd.concat([multiple_runs_metrics_dct[model_name], model_metrics_df])
 
-            result_filename = f'Metrics_{dataset_name}_{model_name}_{start_datetime.strftime("%Y%m%d__%H%M%S")}.csv'
+            result_filename = f'Metrics_{dataset_name}_{model_name}_{n_estimators}_Estimators_{start_datetime.strftime("%Y%m%d__%H%M%S")}.csv'
             multiple_runs_metrics_dct[model_name].to_csv(f'{save_results_dir_path}/{result_filename}', index=False, mode='w')
 
     return multiple_runs_metrics_dct
