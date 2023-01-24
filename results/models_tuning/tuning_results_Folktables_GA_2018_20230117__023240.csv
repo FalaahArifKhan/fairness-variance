@@ -1,0 +1,7 @@
+,Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+0,Folktables_GA_2018,LogisticRegression,0.8195,0.8203,"{'C': 1, 'max_iter': 150, 'penalty': 'l2', 'solver': 'lbfgs'}"
+1,Folktables_GA_2018,DecisionTreeClassifier,0.8304,0.8313,"{'criterion': 'gini', 'max_depth': 10, 'max_features': 0.6, 'min_samples_split': 0.1}"
+2,Folktables_GA_2018,RandomForestClassifier,0.8354,0.8357,"{'max_depth': 10, 'max_features': 0.6, 'min_samples_leaf': 4, 'n_estimators': 100}"
+3,Folktables_GA_2018,XGBClassifier,0.8371,0.8375,"{'lambda': 1, 'learning_rate': 0.1, 'max_depth': 3, 'n_estimators': 200}"
+4,Folktables_GA_2018,KNeighborsClassifier,0.8136,0.8137,"{'metric': 'minkowski', 'n_neighbors': 25, 'weights': 'uniform'}"
+5,Folktables_GA_2018,MLPClassifier,0.8345,0.8353,"{'activation': 'logistic', 'hidden_layer_sizes': (100, 50, 100), 'learning_rate': 'constant', 'solver': 'lbfgs'}"

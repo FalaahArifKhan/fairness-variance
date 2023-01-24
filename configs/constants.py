@@ -17,3 +17,6 @@ class CountPredictionStatsResponse:
 class ModelSetting(Enum):
     INCREMENTAL = "incremental"
     BATCH = "batch"
+
+
+INTERSECTION_SIGN = '&'
