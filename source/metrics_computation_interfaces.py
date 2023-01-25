@@ -24,7 +24,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
         for g in base_pipeline.test_groups.keys():
             print(g, base_pipeline.test_groups[g].shape)
 
-        print('\n\nX train and validation set: ')
+        print('\n\nX train + validation set: ')
         display(base_pipeline.X_train_val.head(10))
 
     # Compute variance metrics for subgroups
@@ -71,7 +71,8 @@ def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, data
     num_models = len(models_config)
     for model_idx, model_name in tqdm(enumerate(models_config.keys()),
                                       total=num_models,
-                                      desc="Analyze models in one run"):
+                                      desc="Analyze models in one run",
+                                      colour="red"):
         print('#' * 30, f' [Model {model_idx + 1} / {num_models}] Analyze {model_name} ', '#' * 30)
         model_seed += 1
         try:
@@ -102,7 +103,10 @@ def compute_metrics_multiple_runs(dataset, config, models_config, save_results_d
     os.makedirs(save_results_dir_path, exist_ok=True)
 
     multiple_runs_metrics_dct = dict()
-    for run_num, run_seed in enumerate(config.runs_seed_lst):
+    for run_num, run_seed in tqdm(enumerate(config.runs_seed_lst),
+                                  total=len(config.runs_seed_lst),
+                                  desc="Multiple runs progress",
+                                  colour="green"):
         models_metrics_dct = run_metrics_computation(dataset, config.test_set_fraction, config.bootstrap_fraction,
                                                      config.dataset_name, run_seed, models_config, config.n_estimators,
                                                      config.sensitive_attributes_dct,

@@ -82,10 +82,11 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
                               prediction_stats.jitter,
                               prediction_stats.per_sample_accuracy_lst,
                               prediction_stats.label_stability_lst)
-        self.print_metrics()
 
         # Display plots if needed
         if make_plots:
+            self.print_metrics()
+
             # Count metrics based on label predictions to visualize plots
             labels_means_lst, labels_stds_lst, labels_iqr_lst = compute_stability_metrics(uq_labels)
             self.__logger.info(f'Successfully computed predict labels metrics')
@@ -110,7 +111,10 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         models_predictions = {idx: [] for idx in range(self.n_estimators)}
         print('\n')
         self.__logger.info('Start classifiers testing by bootstrap')
-        for idx in tqdm(range(self.n_estimators), desc="Classifiers testing by bootstrap"):
+        for idx in tqdm(range(self.n_estimators),
+                        desc="Classifiers testing by bootstrap",
+                        colour="blue",
+                        mininterval=10):
             classifier = self.models_lst[idx]
             X_sample, y_sample = generate_bootstrap(self.X_train, self.y_train, boostrap_size, with_replacement)
             classifier = self._fit_model(classifier, X_sample, y_sample)

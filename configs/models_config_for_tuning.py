@@ -38,35 +38,35 @@ MODELS_CONFIG = [
             'max_iter': range(50, 251, 50),
         }
     },
-    {
-        'model_name': 'RandomForestClassifier',
-        'model': RandomForestClassifier(random_state=MODELS_TUNING_SEED),
-        'params': {
-            "max_depth": [3, 4, 6, 10],
-            "min_samples_leaf": [1, 2, 4],
-            "n_estimators": [50, 100, 500, 700],
-            "max_features": [0.6, 'auto', 'sqrt']
-        }
-    },
-    {
-        'model_name': 'XGBClassifier',
-        'model': XGBClassifier(random_state=MODELS_TUNING_SEED, verbosity=0),
-        'params': {
-            'learning_rate': [0.1],
-            'n_estimators': [100, 200, 300, 500],
-            'max_depth': [3,5,7,10],
-            'lambda':  [1,10,100]
-        }
-    },
-    {
-        'model_name': 'KNeighborsClassifier',
-        'model': KNeighborsClassifier(),
-        'params': {
-            'n_neighbors' : [5, 7, 9, 11, 13, 15, 25],
-            'weights' : ['uniform', 'distance'],
-            'metric' : ['minkowski', 'euclidean', 'manhattan']
-        }
-    },
+    # {
+    #     'model_name': 'RandomForestClassifier',
+    #     'model': RandomForestClassifier(random_state=MODELS_TUNING_SEED),
+    #     'params': {
+    #         "max_depth": [3, 4, 6, 10],
+    #         "min_samples_leaf": [1, 2, 4],
+    #         "n_estimators": [50, 100, 500, 700],
+    #         "max_features": [0.6, 'auto', 'sqrt']
+    #     }
+    # },
+    # {
+    #     'model_name': 'XGBClassifier',
+    #     'model': XGBClassifier(random_state=MODELS_TUNING_SEED, verbosity=0),
+    #     'params': {
+    #         'learning_rate': [0.1],
+    #         'n_estimators': [100, 200, 300, 500],
+    #         'max_depth': [3,5,7,10],
+    #         'lambda':  [1,10,100]
+    #     }
+    # },
+    # {
+    #     'model_name': 'KNeighborsClassifier',
+    #     'model': KNeighborsClassifier(),
+    #     'params': {
+    #         'n_neighbors' : [5, 7, 9, 11, 13, 15, 25],
+    #         'weights' : ['uniform', 'distance'],
+    #         'metric' : ['minkowski', 'euclidean', 'manhattan']
+    #     }
+    # },
     # {
     #     'model_name': 'MLPClassifier',
     #     'model': MLPClassifier(random_state=MODELS_TUNING_SEED),
