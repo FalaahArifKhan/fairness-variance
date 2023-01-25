@@ -1,4 +1,5 @@
 import os
+import random
 import pandas as pd
 from tqdm import tqdm
 from datetime import datetime, timezone
@@ -10,6 +11,22 @@ from source.custom_initializers import create_base_pipeline
 from source.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
 from source.utils.common_helpers import save_metrics_to_file
 from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
+
+
+def compute_model_metrics_with_config(base_model, model_name, dataset, config, save_results_dir_path: str,
+                                      model_seed: int = None, save_results=True, debug_mode=False) -> pd.DataFrame:
+    if model_seed is None:
+        model_seed = random.randint(1, 1000)
+
+    return compute_model_metrics(base_model, config.n_estimators,
+                                 dataset, config.test_set_fraction,
+                                 config.bootstrap_fraction, config.sensitive_attributes_dct,
+                                 model_seed=model_seed,
+                                 dataset_name=config.dataset_name,
+                                 base_model_name=model_name,
+                                 save_results=save_results,
+                                 save_results_dir_path=save_results_dir_path,
+                                 debug_mode=debug_mode)
 
 
 def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: float, bootstrap_fraction: float,
@@ -58,8 +75,24 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
     return metrics_df
 
 
-def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, dataset_name, model_seed: int,
-                            models_config, n_estimators, sensitive_attributes_dct,
+def run_metrics_computation_with_config(dataset, config, models_config, save_results_dir_path: str,
+                                        run_seed: int = None, debug_mode=False) -> dict:
+    if run_seed is None:
+        run_seed = random.randint(1, 1000)
+    # Create a directory for results if not exists
+    os.makedirs(save_results_dir_path, exist_ok=True)
+    # Parse config and execute the main run_metrics_computation function
+    return run_metrics_computation(dataset, config.test_set_fraction, config.bootstrap_fraction,
+                                   config.dataset_name, models_config, config.n_estimators,
+                                   config.sensitive_attributes_dct,
+                                   model_seed=run_seed,
+                                   save_results_dir_path=save_results_dir_path,
+                                   save_results=True,
+                                   debug_mode=debug_mode)
+
+
+def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, dataset_name,
+                            models_config, n_estimators, sensitive_attributes_dct, model_seed: int = None,
                             save_results=True, save_results_dir_path=None, debug_mode=False) -> dict:
     """
     Find variance and bias metrics for each model in config.MODELS_CONFIG.
@@ -108,8 +141,8 @@ def compute_metrics_multiple_runs(dataset, config, models_config, save_results_d
                                   desc="Multiple runs progress",
                                   colour="green"):
         models_metrics_dct = run_metrics_computation(dataset, config.test_set_fraction, config.bootstrap_fraction,
-                                                     config.dataset_name, run_seed, models_config, config.n_estimators,
-                                                     config.sensitive_attributes_dct,
+                                                     config.dataset_name, models_config, config.n_estimators,
+                                                     config.sensitive_attributes_dct, run_seed,
                                                      save_results=False, debug_mode=debug_mode)
 
         # Concatenate with previous results and save them in an overwrite mode each time for backups
