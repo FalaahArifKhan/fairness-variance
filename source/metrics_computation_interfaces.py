@@ -74,23 +74,23 @@ def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, data
                                       desc="Analyze models in one run"):
         print('#' * 30, f' [Model {model_idx + 1} / {num_models}] Analyze {model_name} ', '#' * 30)
         model_seed += 1
-        # try:
-        base_model = models_config[model_name]
-        model_metrics_df = compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction,
-                                                 bootstrap_fraction, sensitive_attributes_dct,
-                                                 model_seed=model_seed,
-                                                 dataset_name=dataset_name,
-                                                 base_model_name=model_name,
-                                                 save_results=save_results,
-                                                 save_results_dir_path=save_results_dir_path,
-                                                 debug_mode=debug_mode)
-        model_metrics_df['Model_Name'] = model_name
-        models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
-        if debug_mode:
-            print(f'\n[{model_name}] Metrics confusion matrix:')
-            display(model_metrics_df)
-        # except Exception as err:
-        #     print(f'ERROR with {model_name}: ', err)
+        try:
+            base_model = models_config[model_name]
+            model_metrics_df = compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction,
+                                                     bootstrap_fraction, sensitive_attributes_dct,
+                                                     model_seed=model_seed,
+                                                     dataset_name=dataset_name,
+                                                     base_model_name=model_name,
+                                                     save_results=save_results,
+                                                     save_results_dir_path=save_results_dir_path,
+                                                     debug_mode=debug_mode)
+            model_metrics_df['Model_Name'] = model_name
+            models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
+            if debug_mode:
+                print(f'\n[{model_name}] Metrics confusion matrix:')
+                display(model_metrics_df)
+        except Exception as err:
+            print(f'ERROR with {model_name}: ', err)
 
         print('\n\n\n')
 
