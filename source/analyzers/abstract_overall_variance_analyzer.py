@@ -109,7 +109,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples
         """
         models_predictions = {idx: [] for idx in range(self.n_estimators)}
-        print('\n')
+        print('\n', flush=True)
         self.__logger.info('Start classifiers testing by bootstrap')
         for idx in tqdm(range(self.n_estimators),
                         desc="Classifiers testing by bootstrap",
@@ -120,7 +120,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
             classifier = self._fit_model(classifier, X_sample, y_sample)
             models_predictions[idx] = self._batch_predict_proba(classifier, self.X_test)
 
-        print('\n')
+        print('\n', flush=True)
         self.__logger.info('Successfully tested classifiers by bootstrap')
         return models_predictions
 
