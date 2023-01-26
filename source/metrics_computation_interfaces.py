@@ -41,14 +41,14 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
         for g in base_pipeline.test_groups.keys():
             print(g, base_pipeline.test_groups[g].shape)
 
-        print('\n\nX train + validation set: ')
+        print('\n\nTop rows of processed X train + validation set: ')
         display(base_pipeline.X_train_val.head(10))
 
     # Compute variance metrics for subgroups
     subgroups_variance_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
                                                             bootstrap_fraction, base_pipeline, dataset_name)
 
-    y_preds, variance_metrics_df = subgroups_variance_analyzer.compute_metrics(save_results=save_results,
+    y_preds, variance_metrics_df = subgroups_variance_analyzer.compute_metrics(save_results=False,
                                                                                result_filename=None,
                                                                                save_dir_path=None,
                                                                                make_plots=False)
@@ -121,7 +121,7 @@ def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, data
             model_metrics_df['Model_Name'] = model_name
             models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
             if debug_mode:
-                print(f'\n[{model_name}] Metrics confusion matrix:')
+                print(f'\n[{model_name}] Metrics matrix:')
                 display(model_metrics_df)
         except Exception as err:
             print(f'ERROR with {model_name}: ', err)
