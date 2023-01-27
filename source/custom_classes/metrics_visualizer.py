@@ -1,16 +1,22 @@
 import os
 import altair as alt
 import pandas as pd
+import datapane as dp
 import seaborn as sns
+import matplotlib.pyplot as plt
+from datetime import datetime, timezone
 
 from source.custom_classes.metrics_composer import MetricsComposer
 
 
 class MetricsVisualizer:
     def __init__(self, metrics_path, dataset_name, model_names, sensitive_attributes_dct):
+        sns.set_theme(style="whitegrid")
+
         self.dataset_name = dataset_name
         self.model_names = model_names
         self.sensitive_attributes_dct = sensitive_attributes_dct
+        self.__create_report = False
 
         # Read models metrics dfs
         metrics_filenames = [filename for filename in os.listdir(metrics_path)]
@@ -78,13 +84,34 @@ class MetricsVisualizer:
         g = sns.catplot(
             data=overall_metrics_df, kind="bar",
             x="overall", y="metric", hue="model_name",
-            # errorbar="sd",
             palette="tab20",
-            alpha=.8, height=height
+            alpha=.8,
+            height=height
         )
         g.despine(left=True)
         g.set_axis_labels("", x_label)
         g.legend.set_title("")
+
+    def create_boxes_and_whiskers_for_models_multiple_runs(self, metrics_lst):
+        to_plot = self.all_models_metrics_df[self.all_models_metrics_df['Metric'].isin(metrics_lst)]
+
+        plt.figure(figsize=(15, 8))
+        ax = sns.boxplot(x=to_plot['Metric'],
+                          y=to_plot['overall'],
+                          hue=to_plot['Model_Name'])
+
+        plt.legend(loc='upper left',
+                   ncol=2,
+                   fancybox=True,
+                   shadow=True)
+        plt.xlabel("Metric name")
+        plt.ylabel("Metric value")
+        fig = ax.get_figure()
+        fig.tight_layout()
+
+        if self.__create_report:
+            plt.close()
+            return fig
 
     def create_models_metrics_bar_chart(self, metrics_lst, metrics_group_name, default_plot_metric=None):
         if default_plot_metric is None:
@@ -132,3 +159,53 @@ class MetricsVisualizer:
         )
 
         return models_metrics_chart, select_metric_legend, color_legend
+
+    def create_bias_variance_interactive_bar_chart(self):
+        bias_metrics_lst = [
+            'Accuracy_Parity',
+            'Equalized_Odds_TPR',
+            'Equalized_Odds_FPR',
+            'Disparate_Impact',
+            'Statistical_Parity_Difference',
+        ]
+        models_bias_metrics_chart, select_bias_metric_legend, bias_color_legend = \
+            self.create_models_metrics_bar_chart(bias_metrics_lst, metrics_group_name="Bias")
+
+        variance_metrics_lst = [
+            'IQR_Parity',
+            'Label_Stability_Ratio',
+            'Std_Parity',
+            'Std_Ratio',
+            'Jitter_Parity',
+        ]
+        models_variance_metrics_chart, select_variance_metric_legend, variance_color_legend = \
+            self.create_models_metrics_bar_chart(variance_metrics_lst, metrics_group_name="Variance")
+
+        return (
+                alt.hconcat(
+                    alt.vconcat(
+                        select_bias_metric_legend.properties(height=200, width=50),
+                        select_variance_metric_legend.properties(height=200, width=50),
+                        bias_color_legend.properties(height=200, width=50),
+                    ),
+                    models_bias_metrics_chart.properties(height=200, width=300, title="Bias Metric Plot"),
+                    models_variance_metrics_chart.properties(height=200, width=300, title="Variance Metric Plot"),
+                )
+        )
+
+    def create_html_report(self, report_save_path):
+        self.__create_report = True
+        boxes_and_whiskers_plot = self.create_boxes_and_whiskers_for_models_multiple_runs(metrics_lst=['Std', 'IQR', 'Jitter', 'FNR','FPR'])
+        interactive_bar_chart = self.create_bias_variance_interactive_bar_chart()
+
+        report_filename = f'Statistical_Bias_and_Variance_Report_{datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")}.html'
+        dp.Report("# Statistical Bias and Variance Report",
+               "## Models Composed Metrics",
+               dp.DataTable(self.models_composed_metrics_df, caption="Models Composed Metrics"),
+               "## Boxes and Whiskers Plot for Multiple Models Runs",
+               dp.Plot(boxes_and_whiskers_plot, caption="Boxes and Whiskers Plot for Multiple Models Runs"),
+               "## Bias and Variance Interactive Bar Chart",
+               dp.Plot(interactive_bar_chart, caption="Bias and Variance Interactive Bar Chart"),
+               ).save(path=os.path.join(report_save_path, report_filename))
+
+        self.__create_report = False
