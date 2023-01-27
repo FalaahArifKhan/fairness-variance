@@ -13,16 +13,33 @@ from source.utils.stability_utils import count_prediction_stats, compute_stabili
 
 
 class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
+    """
+    AbstractOverallVarianceAnalyzer description.
+
+    Parameters
+    ----------
+    base_model
+        Base model for stability measuring
+    base_model_name
+        Model name like 'HoeffdingTreeClassifier' or 'LogisticRegression'
+    bootstrap_fraction
+        [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
+    X_train
+        Processed features train set
+    y_train
+        Targets train set
+    X_test
+        Processed features test set
+    y_test
+        Targets test set
+    dataset_name
+        Name of dataset, used for correct results naming
+    n_estimators
+        Number of estimators in ensemble to measure base_model stability
+
+    """
     def __init__(self, base_model, base_model_name: str, bootstrap_fraction: float,
                  X_train, y_train, X_test, y_test, dataset_name: str, n_estimators: int):
-        """
-        :param base_model: base model for stability measuring
-        :param base_model_name: model name like 'HoeffdingTreeClassifier' or 'LogisticRegression'
-        :param bootstrap_fraction: [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
-        :param X_train, y_train, X_test, y_test: default (train + val, test) splits
-        :param dataset_name: str, like 'Folktables' or 'Phishing'
-        :param n_estimators: a number of estimators in ensemble to measure evaluation_model stability
-        """
         self.base_model = base_model
         self.base_model_name = base_model_name
         self.bootstrap_fraction = bootstrap_fraction
@@ -64,7 +81,10 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         """
         Measure metrics for the base model. Display plots for analysis if needed. Save results to a .pkl file
 
-        :param make_plots: bool, if display plots for analysis
+        Parameters
+        ----------
+        make_plots
+            bool, if display plots for analysis
         """
         # Quantify uncertainty for the base model
         boostrap_size = int(self.bootstrap_fraction * self.X_train.shape[0])
@@ -104,9 +124,21 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         else:
             return y_preds, self.y_test
 
-    def UQ_by_boostrap(self, boostrap_size, with_replacement):
+    def UQ_by_boostrap(self, boostrap_size: int, with_replacement: bool):
         """
-        Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples
+        Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
+
+        Parameters
+        ----------
+        boostrap_size
+            Number of records in bootstrap splits
+        with_replacement
+            Enable replacement or not
+
+        Returns
+        -------
+        Dictionary where keys are models indexes,
+         and values are a list of correspondent model predictions for X_test set
         """
         models_predictions = {idx: [] for idx in range(self.n_estimators)}
         print('\n', flush=True)

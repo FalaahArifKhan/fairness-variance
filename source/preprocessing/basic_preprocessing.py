@@ -2,6 +2,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 
+__all__ = []
+
+
 def get_dummies(data, categorical_columns, numerical_columns):
     """
     Return a dataset made by one-hot encoding for categorical columns and concatenate with numerical columns

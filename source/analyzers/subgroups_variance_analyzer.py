@@ -7,6 +7,27 @@ from source.analyzers.batch_overall_variance_analyzer import BatchOverallVarianc
 
 
 class SubgroupsVarianceAnalyzer:
+    """
+    SubgroupsVarianceAnalyzer description.
+
+    Parameters
+    ----------
+    model_setting
+        Constant from configs.constants.ModelSetting
+    n_estimators
+        Number of estimators for bootstrap
+    base_model
+        Initialized base model to analyze
+    base_model_name
+        Model name
+    bootstrap_fraction
+        [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
+    base_pipeline
+        Initialized object of GenericPipeline class
+    dataset_name
+        Name of dataset, used for correct results naming
+
+    """
     def __init__(self, model_setting, n_estimators: int, base_model, base_model_name: str, bootstrap_fraction: float,
                  base_pipeline: GenericPipeline, dataset_name: str):
         """

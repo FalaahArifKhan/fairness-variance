@@ -1,5 +1,8 @@
 wheel
 twine
+mkdocs
+mkdocs-awesome-pages-plugin
+mkdocs-material
 numpy~=1.23.5
 datapane~=0.15.5
 matplotlib~=3.6.2

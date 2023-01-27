@@ -17,7 +17,6 @@ LONG_DESCRIPTION_CONTENT_TYPE = "text/markdown"
 URL = "https://medium-multiply.readthedocs.io/"
 EMAILS = "herasymuk@ucu.edu.ua and fa2161@nyu.edu"
 AUTHORS = "Denys Herasymuk and Falaah Arif Khan"
-REQUIRES_PYTHON = ">=3.8.0"
 
 # The directory containing this file
 HERE = os.getcwd()

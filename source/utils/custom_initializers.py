@@ -5,6 +5,9 @@ from source.custom_classes.generic_pipeline import GenericPipeline
 from source.utils.common_helpers import validate_config
 
 
+__all__ = []
+
+
 def create_config_obj(config_yaml_path):
     with open(config_yaml_path) as f:
         config_dct = yaml.load(f, Loader=yaml.FullLoader)

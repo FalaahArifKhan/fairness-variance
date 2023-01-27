@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
 
-from source.preprocessing import make_features_dfs
+from source.preprocessing.basic_preprocessing import make_features_dfs
 from source.utils.common_helpers import create_test_groups
 
 

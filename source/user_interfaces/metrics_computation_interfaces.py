@@ -7,7 +7,8 @@ from IPython.display import display
 
 from configs.constants import ModelSetting
 from configs.models_config_for_tuning import reset_model_seed
-from source.custom_initializers import create_base_pipeline
+from source.utils.custom_initializers import create_base_pipeline
+from source.custom_classes.base_dataset import BaseDataset
 from source.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
 from source.utils.common_helpers import save_metrics_to_file
 from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
@@ -75,8 +76,31 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
     return metrics_df
 
 
-def run_metrics_computation_with_config(dataset, config, models_config, save_results_dir_path: str,
-                                        run_seed: int = None, debug_mode=False) -> dict:
+def run_metrics_computation_with_config(dataset: BaseDataset, config, models_config: dict, save_results_dir_path: str,
+                                        run_seed: int = None, debug_mode: bool = False) -> dict:
+    """
+    Find variance and statistical bias metrics for each model in models_config.
+    Save results in `save_results_dir_path` folder.
+
+    Returns a dictionary where keys are model names, and values are metrics for sensitive attributes defined in config.
+
+    Parameters
+    ----------
+    dataset
+        Dataset object that contains all needed attributes like target, features, numerical_columns etc
+    config
+        Object that contains test_set_fraction, bootstrap_fraction, dataset_name,
+         n_estimators, sensitive_attributes_dct attributes
+    models_config
+        Dictionary where keys are model names, and values are initialized models
+    save_results_dir_path
+        Location where to save result files with metrics
+    run_seed
+        Base seed for this run
+    debug_mode
+        Enable or disable extra logs
+
+    """
     if run_seed is None:
         run_seed = random.randint(1, 1000)
     # Create a directory for results if not exists
