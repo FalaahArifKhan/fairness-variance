@@ -9,11 +9,19 @@
 }
 
 .md-sidebar--primary {
-    width: 16.1rem;
+    width: 16.5rem;
 }
 
 .md-sidebar--secondary {
-    width: 10.1rem;
+    width: 10.5rem;
+}
+
+.md-nav--primary {
+    width: 16rem;
+}
+
+.md-nav--secondary {
+    width: 10rem;
 }
 
 .md-typeset h2 {
