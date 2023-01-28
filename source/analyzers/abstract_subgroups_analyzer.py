@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 
 class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
     """
-    AbstractSubgroupsAnalyzer description.
+    Abstract class for a subgroups analyzer to compute metrics for subgroups.
 
     Parameters
     ----------
@@ -28,29 +28,48 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         self.X_test = X_test
         self.y_test = y_test
         self.test_groups = test_groups
-        self.fairness_metrics_dict = {}
+        self.subgroups_metrics_dict = {}
 
     @abstractmethod
     def _compute_metrics(self, y_test, y_preds):
         pass
 
-    def compute_subgroups_metrics(self, y_preds: list, save_results: bool, result_filename: str, save_dir_path: str):
+    def compute_subgroups_metrics(self, y_preds, save_results: bool,
+                                  result_filename: str = None, save_dir_path: str = None):
+        """
+        Compute metrics for each subgroup in self.test_groups using _compute_metrics method.
+
+        Returns a dictionary where keys are subgroup names, and values are subgroup metrics.
+        
+        Parameters
+        ----------
+        y_preds
+            Models predictions
+        save_results
+            If to save results in a file
+        result_filename
+            Optional, a filename for results to save
+        save_dir_path
+            Optional, a location where to save the results file
+
+        """
         y_pred_all = pd.Series(y_preds, index=self.y_test.index)
 
+        # Compute metrics for each subgroup
         results = dict()
         results['overall'] = self._compute_metrics(self.y_test, y_pred_all)
         for group_name in self.test_groups.keys():
             X_test_group = self.test_groups[group_name]
             results[group_name] = self._compute_metrics(self.y_test[X_test_group.index], y_pred_all[X_test_group.index])
-        self.fairness_metrics_dict = results
 
+        self.subgroups_metrics_dict = results
         if save_results:
             self.save_metrics_to_file(result_filename, save_dir_path)
 
-        return self.fairness_metrics_dict
+        return self.subgroups_metrics_dict
 
     def save_metrics_to_file(self, result_filename: str, save_dir_path: str):
-        metrics_df = pd.DataFrame(self.fairness_metrics_dict)
+        metrics_df = pd.DataFrame(self.subgroups_metrics_dict)
         os.makedirs(save_dir_path, exist_ok=True)
 
         now = datetime.now(timezone.utc)

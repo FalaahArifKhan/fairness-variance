@@ -1,10 +1,12 @@
+import pandas as pd
+
 from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
 from source.utils.common_helpers import confusion_matrix_metrics
 
 
 class SubgroupsStatisticalBiasAnalyzer(AbstractSubgroupsAnalyzer):
     """
-    SubgroupsStatisticalBiasAnalyzer description.
+    Analyzer to compute statistical bias metrics for subgroups.
 
     Parameters
     ----------
@@ -20,8 +22,12 @@ class SubgroupsStatisticalBiasAnalyzer(AbstractSubgroupsAnalyzer):
          that are correspondent to these sensitive attributes
 
     """
-    def __init__(self, X_test, y_test, sensitive_attributes_dct, test_groups=None):
+    def __init__(self, X_test: pd.DataFrame, y_test: pd.DataFrame,
+                 sensitive_attributes_dct: dict, test_groups: dict=None):
         super().__init__(X_test, y_test, sensitive_attributes_dct, test_groups)
 
-    def _compute_metrics(self, y_test, y_preds):
+    def _compute_metrics(self, y_test: pd.DataFrame, y_preds: list):
+        """
+        Compute metrics for subgroups using a confusion matrix
+        """
         return confusion_matrix_metrics(y_test, y_preds)

@@ -14,7 +14,7 @@ from source.utils.stability_utils import count_prediction_stats, compute_stabili
 
 class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
     """
-    AbstractOverallVarianceAnalyzer description.
+    Abstract class for an analyzer that computes overall variance metrics for subgroups.
 
     Parameters
     ----------
@@ -125,9 +125,12 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         else:
             return y_preds, self.y_test
 
-    def UQ_by_boostrap(self, boostrap_size: int, with_replacement: bool):
+    def UQ_by_boostrap(self, boostrap_size: int, with_replacement: bool) -> dict:
         """
         Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
+
+        Returns a dictionary where keys are models indexes, and values are lists of
+         correspondent model predictions for X_test set.
 
         Parameters
         ----------
@@ -136,10 +139,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         with_replacement
             Enable replacement or not
 
-        Returns
-        -------
-        Dictionary where keys are models indexes,
-         and values are a list of correspondent model predictions for X_test set
         """
         models_predictions = {idx: [] for idx in range(self.n_estimators)}
         print('\n', flush=True)

@@ -1,9 +1,11 @@
+import pandas as pd
+
 from source.analyzers.abstract_overall_variance_analyzer import AbstractOverallVarianceAnalyzer
 
 
 class BatchOverallVarianceAnalyzer(AbstractOverallVarianceAnalyzer):
     """
-    BatchOverallVarianceAnalyzer description.
+    Analyzer to compute subgroups variance metrics for batch learning models.
 
     Parameters
     ----------
@@ -30,17 +32,26 @@ class BatchOverallVarianceAnalyzer(AbstractOverallVarianceAnalyzer):
 
     """
     def __init__(self, base_model, base_model_name: str, bootstrap_fraction: float,
-                 X_train, y_train, X_test, y_test, target_column: str,
-                 dataset_name: str, n_estimators: int):
+                 X_train: pd.DataFrame, y_train: pd.DataFrame, X_test: pd.DataFrame, y_test: pd.DataFrame,
+                 target_column: str, dataset_name: str, n_estimators: int):
         super().__init__(base_model, base_model_name, bootstrap_fraction,
                          X_train, y_train, X_test, y_test, dataset_name, n_estimators)
         self.target_column = target_column
 
-    def _fit_model(self, classifier, X_train, y_train):
+    def _fit_model(self, classifier, X_train: pd.DataFrame, y_train: pd.DataFrame):
+        """
+        Fit a classifier that is an instance of self.base_model
+        """
         return classifier.fit(X_train, y_train)
 
-    def _batch_predict(self, classifier, X_test):
+    def _batch_predict(self, classifier, X_test: pd.DataFrame):
+        """
+        Predict with the classifier for X_test set and return predictions
+        """
         return classifier.predict(X_test)
 
-    def _batch_predict_proba(self, classifier, X_test):
+    def _batch_predict_proba(self, classifier, X_test: pd.DataFrame):
+        """
+        Predict with the classifier for X_test set and return probabilities for each class for each test point
+        """
         return classifier.predict_proba(X_test)[:, 0]

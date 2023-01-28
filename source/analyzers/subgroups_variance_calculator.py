@@ -7,7 +7,7 @@ from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyz
 
 class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
     """
-    SubgroupsVarianceCalculator description.
+    Calculator that calculates variance metrics for subgroups.
 
     Parameters
     ----------
@@ -23,14 +23,14 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
          that are correspondent to these sensitive attributes
 
     """
-    def __init__(self, X_test, y_test, sensitive_attributes_dct, test_groups=None):
+    def __init__(self, X_test: pd.DataFrame, y_test: pd.DataFrame, sensitive_attributes_dct: dict, test_groups=None):
         super().__init__(X_test, y_test, sensitive_attributes_dct, test_groups)
-        self.overall_stability_metrics = None
+        self.overall_variance_metrics = None
 
-    def set_overall_stability_metrics(self, overall_stability_metrics):
-        self.overall_stability_metrics = overall_stability_metrics
+    def set_overall_variance_metrics(self, overall_variance_metrics):
+        self.overall_variance_metrics = overall_variance_metrics
 
-    def _compute_metrics(self, y_test, group_models_predictions):
+    def _compute_metrics(self, y_test: pd.DataFrame, group_models_predictions):
         _, _, prediction_stats = count_prediction_stats(y_test, group_models_predictions)
         return {
             'General_Ensemble_Accuracy': prediction_stats.accuracy,
@@ -43,20 +43,32 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
             'Label_Stability': np.mean(prediction_stats.label_stability_lst),
         }
 
-    def compute_subgroups_metrics(self, models_predictions, save_results, result_filename, save_dir_path):
+    def compute_subgroups_metrics(self, models_predictions: dict, save_results: bool,
+                                  result_filename: str = None, save_dir_path: str = None):
         """
-        Compute variance metrics for subgroups
+        Compute variance metrics for subgroups.
 
-        :param models_predictions: dict of lists, where key is a model index and value is model predictions based on X_test
-        :return: dict of dicts, where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup
+        Returns a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
+
+        Parameters
+        ----------
+        models_predictions
+            Dict of lists where key is a model index, and value is a list of model predictions based on X_test set
+        save_results
+            If we need to save result metrics in a file
+        result_filename
+            Optional, a filename for results to save
+        save_dir_path
+            Optional, a location where to save the results file
         """
         models_predictions = {
             model_idx: pd.Series(models_predictions[model_idx], index=self.y_test.index)
             for model_idx in models_predictions.keys()
         }
 
+        # Compute variance metrics for subgroups
         results = dict()
-        results['overall'] = self.overall_stability_metrics
+        results['overall'] = self.overall_variance_metrics
         for group_name in self.test_groups.keys():
             X_test_group = self.test_groups[group_name]
             group_models_predictions = {
@@ -66,8 +78,8 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
             results[group_name] = self._compute_metrics(self.y_test[X_test_group.index].reset_index(drop=True),
                                                         group_models_predictions)
 
-        self.fairness_metrics_dict = results
+        self.subgroups_variance_metrics_dict = results
         if save_results:
             self.save_metrics_to_file(result_filename, save_dir_path)
 
-        return self.fairness_metrics_dict
+        return self.subgroups_variance_metrics_dict
