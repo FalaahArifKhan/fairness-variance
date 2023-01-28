@@ -18,19 +18,19 @@ AbstractOverallVarianceAnalyzer description.
 
     [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
 
-- **X_train**
+- **X_train** (*pandas.core.frame.DataFrame*)
 
     Processed features train set
 
-- **y_train**
+- **y_train** (*pandas.core.frame.DataFrame*)
 
     Targets train set
 
-- **X_test**
+- **X_test** (*pandas.core.frame.DataFrame*)
 
     Processed features test set
 
-- **y_test**
+- **y_test** (*pandas.core.frame.DataFrame*)
 
     Targets test set
 
@@ -66,8 +66,8 @@ AbstractOverallVarianceAnalyzer description.
 
     **Parameters**
 
-    - **make_plots**     – defaults to `False`    
-    - **save_results**     – defaults to `True`    
+    - **make_plots**     (*bool*)     – defaults to `False`    
+    - **save_results**     (*bool*)     – defaults to `True`    
     
 ???- note "get_metrics_dict"
 

@@ -70,8 +70,8 @@ BatchOverallVarianceAnalyzer description.
 
     **Parameters**
 
-    - **make_plots**     – defaults to `False`    
-    - **save_results**     – defaults to `True`    
+    - **make_plots**     (*bool*)     – defaults to `False`    
+    - **save_results**     (*bool*)     – defaults to `True`    
     
 ???- note "get_metrics_dict"
 

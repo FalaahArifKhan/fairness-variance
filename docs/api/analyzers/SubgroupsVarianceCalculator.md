@@ -36,9 +36,9 @@ SubgroupsVarianceCalculator description.
     **Parameters**
 
     - **models_predictions**    
-    - **save_results**    
-    - **result_filename**    
-    - **save_dir_path**    
+    - **save_results**     (*bool*)    
+    - **result_filename**     (*str*)    
+    - **save_dir_path**     (*str*)    
     
 ???- note "save_metrics_to_file"
 
