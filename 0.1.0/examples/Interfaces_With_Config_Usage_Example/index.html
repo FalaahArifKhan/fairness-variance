@@ -1,0 +1,2355 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Responsible AI Toolset in Python">
+      
+      
+      
+      
+        <link rel="prev" href="../../api/user-interfaces/run-metrics-computation-with-config/">
+      
+      
+        <link rel="next" href="../Interfaces_With_Function_Args_Usage_Example/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.6">
+    
+    
+      
+        <title>Interfaces With Config Usage Example - My Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.558e4712.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Rubik:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Rubik";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+
+  <script id="__analytics">function __md_analytics(){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-63302552-3","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){var e;this.value&&(e=document.location.pathname,ga("send","pageview",e+"?q="+this.value))}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");ga("send","event","feedback","click",t,e),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){ga("send","pageview",e.pathname)})});var e=document.createElement("script");e.async=!0,e.src="https://www.google-analytics.com/analytics.js",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#import-dependencies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="My Docs" class="md-header__button md-logo" aria-label="My Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            My Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Interfaces With Config Usage Example
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/FalaahArifKhan/fairness-variance/tree/denys" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    raiser
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../api/overview/" class="md-tabs__link">
+        API reference 📚
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cloning-and-mutating/" class="md-tabs__link md-tabs__link--active">
+        Examples 🍱
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="My Docs" class="md-nav__button md-logo" aria-label="My Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    My Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/FalaahArifKhan/fairness-variance/tree/denys" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    raiser
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1" type="checkbox" id="__nav_1" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_1" tabindex="0" aria-expanded="false">
+          API reference 📚
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="API reference 📚" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          API reference 📚
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1_2" type="checkbox" id="__nav_1_2" >
+      
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_1_2" tabindex="0" aria-expanded="false">
+          analyzers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="analyzers" data-md-level="2">
+        <label class="md-nav__title" for="__nav_1_2">
+          <span class="md-nav__icon md-icon"></span>
+          analyzers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/analyzers/AbstractOverallVarianceAnalyzer/" class="md-nav__link">
+        AbstractOverallVarianceAnalyzer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/analyzers/AbstractSubgroupsAnalyzer/" class="md-nav__link">
+        AbstractSubgroupsAnalyzer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/analyzers/BatchOverallVarianceAnalyzer/" class="md-nav__link">
+        BatchOverallVarianceAnalyzer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/analyzers/SubgroupsStatisticalBiasAnalyzer/" class="md-nav__link">
+        SubgroupsStatisticalBiasAnalyzer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/analyzers/SubgroupsVarianceAnalyzer/" class="md-nav__link">
+        SubgroupsVarianceAnalyzer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/analyzers/SubgroupsVarianceCalculator/" class="md-nav__link">
+        SubgroupsVarianceCalculator
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_1_3" type="checkbox" id="__nav_1_3" >
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_1_3" tabindex="0" aria-expanded="false">
+          user_interfaces
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="user_interfaces" data-md-level="2">
+        <label class="md-nav__title" for="__nav_1_3">
+          <span class="md-nav__icon md-icon"></span>
+          user_interfaces
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/user-interfaces/run-metrics-computation-with-config/" class="md-nav__link">
+        run_metrics_computation_with_config
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+        
+          
+        
+      
+      
+        <label class="md-nav__link" for="__nav_2" tabindex="0" aria-expanded="true">
+          Examples 🍱
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Examples 🍱" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Examples 🍱
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cloning-and-mutating/" class="md-nav__link">
+        Cloning and mutating
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#import-dependencies" class="md-nav__link">
+    Import dependencies
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configs" class="md-nav__link">
+    Configs
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-dataset" class="md-nav__link">
+    Load dataset
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-metrics-for-a-base-model-with-a-compute_model_metrics_with_config-interface-and-input-arguments-as-a-config" class="md-nav__link">
+    Get metrics for a base model with a compute_model_metrics_with_config interface and input arguments as a config
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-metrics-for-a-list-of-models-with-a-run_metrics_computation_with_config-interface-and-input-arguments-as-a-config" class="md-nav__link">
+    Get metrics for a list of models with a run_metrics_computation_with_config interface and input arguments as a config
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>Interfaces With Config Usage Example</h1>
+
+<div class="highlight"><pre><span></span><code><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="o">%</span><span class="n">load_ext</span> <span class="n">autoreload</span>
+<span class="o">%</span><span class="n">autoreload</span> <span class="mi">2</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>The autoreload extension is already loaded. To reload it, use:
+  %reload_ext autoreload
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYTHONWARNINGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ignore&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">cur_folder_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">cur_folder_name</span> <span class="o">!=</span> <span class="s2">&quot;fairness-variance&quot;</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Current location: &#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Current location:  /home/denys_herasymuk/UCU/4course_2term/Bachelor_Thesis/Code/fairness-variance
+</code></pre></div>
+<h2 id="import-dependencies">Import dependencies<a class="headerlink" href="#import-dependencies" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+
+<span class="kn">from</span> <span class="nn">source.custom_initializers</span> <span class="kn">import</span> <span class="n">create_config_obj</span>
+<span class="kn">from</span> <span class="nn">source.custom_classes.data_loaders</span> <span class="kn">import</span> <span class="n">CompasWithoutSensitiveAttrsDataset</span>
+<span class="kn">from</span> <span class="nn">source.metrics_computation_interfaces</span> <span class="kn">import</span> <span class="n">run_metrics_computation_with_config</span><span class="p">,</span> <span class="n">compute_model_metrics_with_config</span>
+</code></pre></div>
+<h2 id="configs">Configs<a class="headerlink" href="#configs" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">create_config_obj</span><span class="p">(</span><span class="n">config_yaml_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;configs&#39;</span><span class="p">,</span> <span class="s1">&#39;experiment1_compas_config.yaml&#39;</span><span class="p">))</span>
+<span class="n">SAVE_RESULTS_DIR_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;results&#39;</span><span class="p">,</span> <span class="s1">&#39;hypothesis_space&#39;</span><span class="p">,</span>
+                                     <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_Metrics_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">__%H%M%S&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">models_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;DecisionTreeClassifier&#39;</span><span class="p">:</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">criterion</span><span class="o">=</span><span class="s1">&#39;gini&#39;</span><span class="p">,</span>
+                                                     <span class="n">max_depth</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                                                     <span class="n">max_features</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                                                     <span class="n">min_samples_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+    <span class="s1">&#39;LogisticRegression&#39;</span><span class="p">:</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                             <span class="n">max_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                                             <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;l2&#39;</span><span class="p">,</span>
+                                             <span class="n">solver</span><span class="o">=</span><span class="s1">&#39;newton-cg&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="load-dataset">Load dataset<a class="headerlink" href="#load-dataset" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">dataset</span> <span class="o">=</span> <span class="n">CompasWithoutSensitiveAttrsDataset</span><span class="p">(</span><span class="n">dataset_path</span><span class="o">=</span><span class="s1">&#39;data/COMPAS.csv&#39;</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">X_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>juv_fel_count</th>
+      <th>juv_misd_count</th>
+      <th>juv_other_count</th>
+      <th>priors_count</th>
+      <th>age_cat_25 - 45</th>
+      <th>age_cat_Greater than 45</th>
+      <th>age_cat_Less than 25</th>
+      <th>c_charge_degree_F</th>
+      <th>c_charge_degree_M</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>-2.340451</td>
+      <td>1.0</td>
+      <td>-15.010999</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>6.000000</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>7.513697</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="get-metrics-for-a-base-model-with-a-compute_model_metrics_with_config-interface-and-input-arguments-as-a-config">Get metrics for a base model with a compute_model_metrics_with_config interface and input arguments as a config<a class="headerlink" href="#get-metrics-for-a-base-model-with-a-compute_model_metrics_with_config-interface-and-input-arguments-as-a-config" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">model_name</span> <span class="o">=</span> <span class="s1">&#39;DecisionTreeClassifier&#39;</span>
+<span class="n">metrics_df</span> <span class="o">=</span> <span class="n">compute_model_metrics_with_config</span><span class="p">(</span><span class="n">models_config</span><span class="p">[</span><span class="n">model_name</span><span class="p">],</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span>
+                                               <span class="n">config</span><span class="p">,</span> <span class="n">SAVE_RESULTS_DIR_PATH</span><span class="p">,</span>
+                                               <span class="n">save_results</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                               <span class="n">debug_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Subgroups statistical bias and variance metrics: &#39;</span><span class="p">)</span>
+<span class="n">metrics_df</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Model random_state:  623
+Baseline X_train shape:  (4222, 9)
+Baseline X_test shape:  (1056, 9)
+
+Protected groups splits:
+sex_priv (214, 11)
+sex_dis (842, 11)
+race_priv (420, 11)
+race_dis (636, 11)
+sex&amp;race_priv (93, 11)
+sex&amp;race_dis (515, 11)
+
+
+Top rows of processed X train + validation set:
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>juv_fel_count</th>
+      <th>age_cat_25 - 45_1</th>
+      <th>juv_misd_count</th>
+      <th>juv_other_count</th>
+      <th>age_cat_Greater than 45_1</th>
+      <th>age_cat_Greater than 45_0</th>
+      <th>age_cat_Less than 25_0</th>
+      <th>c_charge_degree_F_0</th>
+      <th>c_charge_degree_F_1</th>
+      <th>age_cat_25 - 45_0</th>
+      <th>c_charge_degree_M_1</th>
+      <th>c_charge_degree_M_0</th>
+      <th>priors_count</th>
+      <th>age_cat_Less than 25_1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3600</th>
+      <td>-0.102581</td>
+      <td>1</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.274707</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3043</th>
+      <td>-0.102581</td>
+      <td>0</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.660459</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>418</th>
+      <td>-0.102581</td>
+      <td>1</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.467583</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3874</th>
+      <td>-0.102581</td>
+      <td>1</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.274707</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>442</th>
+      <td>-0.102581</td>
+      <td>0</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.660459</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4812</th>
+      <td>-0.102581</td>
+      <td>1</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.660459</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4487</th>
+      <td>-0.102581</td>
+      <td>1</td>
+      <td>-1.57448</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.467583</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4968</th>
+      <td>-0.102581</td>
+      <td>0</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.660459</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4394</th>
+      <td>-0.102581</td>
+      <td>0</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.081831</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3122</th>
+      <td>-0.102581</td>
+      <td>1</td>
+      <td>-0.13003</td>
+      <td>-0.149275</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.660459</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code>2023-01-27 00:30:40 abstract_overall_variance_analyzer.py INFO    : Start classifiers testing by bootstrap
+Classifiers testing by bootstrap: 100%|[34m██████████[0m| 100/100 [00:00&lt;00:00, 172.04it/s]
+
+
+
+
+
+
+2023-01-27 00:30:41 abstract_overall_variance_analyzer.py INFO    : Successfully tested classifiers by bootstrap
+2023-01-27 00:30:45 abstract_overall_variance_analyzer.py INFO    : Successfully computed predict proba metrics
+
+
+Subgroups statistical bias and variance metrics:
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Metric</th>
+      <th>overall</th>
+      <th>sex_priv</th>
+      <th>sex_dis</th>
+      <th>race_priv</th>
+      <th>race_dis</th>
+      <th>sex&amp;race_priv</th>
+      <th>sex&amp;race_dis</th>
+      <th>Model_Seed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>General_Ensemble_Accuracy</td>
+      <td>0.667614</td>
+      <td>0.696262</td>
+      <td>0.660333</td>
+      <td>0.647619</td>
+      <td>0.680818</td>
+      <td>0.655914</td>
+      <td>0.669903</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mean</td>
+      <td>0.524041</td>
+      <td>0.558159</td>
+      <td>0.515370</td>
+      <td>0.577132</td>
+      <td>0.488981</td>
+      <td>0.594027</td>
+      <td>0.479205</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Std</td>
+      <td>0.074339</td>
+      <td>0.075245</td>
+      <td>0.074109</td>
+      <td>0.069531</td>
+      <td>0.077515</td>
+      <td>0.076792</td>
+      <td>0.078327</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>IQR</td>
+      <td>0.087800</td>
+      <td>0.082206</td>
+      <td>0.089221</td>
+      <td>0.079059</td>
+      <td>0.093572</td>
+      <td>0.078600</td>
+      <td>0.095591</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Entropy</td>
+      <td>0.192341</td>
+      <td>0.180935</td>
+      <td>0.195240</td>
+      <td>0.161033</td>
+      <td>0.213016</td>
+      <td>0.171565</td>
+      <td>0.218861</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Jitter</td>
+      <td>0.120997</td>
+      <td>0.111341</td>
+      <td>0.123452</td>
+      <td>0.101976</td>
+      <td>0.133559</td>
+      <td>0.105502</td>
+      <td>0.137724</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Per_Sample_Accuracy</td>
+      <td>0.656477</td>
+      <td>0.695280</td>
+      <td>0.646615</td>
+      <td>0.645976</td>
+      <td>0.663412</td>
+      <td>0.653763</td>
+      <td>0.648427</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Label_Stability</td>
+      <td>0.837727</td>
+      <td>0.851682</td>
+      <td>0.834181</td>
+      <td>0.861095</td>
+      <td>0.822296</td>
+      <td>0.860645</td>
+      <td>0.817010</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>TPR</td>
+      <td>0.631356</td>
+      <td>0.618421</td>
+      <td>0.633838</td>
+      <td>0.472050</td>
+      <td>0.713826</td>
+      <td>0.472222</td>
+      <td>0.708487</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>TNR</td>
+      <td>0.696918</td>
+      <td>0.739130</td>
+      <td>0.683857</td>
+      <td>0.756757</td>
+      <td>0.649231</td>
+      <td>0.771930</td>
+      <td>0.627049</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>PPV</td>
+      <td>0.627368</td>
+      <td>0.566265</td>
+      <td>0.640306</td>
+      <td>0.546763</td>
+      <td>0.660714</td>
+      <td>0.566667</td>
+      <td>0.678445</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>FNR</td>
+      <td>0.368644</td>
+      <td>0.381579</td>
+      <td>0.366162</td>
+      <td>0.527950</td>
+      <td>0.286174</td>
+      <td>0.527778</td>
+      <td>0.291513</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>FPR</td>
+      <td>0.303082</td>
+      <td>0.260870</td>
+      <td>0.316143</td>
+      <td>0.243243</td>
+      <td>0.350769</td>
+      <td>0.228070</td>
+      <td>0.372951</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Accuracy</td>
+      <td>0.667614</td>
+      <td>0.696262</td>
+      <td>0.660333</td>
+      <td>0.647619</td>
+      <td>0.680818</td>
+      <td>0.655914</td>
+      <td>0.669903</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>F1</td>
+      <td>0.629356</td>
+      <td>0.591195</td>
+      <td>0.637056</td>
+      <td>0.506667</td>
+      <td>0.686244</td>
+      <td>0.515152</td>
+      <td>0.693141</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Selection-Rate</td>
+      <td>0.449811</td>
+      <td>0.387850</td>
+      <td>0.465558</td>
+      <td>0.330952</td>
+      <td>0.528302</td>
+      <td>0.322581</td>
+      <td>0.549515</td>
+      <td>623</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Positive-Rate</td>
+      <td>1.006356</td>
+      <td>1.092105</td>
+      <td>0.989899</td>
+      <td>0.863354</td>
+      <td>1.080386</td>
+      <td>0.833333</td>
+      <td>1.044280</td>
+      <td>623</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="get-metrics-for-a-list-of-models-with-a-run_metrics_computation_with_config-interface-and-input-arguments-as-a-config">Get metrics for a list of models with a run_metrics_computation_with_config interface and input arguments as a config<a class="headerlink" href="#get-metrics-for-a-list-of-models-with-a-run_metrics_computation_with_config-interface-and-input-arguments-as-a-config" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">models_metrics_dct</span> <span class="o">=</span> <span class="n">run_metrics_computation_with_config</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">models_config</span><span class="p">,</span> <span class="n">SAVE_RESULTS_DIR_PATH</span><span class="p">,</span> <span class="n">debug_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Analyze models in one run:   0%|[31m          [0m| 0/2 [00:00&lt;?, ?it/s]
+
+##############################  [Model 1 / 2] Analyze DecisionTreeClassifier  ##############################
+Model random_state:  491
+Baseline X_train shape:  (4222, 9)
+Baseline X_test shape:  (1056, 9)
+
+Protected groups splits:
+sex_priv (194, 11)
+sex_dis (862, 11)
+race_priv (394, 11)
+race_dis (662, 11)
+sex&amp;race_priv (98, 11)
+sex&amp;race_dis (566, 11)
+
+
+Top rows of processed X train + validation set:
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>juv_fel_count</th>
+      <th>age_cat_25 - 45_1</th>
+      <th>juv_misd_count</th>
+      <th>juv_other_count</th>
+      <th>age_cat_Greater than 45_1</th>
+      <th>age_cat_Greater than 45_0</th>
+      <th>age_cat_Less than 25_0</th>
+      <th>c_charge_degree_F_0</th>
+      <th>c_charge_degree_F_1</th>
+      <th>age_cat_25 - 45_0</th>
+      <th>c_charge_degree_M_1</th>
+      <th>c_charge_degree_M_0</th>
+      <th>priors_count</th>
+      <th>age_cat_Less than 25_1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2244</th>
+      <td>-0.093219</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.083401</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2266</th>
+      <td>-0.093219</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.862647</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>78</th>
+      <td>-0.093219</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.651029</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3323</th>
+      <td>-0.093219</td>
+      <td>0</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.651029</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1127</th>
+      <td>-4.406383</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>3.785338</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-4.495524</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4793</th>
+      <td>-0.093219</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.862647</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3494</th>
+      <td>-0.093219</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>-0.083401</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1289</th>
+      <td>-0.250909</td>
+      <td>1</td>
+      <td>1.104331</td>
+      <td>3.785338</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2.085418</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1530</th>
+      <td>-0.093219</td>
+      <td>1</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.295018</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1636</th>
+      <td>-0.093219</td>
+      <td>0</td>
+      <td>-0.130521</td>
+      <td>-0.154060</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.314656</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code>2023-01-27 00:30:55 abstract_overall_variance_analyzer.py INFO    : Start classifiers testing by bootstrap
+
+Classifiers testing by bootstrap: 100%|[34m██████████[0m| 100/100 [00:00&lt;00:00, 159.14it/s]
+
+
+
+
+
+
+2023-01-27 00:30:55 abstract_overall_variance_analyzer.py INFO    : Successfully tested classifiers by bootstrap
+2023-01-27 00:31:00 abstract_overall_variance_analyzer.py INFO    : Successfully computed predict proba metrics
+
+
+
+[DecisionTreeClassifier] Metrics matrix:
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Metric</th>
+      <th>overall</th>
+      <th>sex_priv</th>
+      <th>sex_dis</th>
+      <th>race_priv</th>
+      <th>race_dis</th>
+      <th>sex&amp;race_priv</th>
+      <th>sex&amp;race_dis</th>
+      <th>Model_Seed</th>
+      <th>Model_Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>General_Ensemble_Accuracy</td>
+      <td>0.703598</td>
+      <td>0.670103</td>
+      <td>0.711137</td>
+      <td>0.677665</td>
+      <td>0.719033</td>
+      <td>0.642857</td>
+      <td>0.722615</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mean</td>
+      <td>0.521465</td>
+      <td>0.567385</td>
+      <td>0.511131</td>
+      <td>0.582361</td>
+      <td>0.485222</td>
+      <td>0.593591</td>
+      <td>0.475824</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Std</td>
+      <td>0.073755</td>
+      <td>0.080002</td>
+      <td>0.072348</td>
+      <td>0.068526</td>
+      <td>0.076867</td>
+      <td>0.081239</td>
+      <td>0.076549</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>IQR</td>
+      <td>0.080800</td>
+      <td>0.088440</td>
+      <td>0.079081</td>
+      <td>0.076076</td>
+      <td>0.083612</td>
+      <td>0.083395</td>
+      <td>0.081920</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Entropy</td>
+      <td>0.219793</td>
+      <td>0.233656</td>
+      <td>0.216673</td>
+      <td>0.189168</td>
+      <td>0.238021</td>
+      <td>0.206719</td>
+      <td>0.234097</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Jitter</td>
+      <td>0.139630</td>
+      <td>0.148898</td>
+      <td>0.137544</td>
+      <td>0.120191</td>
+      <td>0.151199</td>
+      <td>0.129994</td>
+      <td>0.148316</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Per_Sample_Accuracy</td>
+      <td>0.681420</td>
+      <td>0.680670</td>
+      <td>0.681589</td>
+      <td>0.677589</td>
+      <td>0.683701</td>
+      <td>0.690612</td>
+      <td>0.685936</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Label_Stability</td>
+      <td>0.807689</td>
+      <td>0.795155</td>
+      <td>0.810510</td>
+      <td>0.832640</td>
+      <td>0.792840</td>
+      <td>0.826939</td>
+      <td>0.797951</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>TPR</td>
+      <td>0.679359</td>
+      <td>0.523077</td>
+      <td>0.702765</td>
+      <td>0.523490</td>
+      <td>0.745714</td>
+      <td>0.433333</td>
+      <td>0.761905</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>TNR</td>
+      <td>0.725314</td>
+      <td>0.744186</td>
+      <td>0.719626</td>
+      <td>0.771429</td>
+      <td>0.689103</td>
+      <td>0.735294</td>
+      <td>0.673307</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>PPV</td>
+      <td>0.689024</td>
+      <td>0.507463</td>
+      <td>0.717647</td>
+      <td>0.582090</td>
+      <td>0.729050</td>
+      <td>0.419355</td>
+      <td>0.745342</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>FNR</td>
+      <td>0.320641</td>
+      <td>0.476923</td>
+      <td>0.297235</td>
+      <td>0.476510</td>
+      <td>0.254286</td>
+      <td>0.566667</td>
+      <td>0.238095</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>FPR</td>
+      <td>0.274686</td>
+      <td>0.255814</td>
+      <td>0.280374</td>
+      <td>0.228571</td>
+      <td>0.310897</td>
+      <td>0.264706</td>
+      <td>0.326693</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Accuracy</td>
+      <td>0.703598</td>
+      <td>0.670103</td>
+      <td>0.711137</td>
+      <td>0.677665</td>
+      <td>0.719033</td>
+      <td>0.642857</td>
+      <td>0.722615</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>F1</td>
+      <td>0.684157</td>
+      <td>0.515152</td>
+      <td>0.710128</td>
+      <td>0.551237</td>
+      <td>0.737288</td>
+      <td>0.426230</td>
+      <td>0.753532</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Selection-Rate</td>
+      <td>0.465909</td>
+      <td>0.345361</td>
+      <td>0.493039</td>
+      <td>0.340102</td>
+      <td>0.540785</td>
+      <td>0.316327</td>
+      <td>0.568905</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Positive-Rate</td>
+      <td>0.985972</td>
+      <td>1.030769</td>
+      <td>0.979263</td>
+      <td>0.899329</td>
+      <td>1.022857</td>
+      <td>1.033333</td>
+      <td>1.022222</td>
+      <td>491</td>
+      <td>DecisionTreeClassifier</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code>Analyze models in one run:  50%|[31m█████     [0m| 1/2 [00:15&lt;00:15, 15.99s/it]
+
+
+
+
+
+##############################  [Model 2 / 2] Analyze LogisticRegression  ##############################
+Model random_state:  492
+Baseline X_train shape:  (4222, 9)
+Baseline X_test shape:  (1056, 9)
+
+Protected groups splits:
+sex_priv (223, 11)
+sex_dis (833, 11)
+race_priv (402, 11)
+race_dis (654, 11)
+sex&amp;race_priv (107, 11)
+sex&amp;race_dis (538, 11)
+
+
+Top rows of processed X train + validation set:
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>juv_fel_count</th>
+      <th>age_cat_25 - 45_1</th>
+      <th>juv_misd_count</th>
+      <th>juv_other_count</th>
+      <th>age_cat_Greater than 45_1</th>
+      <th>age_cat_Greater than 45_0</th>
+      <th>age_cat_Less than 25_0</th>
+      <th>c_charge_degree_F_0</th>
+      <th>c_charge_degree_F_1</th>
+      <th>age_cat_25 - 45_0</th>
+      <th>c_charge_degree_M_1</th>
+      <th>c_charge_degree_M_0</th>
+      <th>priors_count</th>
+      <th>age_cat_Less than 25_1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>658</th>
+      <td>-0.089367</td>
+      <td>1</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.648738</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4149</th>
+      <td>-0.089367</td>
+      <td>0</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.270758</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2851</th>
+      <td>-0.089367</td>
+      <td>1</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.459748</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1331</th>
+      <td>-0.089367</td>
+      <td>1</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.648738</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3069</th>
+      <td>-0.089367</td>
+      <td>1</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.270758</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4670</th>
+      <td>-0.089367</td>
+      <td>1</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.270758</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>616</th>
+      <td>-0.089367</td>
+      <td>0</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.270758</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4413</th>
+      <td>-0.089367</td>
+      <td>0</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.270758</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1244</th>
+      <td>-0.089367</td>
+      <td>0</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>-0.606756</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>947</th>
+      <td>-0.089367</td>
+      <td>0</td>
+      <td>-0.125836</td>
+      <td>-0.146782</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.863181</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code>2023-01-27 00:31:11 abstract_overall_variance_analyzer.py INFO    : Start classifiers testing by bootstrap
+
+Classifiers testing by bootstrap: 100%|[34m██████████[0m| 100/100 [00:05&lt;00:00, 19.17it/s]
+
+
+
+
+
+
+2023-01-27 00:31:16 abstract_overall_variance_analyzer.py INFO    : Successfully tested classifiers by bootstrap
+2023-01-27 00:31:19 abstract_overall_variance_analyzer.py INFO    : Successfully computed predict proba metrics
+
+
+
+[LogisticRegression] Metrics matrix:
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Metric</th>
+      <th>overall</th>
+      <th>sex_priv</th>
+      <th>sex_dis</th>
+      <th>race_priv</th>
+      <th>race_dis</th>
+      <th>sex&amp;race_priv</th>
+      <th>sex&amp;race_dis</th>
+      <th>Model_Seed</th>
+      <th>Model_Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>General_Ensemble_Accuracy</td>
+      <td>0.679924</td>
+      <td>0.659193</td>
+      <td>0.685474</td>
+      <td>0.671642</td>
+      <td>0.685015</td>
+      <td>0.672897</td>
+      <td>0.693309</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Mean</td>
+      <td>0.520122</td>
+      <td>0.565524</td>
+      <td>0.507968</td>
+      <td>0.581083</td>
+      <td>0.482651</td>
+      <td>0.606199</td>
+      <td>0.472871</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Std</td>
+      <td>0.021520</td>
+      <td>0.019211</td>
+      <td>0.022138</td>
+      <td>0.019990</td>
+      <td>0.022461</td>
+      <td>0.019146</td>
+      <td>0.023148</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>IQR</td>
+      <td>0.027995</td>
+      <td>0.024942</td>
+      <td>0.028812</td>
+      <td>0.026028</td>
+      <td>0.029203</td>
+      <td>0.024786</td>
+      <td>0.030091</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Entropy</td>
+      <td>0.079387</td>
+      <td>0.000000</td>
+      <td>0.080575</td>
+      <td>0.077811</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Jitter</td>
+      <td>0.049364</td>
+      <td>0.045588</td>
+      <td>0.050375</td>
+      <td>0.049021</td>
+      <td>0.049576</td>
+      <td>0.040521</td>
+      <td>0.049428</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Per_Sample_Accuracy</td>
+      <td>0.674536</td>
+      <td>0.652108</td>
+      <td>0.680540</td>
+      <td>0.664229</td>
+      <td>0.680872</td>
+      <td>0.663364</td>
+      <td>0.689312</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Label_Stability</td>
+      <td>0.935625</td>
+      <td>0.942422</td>
+      <td>0.933806</td>
+      <td>0.934527</td>
+      <td>0.936300</td>
+      <td>0.946168</td>
+      <td>0.935725</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>TPR</td>
+      <td>0.632860</td>
+      <td>0.455696</td>
+      <td>0.666667</td>
+      <td>0.440000</td>
+      <td>0.717201</td>
+      <td>0.323529</td>
+      <td>0.741611</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>TNR</td>
+      <td>0.721137</td>
+      <td>0.770833</td>
+      <td>0.704057</td>
+      <td>0.809524</td>
+      <td>0.649518</td>
+      <td>0.835616</td>
+      <td>0.633333</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>PPV</td>
+      <td>0.665245</td>
+      <td>0.521739</td>
+      <td>0.690000</td>
+      <td>0.578947</td>
+      <td>0.692958</td>
+      <td>0.478261</td>
+      <td>0.715210</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>FNR</td>
+      <td>0.367140</td>
+      <td>0.544304</td>
+      <td>0.333333</td>
+      <td>0.560000</td>
+      <td>0.282799</td>
+      <td>0.676471</td>
+      <td>0.258389</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>FPR</td>
+      <td>0.278863</td>
+      <td>0.229167</td>
+      <td>0.295943</td>
+      <td>0.190476</td>
+      <td>0.350482</td>
+      <td>0.164384</td>
+      <td>0.366667</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Accuracy</td>
+      <td>0.679924</td>
+      <td>0.659193</td>
+      <td>0.685474</td>
+      <td>0.671642</td>
+      <td>0.685015</td>
+      <td>0.672897</td>
+      <td>0.693309</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>F1</td>
+      <td>0.648649</td>
+      <td>0.486486</td>
+      <td>0.678133</td>
+      <td>0.500000</td>
+      <td>0.704871</td>
+      <td>0.385965</td>
+      <td>0.728171</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Selection-Rate</td>
+      <td>0.444129</td>
+      <td>0.309417</td>
+      <td>0.480192</td>
+      <td>0.283582</td>
+      <td>0.542813</td>
+      <td>0.214953</td>
+      <td>0.574349</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Positive-Rate</td>
+      <td>0.951318</td>
+      <td>0.873418</td>
+      <td>0.966184</td>
+      <td>0.760000</td>
+      <td>1.034985</td>
+      <td>0.676471</td>
+      <td>1.036913</td>
+      <td>492</td>
+      <td>LogisticRegression</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="highlight"><pre><span></span><code>Analyze models in one run: 100%|[31m██████████[0m| 2/2 [00:34&lt;00:00, 17.23s/it]
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        
+
+<!-- Application footer -->
+<footer class="md-footer">
+
+  <!-- Further information -->
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+
+      <!-- Copyright and theme information -->
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a
+          href="https://squidfunk.github.io/mkdocs-material/"
+          target="_blank" rel="noopener"
+        >
+          Material for MkDocs
+        </a>
+      </div>
+
+      <!-- Social links -->
+      <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/FalaahArifKhan/fairness-variance/tree/denys" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+    </a>
+  
+</div>
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.instant", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.e5c33ebb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.51d95adb.min.js"></script>
+      
+        <script src="../../javascripts/config.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
