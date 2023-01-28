@@ -7,18 +7,6 @@ from configs.constants import INTERSECTION_SIGN
 from source.custom_classes.custom_logger import CustomHandler
 
 
-def get_logger():
-    logger = logging.getLogger('root')
-    logger.setLevel('INFO')
-    logging.disable(logging.DEBUG)
-
-    if logger.hasHandlers():
-        logger.handlers.clear()
-    logger.addHandler(CustomHandler())
-
-    return logger
-
-
 def validate_config(config_obj):
     if not isinstance(config_obj.dataset_name, str):
         raise ValueError('dataset_name must be string')

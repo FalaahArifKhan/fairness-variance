@@ -5,20 +5,33 @@ import scipy as sp
 from scipy.stats import entropy
 
 
-def compute_label_stability(predicted_labels):
+def compute_label_stability(predicted_labels: list):
     """
     Label stability is defined as the absolute difference between the number of times the sample is classified as 0 and 1
     If the absolute difference is large, the label is more stable
-    If the difference is exactly zero then it's extremely unstable --- equally likely to be classified as 0 or 1
+    If the difference is exactly zero, then it's extremely unstable --- equally likely to be classified as 0 or 1
+
+    Parameters
+    ----------
+    predicted_labels
+
     """
     count_pos = sum(predicted_labels)
     count_neg = len(predicted_labels) - count_pos
+
     return np.abs(count_pos - count_neg)/len(predicted_labels)
 
 
-def compute_churn(predicted_labels_1, predicted_labels_2):
+def compute_churn(predicted_labels_1: list, predicted_labels_2: list):
     """
     Pairwise stability metric for two model predictions
+
+    Parameters
+    ----------
+    predicted_labels_1
+
+    predicted_labels_2
+
     """
     return np.sum([int(predicted_labels_1[i] != predicted_labels_2[i])
                    for i in range(len(predicted_labels_1))]) / len(predicted_labels_1)
@@ -28,6 +41,11 @@ def compute_jitter(models_prediction_labels):
     """
     Jitter is a stability metric that shows how the base model predictions fluctuate.
     Values closer to 0 -- perfect stability, values closer to 1 -- extremely bad stability.
+
+    Parameters
+    ----------
+    models_prediction_labels
+
     """
     n_models = len(models_prediction_labels)
     models_idx_lst = [i for i in range(n_models)]
@@ -39,7 +57,14 @@ def compute_jitter(models_prediction_labels):
 
 
 def compute_entropy(labels):
-    """ Computes entropy of label distribution. """
+    """
+    Computes entropy of label distribution.
+
+    Parameters
+    ----------
+    labels
+
+    """
     n_labels = len(labels)
 
     if n_labels <= 1:
@@ -62,11 +87,24 @@ def compute_entropy(labels):
 
 
 def compute_conf_interval(labels):
-    """ Create 95% confidence interval for population mean weight """
+    """
+    Create 95% confidence interval for population mean weight.
+
+    Parameters
+    ----------
+    labels
+
+    """
     return sp.stats.norm.interval(alpha=0.95, loc=np.mean(labels), scale=sp.stats.sem(labels))
 
 
 def compute_stability_metrics(results):
+    """
+    Parameters
+    ----------
+    results
+
+    """
     means_lst = results.mean().values
     stds_lst = results.std().values
     iqr_lst = sp.stats.iqr(results, axis=0)
@@ -76,10 +114,17 @@ def compute_stability_metrics(results):
 
 def compute_per_sample_accuracy(y_test, results):
     """
+    Compute per-sample accuracy for each model predictions.
 
-    :param y_test: y test dataset
-    :param results: results variable from count_prediction_stats()
-    :return: per_sample_accuracy and label_stability (refer to https://www.osti.gov/servlets/purl/1527311)
+    Return per_sample_accuracy and label_stability (refer to https://www.osti.gov/servlets/purl/1527311)
+
+    Parameters
+    ----------
+    y_test
+        y test dataset
+    results
+        `results` variable from count_prediction_stats()
+
     """
     per_sample_predictions = {}
     label_stability = []

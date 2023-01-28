@@ -40,7 +40,7 @@ class BatchOverallVarianceAnalyzer(AbstractOverallVarianceAnalyzer):
 
     def _fit_model(self, classifier, X_train: pd.DataFrame, y_train: pd.DataFrame):
         """
-        Fit a classifier that is an instance of self.base_model
+        Fit a classifier that is an instance of self.base_model.
         """
         return classifier.fit(X_train, y_train)
 

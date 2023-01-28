@@ -1,6 +1,6 @@
 # AbstractOverallVarianceAnalyzer
 
-AbstractOverallVarianceAnalyzer description.
+Abstract class for an analyzer that computes overall variance metrics for subgroups.
 
 
 
@@ -51,14 +51,12 @@ AbstractOverallVarianceAnalyzer description.
 
     Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
 
+    Returns a dictionary where keys are models indexes, and values are lists of  correspondent model predictions for X_test set.
+
     **Parameters**
 
     - **boostrap_size**     (*int*)    
     - **with_replacement**     (*bool*)    
-    
-    **Returns**
-
-    Dictionary where keys are models indexes,
     
 ???- note "compute_metrics"
 

@@ -17,7 +17,7 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         Targets test set
     sensitive_attributes_dct
         A dictionary where keys are sensitive attributes names (including attributes intersections),
-         and values are privilege values for these subgroups
+         and values are privilege values for these attributes
     test_groups
         A dictionary where keys are sensitive attributes, and values input dataset rows
          that are correspondent to these sensitive attributes
@@ -69,6 +69,13 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         return self.subgroups_metrics_dict
 
     def save_metrics_to_file(self, result_filename: str, save_dir_path: str):
+        """
+        Parameters
+        ----------
+        result_filename
+
+        save_dir_path
+        """
         metrics_df = pd.DataFrame(self.subgroups_metrics_dict)
         os.makedirs(save_dir_path, exist_ok=True)
 

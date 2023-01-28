@@ -1,6 +1,6 @@
 # BatchOverallVarianceAnalyzer
 
-BatchOverallVarianceAnalyzer description.
+Analyzer to compute subgroups variance metrics for batch learning models.
 
 
 
@@ -18,19 +18,19 @@ BatchOverallVarianceAnalyzer description.
 
     [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
 
-- **X_train**
+- **X_train** (*pandas.core.frame.DataFrame*)
 
     Processed features train set
 
-- **y_train**
+- **y_train** (*pandas.core.frame.DataFrame*)
 
     Targets train set
 
-- **X_test**
+- **X_test** (*pandas.core.frame.DataFrame*)
 
     Processed features test set
 
-- **y_test**
+- **y_test** (*pandas.core.frame.DataFrame*)
 
     Targets test set
 
@@ -55,14 +55,12 @@ BatchOverallVarianceAnalyzer description.
 
     Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
 
+    Returns a dictionary where keys are models indexes, and values are lists of  correspondent model predictions for X_test set.
+
     **Parameters**
 
     - **boostrap_size**     (*int*)    
     - **with_replacement**     (*bool*)    
-    
-    **Returns**
-
-    Dictionary where keys are models indexes,
     
 ???- note "compute_metrics"
 

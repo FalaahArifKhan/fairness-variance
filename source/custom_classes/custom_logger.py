@@ -8,3 +8,15 @@ class CustomHandler(logging.StreamHandler):
         fmt_date = '%Y-%m-%d %H:%M:%S'
         formatter = logging.Formatter(fmt, fmt_date)
         self.setFormatter(formatter)
+
+
+def get_logger():
+    logger = logging.getLogger('root')
+    logger.setLevel('INFO')
+    logging.disable(logging.DEBUG)
+
+    if logger.hasHandlers():
+        logger.handlers.clear()
+    logger.addHandler(CustomHandler())
+
+    return logger

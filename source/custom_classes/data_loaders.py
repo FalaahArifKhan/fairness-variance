@@ -6,7 +6,16 @@ from folktables import ACSDataSource, ACSEmployment, ACSIncome, ACSTravelTime, A
 from source.custom_classes.base_dataset import BaseDataset
 
 
-class CompasDataset:
+class CompasDataset(BaseDataset):
+    """
+    Dataset class for COMPAS dataset that contains sensitive attributes among feature columns.
+
+    Parameters
+    ----------
+    dataset_path
+        Path to a dataset file
+
+    """
     def __init__(self, dataset_path):
         df = pd.read_csv(dataset_path)
 
@@ -15,21 +24,33 @@ class CompasDataset:
         int_columns_dct = {col: "int" for col in int_columns}
         df = df.astype(int_columns_dct)
 
-        self.target = 'recidivism'
-        self.numerical_columns = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count']
-        self.categorical_columns = ['race', 'age_cat_25 - 45', 'age_cat_Greater than 45',
+        target = 'recidivism'
+        numerical_columns = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count']
+        categorical_columns = ['race', 'age_cat_25 - 45', 'age_cat_Greater than 45',
                                     'age_cat_Less than 25', 'c_charge_degree_F', 'c_charge_degree_M', 'sex']
-        self.features = self.numerical_columns + self.categorical_columns
+        features = self.numerical_columns + self.categorical_columns
 
-        self.X_data = df[self.features]
-        self.y_data = df[self.target]
-        self.dataset = df
-
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        super().__init__(
+            pandas_df=df,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+        )
 
 
 class CompasWithoutSensitiveAttrsDataset(BaseDataset):
-    def __init__(self, dataset_path):
+    """
+    Dataset class for COMPAS dataset that does not contain sensitive attributes among feature columns
+     to test blind classifiers
+
+    Parameters
+    ----------
+    dataset_path
+        Path to a dataset file
+
+    """
+    def __init__(self, dataset_path: str):
         # Read a dataset
         df = pd.read_csv(dataset_path)
 

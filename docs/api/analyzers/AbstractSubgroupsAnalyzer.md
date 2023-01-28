@@ -1,6 +1,6 @@
 # AbstractSubgroupsAnalyzer
 
-AbstractSubgroupsAnalyzer description.
+Abstract class for a subgroups analyzer to compute metrics for subgroups.
 
 
 
@@ -16,7 +16,7 @@ AbstractSubgroupsAnalyzer description.
 
 - **sensitive_attributes_dct** (*dict*)
 
-    A dictionary where keys are sensitive attributes names (including attributes intersections),  and values are privilege values for these subgroups
+    A dictionary where keys are sensitive attributes names (including attributes intersections),  and values are privilege values for these attributes
 
 - **test_groups** (*dict*)
 
@@ -29,5 +29,23 @@ AbstractSubgroupsAnalyzer description.
 
 ???- note "compute_subgroups_metrics"
 
+    Compute metrics for each subgroup in self.test_groups using _compute_metrics method.
+
+    Returns a dictionary where keys are subgroup names, and values are subgroup metrics.
+
+    **Parameters**
+
+    - **y_preds**    
+    - **save_results**     (*bool*)    
+    - **result_filename**     (*str*)     – defaults to `None`    
+    - **save_dir_path**     (*str*)     – defaults to `None`    
+    
 ???- note "save_metrics_to_file"
 
+    
+
+    **Parameters**
+
+    - **result_filename**     (*str*)    
+    - **save_dir_path**     (*str*)    
+    

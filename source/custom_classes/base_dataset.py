@@ -1,17 +1,34 @@
-class BaseDataset:
-    def __init__(self, pandas_df, features, target, numerical_columns, categorical_columns,
-                 X_data=None, y_data=None, columns_with_nulls=None):
-        """
+import pandas as pd
 
-        :param pandas_df:
-        :param features:
-        :param target:
-        :param numerical_columns:
-        :param categorical_columns:
-        :param X_data: optional
-        :param y_data: optional
-        :param columns_with_nulls: optional
-        """
+
+class BaseDataset:
+    """
+    Base dataset class that is used as input for user interfaces.
+    Inherit from it to create a dataset class for your dataset file.
+
+    Parameters
+    ----------
+    pandas_df
+        Full dataset in a pandas dataframe format
+    features
+        List of feature column names
+    target
+        Name of the target column name
+    numerical_columns
+        List of numerical column names
+    categorical_columns
+        List of categorical column names
+    X_data
+        Optional, a dataframe of features
+    y_data
+        Optional, a dataframe with a target column
+    columns_with_nulls
+        Optional, a list of column names that contains nulls
+
+    """
+    def __init__(self, pandas_df: pd.DataFrame, features: list, target: str, numerical_columns: list,
+                 categorical_columns: list, X_data: pd.DataFrame = None, y_data: pd.DataFrame = None,
+                 columns_with_nulls: list = None):
         self.dataset = pandas_df
         self.target = target
         self.features = features

@@ -1,12 +1,12 @@
 # SubgroupsVarianceAnalyzer
 
-SubgroupsVarianceAnalyzer description.
+Analyzer to compute variance metrics for subgroups.
 
 
 
 ## Parameters
 
-- **model_setting**
+- **model_setting** (*dict*)
 
     Constant from configs.constants.ModelSetting
 
@@ -26,7 +26,7 @@ SubgroupsVarianceAnalyzer description.
 
     [0-1], fraction from train_pd_dataset for fitting an ensemble of base models
 
-- **base_pipeline** (*source.custom_classes.generic_pipeline.GenericPipeline*)
+- **base_pipeline** (*[custom_classes.GenericPipeline](../../custom_classes/GenericPipeline)*)
 
     Initialized object of GenericPipeline class
 
@@ -41,14 +41,14 @@ SubgroupsVarianceAnalyzer description.
 
 ???- note "compute_metrics"
 
-    Measure variance metrics for subgroups for the base model. Display stability plots for analysis if needed.  Save results to a .csv file if needed.
+    Measure variance metrics for subgroups for the base model. Display variance plots for analysis if needed.  Save results to a .csv file if needed.
 
-    :param save_results: bool if we need to save metrics in a file :param make_plots: bool, if display plots for analysis
+    Returns averaged bootstrap predictions and a pandas dataframe of variance metrics for subgroups.
 
     **Parameters**
 
-    - **save_results**    
-    - **result_filename**    
-    - **save_dir_path**    
-    - **make_plots**     – defaults to `True`    
+    - **save_results**     (*bool*)    
+    - **result_filename**     (*str*)     – defaults to `None`    
+    - **save_dir_path**     (*str*)     – defaults to `None`    
+    - **make_plots**     (*bool*)     – defaults to `True`    
     

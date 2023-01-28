@@ -6,7 +6,7 @@ Returns a dictionary where keys are model names, and values are metrics for sens
 
 ## Parameters
 
-- **dataset** (*source.custom_classes.base_dataset.BaseDataset*)
+- **dataset** (*[custom_classes.BaseDataset](../../custom_classes/BaseDataset)*)
 
     Dataset object that contains all needed attributes like target, features, numerical_columns etc
 

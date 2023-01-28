@@ -1,20 +1,20 @@
 # SubgroupsVarianceCalculator
 
-SubgroupsVarianceCalculator description.
+Calculator that calculates variance metrics for subgroups.
 
 
 
 ## Parameters
 
-- **X_test**
+- **X_test** (*pandas.core.frame.DataFrame*)
 
     Processed features test set
 
-- **y_test**
+- **y_test** (*pandas.core.frame.DataFrame*)
 
     Targets test set
 
-- **sensitive_attributes_dct**
+- **sensitive_attributes_dct** (*dict*)
 
     A dictionary where keys are sensitive attributes names (including attributes intersections),  and values are privilege values for these subgroups
 
@@ -29,18 +29,25 @@ SubgroupsVarianceCalculator description.
 
 ???- note "compute_subgroups_metrics"
 
-    Compute variance metrics for subgroups
+    Compute variance metrics for subgroups.
 
-    :param models_predictions: dict of lists, where key is a model index and value is model predictions based on X_test :return: dict of dicts, where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup
+    Returns a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
 
     **Parameters**
 
-    - **models_predictions**    
+    - **models_predictions**     (*dict*)    
     - **save_results**     (*bool*)    
-    - **result_filename**     (*str*)    
-    - **save_dir_path**     (*str*)    
+    - **result_filename**     (*str*)     – defaults to `None`    
+    - **save_dir_path**     (*str*)     – defaults to `None`    
     
 ???- note "save_metrics_to_file"
 
-???- note "set_overall_stability_metrics"
+    
+
+    **Parameters**
+
+    - **result_filename**     (*str*)    
+    - **save_dir_path**     (*str*)    
+    
+???- note "set_overall_variance_metrics"
 

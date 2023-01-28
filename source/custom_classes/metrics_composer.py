@@ -2,11 +2,27 @@ import pandas as pd
 
 
 class MetricsComposer:
-    def __init__(self, sensitive_attributes_dct, model_metrics_df):
+    """
+    Composer class that combines different metrics to create new ones such as 'Disparate_Impact' or 'Accuracy_Parity'
+
+    Parameters
+    ----------
+    sensitive_attributes_dct
+        A dictionary where keys are sensitive attribute names (including attributes intersections),
+         and values are privilege values for these attributes
+    model_metrics_df
+        Dataframe of subgroups metrics for one model
+    """
+    def __init__(self, sensitive_attributes_dct: dict, model_metrics_df: pd.DataFrame):
         self.sensitive_attributes_dct = sensitive_attributes_dct
         self.model_metrics_df = model_metrics_df
 
     def compose_metrics(self):
+        """
+        Compose subgroups metrics from self.model_metrics_df.
+
+        Return a dictionary of composed metrics.
+        """
         groups_metrics_dct = dict()
         for sensitive_attr in self.sensitive_attributes_dct.keys():
             dis_group = sensitive_attr + '_dis'
@@ -15,7 +31,7 @@ class MetricsComposer:
             cfm = cfm.set_index('Metric')
 
             groups_metrics_dct[sensitive_attr] = {
-                # Bias metrics
+                # Statistical Bias metrics
                 'Equalized_Odds_TPR': cfm[dis_group]['TPR'] - cfm[priv_group]['TPR'],
                 'Equalized_Odds_FPR': cfm[dis_group]['FPR'] - cfm[priv_group]['FPR'],
                 'Disparate_Impact': cfm[dis_group]['Positive-Rate'] / cfm[priv_group]['Positive-Rate'],

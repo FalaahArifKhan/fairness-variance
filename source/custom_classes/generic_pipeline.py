@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 
+from source.custom_classes.base_dataset import BaseDataset
 from source.preprocessing.basic_preprocessing import make_features_dfs
 from source.utils.common_helpers import create_test_groups
 
@@ -8,8 +9,22 @@ class GenericPipeline:
     """
     Custom class that is used in many internal functions for convenience.
     It contains general attributes for different metrics computation pipelines and useful custom methods.
+
+    Parameters
+    ----------
+    dataset
+        Instance of the dataset class inherited from BaseDataset
+    sensitive_attributes_dct
+        A dictionary where keys are sensitive attribute names (including attributes intersections),
+         and values are privilege values for these attributes
+    base_model
+        Instance of a base model for analyzes
+    metric_names
+        Names of metrics to compute for the base model
+
     """
-    def __init__(self, dataset, sensitive_attributes_dct, base_model=None, encoder=None, metric_names=None):
+    def __init__(self, dataset: BaseDataset, sensitive_attributes_dct: dict,
+                 base_model=None, metric_names: list = None):
         # Parse dataset attributes
         self.full_df = dataset.dataset
         self.features = dataset.features
@@ -22,7 +37,6 @@ class GenericPipeline:
 
         # Set input parameters
         self.sensitive_attributes_dct = sensitive_attributes_dct
-        self.encoder = encoder
         self.base_model = base_model
         self.metric_names = metric_names
 

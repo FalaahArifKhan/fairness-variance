@@ -9,8 +9,26 @@ from datetime import datetime, timezone
 from source.custom_classes.metrics_composer import MetricsComposer
 
 
+# TODO: complete documentation when finish this class
+
 class MetricsVisualizer:
-    def __init__(self, metrics_path, dataset_name, model_names, sensitive_attributes_dct):
+    """
+    Class to create useful visualizations of models metrics.
+
+    Parameters
+    ----------
+    metrics_path
+        Path to a folder with metrics
+    dataset_name
+        Name of a dataset that was included in metrics filenames and was used for the metrics computation
+    model_names
+        Metrics for what model names to visualize
+    sensitive_attributes_dct
+        A dictionary where keys are sensitive attributes names (including attributes intersections),
+         and values are privilege values for these attributes
+
+    """
+    def __init__(self, metrics_path: str, dataset_name: str, model_names: list, sensitive_attributes_dct: dict):
         sns.set_theme(style="whitegrid")
 
         self.dataset_name = dataset_name
@@ -60,7 +78,8 @@ class MetricsVisualizer:
                                                                                       var_name="Subgroup",
                                                                                       value_name="Value")
 
-    def visualize_overall_metrics(self, metrics_names, reversed_metrics_names=None, x_label="Prediction Metrics"):
+    def visualize_overall_metrics(self, metrics_names: list, reversed_metrics_names: list = None,
+                                  x_label: str = "Prediction Metrics"):
         if reversed_metrics_names is None:
             reversed_metrics_names = []
         metrics_names = set(metrics_names + reversed_metrics_names)
@@ -92,13 +111,16 @@ class MetricsVisualizer:
         g.set_axis_labels("", x_label)
         g.legend.set_title("")
 
-    def create_boxes_and_whiskers_for_models_multiple_runs(self, metrics_lst):
+    def create_boxes_and_whiskers_for_models_multiple_runs(self, metrics_lst: list):
+        """
+        Create a boxes-and-whiskers plot for subgroup metrics after multiple runs
+        """
         to_plot = self.all_models_metrics_df[self.all_models_metrics_df['Metric'].isin(metrics_lst)]
 
         plt.figure(figsize=(15, 8))
         ax = sns.boxplot(x=to_plot['Metric'],
-                          y=to_plot['overall'],
-                          hue=to_plot['Model_Name'])
+                         y=to_plot['overall'],
+                         hue=to_plot['Model_Name'])
 
         plt.legend(loc='upper left',
                    ncol=2,
@@ -113,7 +135,7 @@ class MetricsVisualizer:
             plt.close()
             return fig
 
-    def create_models_metrics_bar_chart(self, metrics_lst, metrics_group_name, default_plot_metric=None):
+    def create_models_metrics_bar_chart(self, metrics_lst: list, metrics_group_name: str, default_plot_metric: str = None):
         if default_plot_metric is None:
             default_plot_metric = metrics_lst[0]
 
@@ -193,7 +215,7 @@ class MetricsVisualizer:
                 )
         )
 
-    def create_html_report(self, report_save_path):
+    def create_html_report(self, report_save_path: str):
         self.__create_report = True
         boxes_and_whiskers_plot = self.create_boxes_and_whiskers_for_models_multiple_runs(metrics_lst=['Std', 'IQR', 'Jitter', 'FNR','FPR'])
         interactive_bar_chart = self.create_bias_variance_interactive_bar_chart()
