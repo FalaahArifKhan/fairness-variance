@@ -31,7 +31,7 @@ with open(os.path.join(HERE, NAME, "__version__.py")) as f:
 
 # TODO: clean requirements later
 with pathlib.Path('requirements.txt').open() as requirements_txt:
-    install_requires = [
+    base_packages = [
         str(requirement)
         for requirement
         in pkg_resources.parse_requirements(requirements_txt)
@@ -59,5 +59,22 @@ setup(
     ],
     packages=find_packages(exclude=("tests",)),
     include_package_data=True,
-    install_requires=install_requires,
+    install_requires=base_packages,
+    extras_require={
+        "docs": base_packages
+                + [
+                    "dominate",
+                    "flask",
+                    "ipykernel",
+                    "jupyter-client",
+                    "mike",
+                    "mkdocs",
+                    "mkdocs-awesome-pages-plugin",
+                    "mkdocs-material",
+                    "nbconvert",
+                    "python-slugify",
+                    "spacy",
+                    "watermark",
+                ],
+    },
 )

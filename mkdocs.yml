@@ -1,8 +1,15 @@
+# Project information
 site_name: My Docs
 site_description: Responsible AI Toolset in Python
 
+# Repository
+repo_name: raiser
+repo_url: https://github.com/FalaahArifKhan/fairness-variance/tree/denys
+edit_uri: ""
+
 theme:
   name: material
+  custom_dir: docs/overrides
   language: en
   palette:
     primary: indigo
@@ -10,6 +17,21 @@ theme:
   font:
     text: Rubik
     code: Roboto Mono
+  features:
+    - navigation.tabs
+    - navigation.instant
+    - navigation.indexes
+
+# Extras
+extra:
+  analytics:
+    provider: google
+    property: UA-63302552-3
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/FalaahArifKhan/fairness-variance/tree/denys
+  version:
+    provider: mike
 
 # Extensions
 markdown_extensions:
@@ -27,3 +49,11 @@ markdown_extensions:
 plugins:
   - search
   - awesome-pages
+
+extra_javascript:
+  - javascripts/config.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/extra.css
