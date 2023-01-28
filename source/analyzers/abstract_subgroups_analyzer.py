@@ -34,7 +34,7 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
     def _compute_metrics(self, y_test, y_preds):
         pass
 
-    def compute_subgroups_metrics(self, y_preds, save_results, result_filename, save_dir_path):
+    def compute_subgroups_metrics(self, y_preds: list, save_results: bool, result_filename: str, save_dir_path: str):
         y_pred_all = pd.Series(y_preds, index=self.y_test.index)
 
         results = dict()
@@ -49,7 +49,7 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
 
         return self.fairness_metrics_dict
 
-    def save_metrics_to_file(self, result_filename, save_dir_path):
+    def save_metrics_to_file(self, result_filename: str, save_dir_path: str):
         metrics_df = pd.DataFrame(self.fairness_metrics_dict)
         os.makedirs(save_dir_path, exist_ok=True)
 

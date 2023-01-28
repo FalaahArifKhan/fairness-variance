@@ -39,7 +39,8 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
 
     """
     def __init__(self, base_model, base_model_name: str, bootstrap_fraction: float,
-                 X_train, y_train, X_test, y_test, dataset_name: str, n_estimators: int):
+                 X_train: pd.DataFrame, y_train: pd.DataFrame, X_test: pd.DataFrame, y_test: pd.DataFrame,
+                 dataset_name: str, n_estimators: int):
         self.base_model = base_model
         self.base_model_name = base_model_name
         self.bootstrap_fraction = bootstrap_fraction
@@ -77,14 +78,14 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
     def _batch_predict_proba(self, classifier, X_test):
         pass
 
-    def compute_metrics(self, make_plots=False, save_results=True):
+    def compute_metrics(self, make_plots: bool = False, save_results: bool = True):
         """
         Measure metrics for the base model. Display plots for analysis if needed. Save results to a .pkl file
 
         Parameters
         ----------
         make_plots
-            bool, if display plots for analysis
+            bool, if to display plots for analysis
         """
         # Quantify uncertainty for the base model
         boostrap_size = int(self.bootstrap_fraction * self.X_train.shape[0])
@@ -143,6 +144,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         models_predictions = {idx: [] for idx in range(self.n_estimators)}
         print('\n', flush=True)
         self.__logger.info('Start classifiers testing by bootstrap')
+        # Train and test each estimator in models_predictions
         for idx in tqdm(range(self.n_estimators),
                         desc="Classifiers testing by bootstrap",
                         colour="blue",
@@ -154,6 +156,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
 
         print('\n', flush=True)
         self.__logger.info('Successfully tested classifiers by bootstrap')
+
         return models_predictions
 
     def __update_metrics(self, accuracy, means_lst, stds_lst, iqr_lst, entropy_lst, jitter_lst,
