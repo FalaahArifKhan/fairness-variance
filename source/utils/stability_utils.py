@@ -8,23 +8,29 @@ from matplotlib import pyplot as plt
 
 from configs.constants import CountPredictionStatsResponse
 from source.utils.data_viz_utils import set_size
-from source.metrics.stability_metrics import compute_stability_metrics, compute_entropy, compute_jitter, \
+from source.metrics.stability_metrics import compute_std_mean_iqr_metrics, compute_entropy, compute_jitter, \
     compute_per_sample_accuracy
 
 
-def count_prediction_stats(y_test, uq_results):
+def count_prediction_stats(y_test: pd.DataFrame, uq_results):
     """
-    Compute means, stds, iqr, accuracy, jitter and transform predictions to pd df
+    Compute means, stds, iqr, entropy, jitter, label stability, and transform predictions to pd.Dataframe.
 
-    :param y_test: true labels
-    :param uq_results: predicted labels
+    Return a 1D numpy array of predictions, 2D array of each model prediction for y_test, a data structure of metrics.
+
+    Parameters
+    ----------
+    y_test
+        True labels
+    uq_results
+        2D array of prediction labels by each model
     """
     if isinstance(uq_results, np.ndarray):
         results = pd.DataFrame(uq_results)
     else:
         results = pd.DataFrame(uq_results).transpose()
 
-    means_lst, stds_lst, iqr_lst = compute_stability_metrics(results)
+    means_lst, stds_lst, iqr_lst = compute_std_mean_iqr_metrics(results)
 
     # Convert predict proba results of each model to correspondent labels
     uq_labels = results.applymap(lambda x: int(x<0.5))

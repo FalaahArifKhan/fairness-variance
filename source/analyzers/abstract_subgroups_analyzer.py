@@ -18,16 +18,16 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
     sensitive_attributes_dct
         A dictionary where keys are sensitive attributes names (including attributes intersections),
          and values are privilege values for these attributes
-    test_groups
+    test_protected_groups
         A dictionary where keys are sensitive attributes, and values input dataset rows
          that are correspondent to these sensitive attributes
 
     """
-    def __init__(self, X_test: pd.DataFrame, y_test: pd.DataFrame, sensitive_attributes_dct: dict, test_groups: dict):
+    def __init__(self, X_test: pd.DataFrame, y_test: pd.DataFrame, sensitive_attributes_dct: dict, test_protected_groups: dict):
         self.sensitive_attributes_dct = sensitive_attributes_dct
         self.X_test = X_test
         self.y_test = y_test
-        self.test_groups = test_groups
+        self.test_protected_groups = test_protected_groups
         self.subgroups_metrics_dict = {}
 
     @abstractmethod
@@ -37,9 +37,9 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
     def compute_subgroups_metrics(self, y_preds, save_results: bool,
                                   result_filename: str = None, save_dir_path: str = None):
         """
-        Compute metrics for each subgroup in self.test_groups using _compute_metrics method.
+        Compute metrics for each subgroup in self.test_protected_groups using _compute_metrics method.
 
-        Returns a dictionary where keys are subgroup names, and values are subgroup metrics.
+        Return a dictionary where keys are subgroup names, and values are subgroup metrics.
         
         Parameters
         ----------
@@ -48,9 +48,9 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         save_results
             If to save results in a file
         result_filename
-            Optional, a filename for results to save
+            [Optional] Filename for results to save
         save_dir_path
-            Optional, a location where to save the results file
+            [Optional] Location where to save the results file
 
         """
         y_pred_all = pd.Series(y_preds, index=self.y_test.index)
@@ -58,8 +58,8 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         # Compute metrics for each subgroup
         results = dict()
         results['overall'] = self._compute_metrics(self.y_test, y_pred_all)
-        for group_name in self.test_groups.keys():
-            X_test_group = self.test_groups[group_name]
+        for group_name in self.test_protected_groups.keys():
+            X_test_group = self.test_protected_groups[group_name]
             results[group_name] = self._compute_metrics(self.y_test[X_test_group.index], y_pred_all[X_test_group.index])
 
         self.subgroups_metrics_dict = results

@@ -18,7 +18,7 @@ Abstract class for a subgroups analyzer to compute metrics for subgroups.
 
     A dictionary where keys are sensitive attributes names (including attributes intersections),  and values are privilege values for these attributes
 
-- **test_groups** (*dict*)
+- **test_protected_groups** (*dict*)
 
     A dictionary where keys are sensitive attributes, and values input dataset rows  that are correspondent to these sensitive attributes
 
@@ -29,9 +29,9 @@ Abstract class for a subgroups analyzer to compute metrics for subgroups.
 
 ???- note "compute_subgroups_metrics"
 
-    Compute metrics for each subgroup in self.test_groups using _compute_metrics method.
+    Compute metrics for each subgroup in self.test_protected_groups using _compute_metrics method.
 
-    Returns a dictionary where keys are subgroup names, and values are subgroup metrics.
+    Return a dictionary where keys are subgroup names, and values are subgroup metrics.
 
     **Parameters**
 

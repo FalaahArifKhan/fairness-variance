@@ -2,7 +2,7 @@
 
 Find variance and statistical bias metrics for each model in models_config. Save results in `save_results_dir_path` folder.
 
-Returns a dictionary where keys are model names, and values are metrics for sensitive attributes defined in config.
+Return a dictionary where keys are model names, and values are metrics for sensitive attributes defined in config.
 
 ## Parameters
 
@@ -24,11 +24,11 @@ Returns a dictionary where keys are model names, and values are metrics for sens
 
 - **run_seed** (*int*) – defaults to `None`
 
-    Base seed for this run
+    [Optional] Base seed for this run
 
 - **debug_mode** (*bool*) – defaults to `False`
 
-    Enable or disable extra logs
+    [Optional] Enable or disable extra logs
 
 
 

@@ -1,13 +1,22 @@
 import os
-import logging
 from datetime import datetime, timezone
+
+import pandas as pd
 from sklearn.metrics import confusion_matrix
 
 from configs.constants import INTERSECTION_SIGN
-from source.custom_classes.custom_logger import CustomHandler
 
 
 def validate_config(config_obj):
+    """
+    Validate parameters types and values in config yaml file.
+
+    Parameters
+    ----------
+    config_obj
+        Object with parameters defined in a yaml file
+
+    """
     if not isinstance(config_obj.dataset_name, str):
         raise ValueError('dataset_name must be string')
     elif not isinstance(config_obj.test_set_fraction, float):
@@ -58,7 +67,24 @@ def check_sensitive_attrs_in_columns(df_columns, sensitive_attributes_dct):
     return True
 
 
-def create_test_groups(X_test, full_df, sensitive_attributes_dct):
+def create_test_protected_groups(X_test: pd.DataFrame, full_df: pd.DataFrame, sensitive_attributes_dct: dict):
+    """
+    Create protected groups based on a test feature set.
+
+    Return a dictionary where keys are subgroup names, and values are X_test rows correspondent to this subgroup.
+
+    Parameters
+    ----------
+    X_test
+        Test feature set
+    full_df
+        Full dataset
+    sensitive_attributes_dct
+        A dictionary where keys are sensitive attribute names (including attributes intersections),
+         and values are privilege values for these attributes
+
+    """
+
     # Check if input sensitive attributes are in X_test.columns.
     # If no, add them only to create test groups
     if check_sensitive_attrs_in_columns(X_test.columns, sensitive_attributes_dct):
@@ -84,7 +110,7 @@ def create_test_groups(X_test, full_df, sensitive_attributes_dct):
 
 
 def confusion_matrix_metrics(y_true, y_preds):
-    metrics={}
+    metrics = {}
     TN, FP, FN, TP = confusion_matrix(y_true, y_preds).ravel()
     metrics['TPR'] = TP/(TP+FN)
     metrics['TNR'] = TN/(TN+FP)

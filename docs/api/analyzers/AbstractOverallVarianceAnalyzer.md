@@ -51,7 +51,7 @@ Abstract class for an analyzer that computes overall variance metrics for subgro
 
     Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
 
-    Returns a dictionary where keys are models indexes, and values are lists of  correspondent model predictions for X_test set.
+    Return a dictionary where keys are models indexes, and values are lists of  correspondent model predictions for X_test set.
 
     **Parameters**
 

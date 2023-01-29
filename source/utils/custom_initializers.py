@@ -5,10 +5,16 @@ from source.custom_classes.generic_pipeline import GenericPipeline
 from source.utils.common_helpers import validate_config
 
 
-__all__ = []
+def create_config_obj(config_yaml_path: str):
+    """
+    Return a config object created based on a config yaml file.
 
+    Parameters
+    ----------
+    config_yaml_path
+        Path to a config yaml file
 
-def create_config_obj(config_yaml_path):
+    """
     with open(config_yaml_path) as f:
         config_dct = yaml.load(f, Loader=yaml.FullLoader)
 

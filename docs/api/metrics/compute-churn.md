@@ -1,6 +1,6 @@
 # compute_churn
 
-Pairwise stability metric for two model predictions
+Pairwise stability metric for two model predictions.
 
 
 

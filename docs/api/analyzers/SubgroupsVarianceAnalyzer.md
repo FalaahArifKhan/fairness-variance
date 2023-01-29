@@ -6,9 +6,9 @@ Analyzer to compute variance metrics for subgroups.
 
 ## Parameters
 
-- **model_setting** (*dict*)
+- **model_setting** (*configs.constants.ModelSetting*)
 
-    Constant from configs.constants.ModelSetting
+    Model learning type; a constant from configs.constants.ModelSetting
 
 - **n_estimators** (*int*)
 
@@ -43,7 +43,7 @@ Analyzer to compute variance metrics for subgroups.
 
     Measure variance metrics for subgroups for the base model. Display variance plots for analysis if needed.  Save results to a .csv file if needed.
 
-    Returns averaged bootstrap predictions and a pandas dataframe of variance metrics for subgroups.
+    Return averaged bootstrap predictions and a pandas dataframe of variance metrics for subgroups.
 
     **Parameters**
 

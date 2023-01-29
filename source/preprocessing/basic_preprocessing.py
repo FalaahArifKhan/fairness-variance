@@ -1,13 +1,22 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
+from source.custom_classes.base_dataset import BaseDataset
 
-__all__ = []
 
-
-def get_dummies(data, categorical_columns, numerical_columns):
+def get_dummies(data: pd.DataFrame, categorical_columns: list, numerical_columns: list):
     """
-    Return a dataset made by one-hot encoding for categorical columns and concatenate with numerical columns
+    Return a dataset made by one-hot encoding for categorical columns and concatenate with numerical columns.
+
+    Parameters
+    ----------
+    data
+        Dataframe for one-hot encoding
+    categorical_columns
+        List of categorical column names
+    numerical_columns
+        List of numerical column names
+
     """
     feature_df = pd.get_dummies(data[categorical_columns], columns=categorical_columns)
     for col in numerical_columns:
@@ -16,7 +25,19 @@ def get_dummies(data, categorical_columns, numerical_columns):
     return feature_df
 
 
-def make_features_dfs(X_train, X_test, dataset):
+def make_features_dfs(X_train, X_test, dataset: BaseDataset):
+    """
+    Return preprocessed train and test feature dataframes after one-hot encoding and standard scaling.
+
+    Parameters
+    ----------
+    X_train
+
+    X_test
+
+    dataset
+
+    """
     X_train_features = get_dummies(X_train, dataset.categorical_columns, dataset.numerical_columns)
     X_test_features = get_dummies(X_test, dataset.categorical_columns, dataset.numerical_columns)
 

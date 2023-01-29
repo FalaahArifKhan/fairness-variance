@@ -55,7 +55,7 @@ Analyzer to compute subgroups variance metrics for batch learning models.
 
     Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
 
-    Returns a dictionary where keys are models indexes, and values are lists of  correspondent model predictions for X_test set.
+    Return a dictionary where keys are models indexes, and values are lists of  correspondent model predictions for X_test set.
 
     **Parameters**
 

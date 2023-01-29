@@ -18,13 +18,13 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
     sensitive_attributes_dct
         A dictionary where keys are sensitive attributes names (including attributes intersections),
          and values are privilege values for these subgroups
-    test_groups
+    test_protected_groups
         A dictionary where keys are sensitive attributes, and values input dataset rows
          that are correspondent to these sensitive attributes
 
     """
-    def __init__(self, X_test: pd.DataFrame, y_test: pd.DataFrame, sensitive_attributes_dct: dict, test_groups=None):
-        super().__init__(X_test, y_test, sensitive_attributes_dct, test_groups)
+    def __init__(self, X_test: pd.DataFrame, y_test: pd.DataFrame, sensitive_attributes_dct: dict, test_protected_groups=None):
+        super().__init__(X_test, y_test, sensitive_attributes_dct, test_protected_groups)
         self.overall_variance_metrics = None
 
     def set_overall_variance_metrics(self, overall_variance_metrics):
@@ -48,7 +48,7 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
         """
         Compute variance metrics for subgroups.
 
-        Returns a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
+        Return a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
 
         Parameters
         ----------
@@ -57,9 +57,9 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
         save_results
             If we need to save result metrics in a file
         result_filename
-            Optional, a filename for results to save
+            [Optional] Filename for results to save
         save_dir_path
-            Optional, a location where to save the results file
+            [Optional] Location where to save the results file
         """
         models_predictions = {
             model_idx: pd.Series(models_predictions[model_idx], index=self.y_test.index)
@@ -69,8 +69,8 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
         # Compute variance metrics for subgroups
         results = dict()
         results['overall'] = self.overall_variance_metrics
-        for group_name in self.test_groups.keys():
-            X_test_group = self.test_groups[group_name]
+        for group_name in self.test_protected_groups.keys():
+            X_test_group = self.test_protected_groups[group_name]
             group_models_predictions = {
                 model_idx: models_predictions[model_idx][X_test_group.index].reset_index(drop=True)
                 for model_idx in models_predictions.keys()

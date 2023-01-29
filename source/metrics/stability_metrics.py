@@ -1,15 +1,16 @@
 import math
 import itertools
 import numpy as np
+import pandas as pd
 import scipy as sp
 from scipy.stats import entropy
 
 
 def compute_label_stability(predicted_labels: list):
     """
-    Label stability is defined as the absolute difference between the number of times the sample is classified as 0 and 1
-    If the absolute difference is large, the label is more stable
-    If the difference is exactly zero, then it's extremely unstable --- equally likely to be classified as 0 or 1
+    Label stability is defined as the absolute difference between the number of times the sample is classified as 0 and 1.
+    If the absolute difference is large, the label is more stable.
+    If the difference is exactly zero, then it's extremely unstable --- equally likely to be classified as 0 or 1.
 
     Parameters
     ----------
@@ -24,7 +25,7 @@ def compute_label_stability(predicted_labels: list):
 
 def compute_churn(predicted_labels_1: list, predicted_labels_2: list):
     """
-    Pairwise stability metric for two model predictions
+    Pairwise stability metric for two model predictions.
 
     Parameters
     ----------
@@ -98,8 +99,10 @@ def compute_conf_interval(labels):
     return sp.stats.norm.interval(alpha=0.95, loc=np.mean(labels), scale=sp.stats.sem(labels))
 
 
-def compute_stability_metrics(results):
+def compute_std_mean_iqr_metrics(results: pd.DataFrame):
     """
+    Compute mean, standard deviation, and interquartile range metrics.
+
     Parameters
     ----------
     results

@@ -19,11 +19,11 @@ class BaseDataset:
     categorical_columns
         List of categorical column names
     X_data
-        Optional, a dataframe of features
+        [Optional] Dataframe of features
     y_data
-        Optional, a dataframe with a target column
+        [Optional] Dataframe with a target column
     columns_with_nulls
-        Optional, a list of column names that contains nulls
+        [Optional] List of column names that contains nulls
 
     """
     def __init__(self, pandas_df: pd.DataFrame, features: list, target: str, numerical_columns: list,

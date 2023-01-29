@@ -13,7 +13,7 @@ class SubgroupsVarianceAnalyzer:
     Parameters
     ----------
     model_setting
-        Constant from configs.constants.ModelSetting
+        Model learning type; a constant from configs.constants.ModelSetting
     n_estimators
         Number of estimators for bootstrap
     base_model
@@ -28,7 +28,7 @@ class SubgroupsVarianceAnalyzer:
         Name of dataset, used for correct results naming
 
     """
-    def __init__(self, model_setting: dict, n_estimators: int, base_model, base_model_name: str,
+    def __init__(self, model_setting: ModelSetting, n_estimators: int, base_model, base_model_name: str,
                  bootstrap_fraction: float, base_pipeline: GenericPipeline, dataset_name: str):
         if model_setting == ModelSetting.BATCH:
             overall_variance_analyzer = BatchOverallVarianceAnalyzer(base_model, base_model_name, bootstrap_fraction,
@@ -45,7 +45,7 @@ class SubgroupsVarianceAnalyzer:
         self.__overall_variance_analyzer = overall_variance_analyzer
         self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(base_pipeline.X_test, base_pipeline.y_test,
                                                                            base_pipeline.sensitive_attributes_dct,
-                                                                           base_pipeline.test_groups)
+                                                                           base_pipeline.test_protected_groups)
         self.overall_variance_metrics_dct = dict()
         self.subgroups_variance_metrics_dct = dict()
 
@@ -55,16 +55,16 @@ class SubgroupsVarianceAnalyzer:
         Measure variance metrics for subgroups for the base model. Display variance plots for analysis if needed.
          Save results to a .csv file if needed.
 
-        Returns averaged bootstrap predictions and a pandas dataframe of variance metrics for subgroups.
+        Return averaged bootstrap predictions and a pandas dataframe of variance metrics for subgroups.
 
         Parameters
         ----------
         save_results
             If we need to save result metrics in a file
         result_filename
-            Optional, a filename for results to save
+            [Optional] Filename for results to save
         save_dir_path
-            Optional, a location where to save the results file
+            [Optional] Location where to save the results file
         make_plots
             If to display plots for analysis
 

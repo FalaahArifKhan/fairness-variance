@@ -9,7 +9,7 @@ from abc import ABCMeta, abstractmethod
 from source.custom_classes.custom_logger import get_logger
 from source.utils.data_viz_utils import plot_generic
 from source.utils.stability_utils import generate_bootstrap
-from source.utils.stability_utils import count_prediction_stats, compute_stability_metrics
+from source.utils.stability_utils import count_prediction_stats, compute_std_mean_iqr_metrics
 
 
 class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
@@ -109,7 +109,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
             self.print_metrics()
 
             # Count metrics based on label predictions to visualize plots
-            labels_means_lst, labels_stds_lst, labels_iqr_lst = compute_stability_metrics(uq_labels)
+            labels_means_lst, labels_stds_lst, labels_iqr_lst = compute_std_mean_iqr_metrics(uq_labels)
             self.__logger.info(f'Successfully computed predict labels metrics')
             per_sample_accuracy_lst = prediction_stats.per_sample_accuracy_lst
             label_stability_lst = prediction_stats.label_stability_lst
@@ -129,7 +129,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         """
         Quantifying uncertainty of the base model by constructing an ensemble from bootstrapped samples.
 
-        Returns a dictionary where keys are models indexes, and values are lists of
+        Return a dictionary where keys are models indexes, and values are lists of
          correspondent model predictions for X_test set.
 
         Parameters

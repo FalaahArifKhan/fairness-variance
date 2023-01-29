@@ -14,8 +14,35 @@ from source.utils.common_helpers import save_metrics_to_file
 from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
 
 
-def compute_model_metrics_with_config(base_model, model_name, dataset, config, save_results_dir_path: str,
-                                      model_seed: int = None, save_results=True, debug_mode=False) -> pd.DataFrame:
+def compute_model_metrics_with_config(base_model, model_name: str, dataset: BaseDataset, config, save_results_dir_path: str,
+                                      model_seed: int = None, save_results: bool = True, debug_mode: bool = False) -> pd.DataFrame:
+    """
+    Compute subgroup metrics for the base model. Arguments are defined as an input config object.
+    Save results in `save_results_dir_path` folder.
+
+    Return a dataframe of model metrics.
+
+    Parameters
+    ----------
+    base_model
+        Base model for metrics computation
+    model_name
+        Model name to name a result file with metrics
+    dataset
+        BaseDataset object that contains all needed attributes like target, features, numerical_columns etc.
+    config
+        Object that contains test_set_fraction, bootstrap_fraction, dataset_name,
+         n_estimators, sensitive_attributes_dct attributes
+    save_results_dir_path
+        Location where to save result files with metrics
+    model_seed
+        [Optional] Model seed
+    save_results
+        [Optional] If to save result metrics in a file
+    debug_mode
+        [Optional] Enable or disable extra logs
+
+    """
     if model_seed is None:
         model_seed = random.randint(1, 1000)
 
@@ -30,17 +57,52 @@ def compute_model_metrics_with_config(base_model, model_name, dataset, config, s
                                  debug_mode=debug_mode)
 
 
-def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: float, bootstrap_fraction: float,
-                          sensitive_attributes_dct, model_seed, dataset_name, base_model_name,
-                          save_results=True, save_results_dir_path=None, debug_mode=False):
+def compute_model_metrics(base_model, n_estimators: int, dataset: BaseDataset, test_set_fraction: float, bootstrap_fraction: float,
+                          sensitive_attributes_dct: dict, model_seed: int, dataset_name: str, base_model_name: str,
+                          save_results: bool = True, save_results_dir_path: str = None, debug_mode: bool = False):
+    """
+    Compute subgroup metrics for the base model.
+    Save results in `save_results_dir_path` folder.
+
+    Return a dataframe of model metrics.
+
+    Parameters
+    ----------
+    base_model
+        Base model for metrics computation
+    n_estimators
+        Number of estimators for bootstrap to compute subgroup variance metrics
+    dataset
+        BaseDataset object that contains all needed attributes like target, features, numerical_columns etc.
+    test_set_fraction
+        Fraction of the whole dataset in range [0.0 - 1.0] to create a test set
+    bootstrap_fraction
+        Fraction of a train set in range [0.0 - 1.0] to fit models in bootstrap
+    sensitive_attributes_dct
+        A dictionary where keys are sensitive attribute names (including attributes intersections),
+         and values are privilege values for these attributes
+    model_seed
+        Model seed
+    dataset_name
+        Dataset name to name a result file with metrics
+    base_model_name
+        Model name to name a result file with metrics
+    save_results
+        [Optional] If to save result metrics in a file
+    save_results_dir_path
+        [Optional] Location where to save result files with metrics
+    debug_mode
+        [Optional] Enable or disable extra logs
+
+    """
     base_model = reset_model_seed(base_model, model_seed)
     print('Model random_state: ', base_model.get_params().get('random_state', None))
 
     base_pipeline = create_base_pipeline(dataset, sensitive_attributes_dct, model_seed, test_set_fraction)
     if debug_mode:
         print('\nProtected groups splits:')
-        for g in base_pipeline.test_groups.keys():
-            print(g, base_pipeline.test_groups[g].shape)
+        for g in base_pipeline.test_protected_groups.keys():
+            print(g, base_pipeline.test_protected_groups[g].shape)
 
         print('\n\nTop rows of processed X train + validation set: ')
         display(base_pipeline.X_train_val.head(10))
@@ -56,7 +118,7 @@ def compute_model_metrics(base_model, n_estimators, dataset, test_set_fraction: 
 
     # Compute bias metrics for subgroups
     bias_analyzer = SubgroupsStatisticalBiasAnalyzer(base_pipeline.X_test, base_pipeline.y_test,
-                                                     base_pipeline.sensitive_attributes_dct, base_pipeline.test_groups)
+                                                     base_pipeline.sensitive_attributes_dct, base_pipeline.test_protected_groups)
     dtc_res = bias_analyzer.compute_subgroups_metrics(y_preds,
                                                       save_results=False,
                                                       result_filename=None,
@@ -82,7 +144,7 @@ def run_metrics_computation_with_config(dataset: BaseDataset, config, models_con
     Find variance and statistical bias metrics for each model in models_config.
     Save results in `save_results_dir_path` folder.
 
-    Returns a dictionary where keys are model names, and values are metrics for sensitive attributes defined in config.
+    Return a dictionary where keys are model names, and values are metrics for sensitive attributes defined in config.
 
     Parameters
     ----------
@@ -96,9 +158,9 @@ def run_metrics_computation_with_config(dataset: BaseDataset, config, models_con
     save_results_dir_path
         Location where to save result files with metrics
     run_seed
-        Base seed for this run
+        [Optional] Base seed for this run
     debug_mode
-        Enable or disable extra logs
+        [Optional] Enable or disable extra logs
 
     """
     if run_seed is None:
@@ -115,14 +177,41 @@ def run_metrics_computation_with_config(dataset: BaseDataset, config, models_con
                                    debug_mode=debug_mode)
 
 
-def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, dataset_name,
-                            models_config, n_estimators, sensitive_attributes_dct, model_seed: int = None,
-                            save_results=True, save_results_dir_path=None, debug_mode=False) -> dict:
+def run_metrics_computation(dataset: BaseDataset, test_set_fraction: float, bootstrap_fraction: float, dataset_name: str,
+                            models_config: dict, n_estimators: int, sensitive_attributes_dct: dict, model_seed: int = None,
+                            save_results: bool = True, save_results_dir_path: str = None, debug_mode: bool = False) -> dict:
     """
-    Find variance and bias metrics for each model in config.MODELS_CONFIG.
-    Save results in results/config.MODELS_CONFIG folder.
+    Find variance and statistical bias metrics for each model in models_config.
+    Save results in `save_results_dir_path` folder.
 
-    :param exp_num: the number of experiment; is used to name the result file with metrics
+    Return a dictionary where keys are model names, and values are metrics for sensitive attributes defined in config.
+
+    Parameters
+    ----------
+    dataset
+        Dataset object that contains all needed attributes like target, features, numerical_columns etc.
+    test_set_fraction
+        Fraction of the whole dataset in range [0.0 - 1.0] to create a test set
+    bootstrap_fraction
+        Fraction of a train set in range [0.0 - 1.0] to fit models in bootstrap
+    dataset_name
+        Dataset name to name a result file with metrics
+    models_config
+        Dictionary where keys are model names, and values are initialized models
+    n_estimators
+        Number of estimators for bootstrap to compute subgroup variance metrics
+    sensitive_attributes_dct
+        A dictionary where keys are sensitive attribute names (including attributes intersections),
+         and values are privilege values for these attributes
+    model_seed
+        [Optional] Model seed
+    save_results
+        [Optional] If to save result metrics in a file
+    save_results_dir_path
+        [Optional] Location where to save result files with metrics
+    debug_mode
+        [Optional] Enable or disable extra logs
+
     """
     models_metrics_dct = dict()
     num_models = len(models_config)
@@ -155,7 +244,29 @@ def run_metrics_computation(dataset, test_set_fraction, bootstrap_fraction, data
     return models_metrics_dct
 
 
-def compute_metrics_multiple_runs(dataset, config, models_config, save_results_dir_path: str, debug_mode=False) -> dict:
+def compute_metrics_multiple_runs(dataset: BaseDataset, config, models_config: dict,
+                                  save_results_dir_path: str, debug_mode=False) -> dict:
+    """
+    Find variance and statistical bias metrics for each model in models_config. Arguments are defined as an input config object.
+    Save results in `save_results_dir_path` folder.
+
+    Return a dictionary where keys are model names, and values are metrics for multiple runs and sensitive attributes defined in config.
+
+    Parameters
+    ----------
+    dataset
+        BaseDataset object that contains all needed attributes like target, features, numerical_columns etc.
+    config
+        Object that contains test_set_fraction, bootstrap_fraction, dataset_name,
+         n_estimators, sensitive_attributes_dct attributes
+    models_config
+        Dictionary where keys are model names, and values are initialized models
+    save_results_dir_path
+        Location where to save result files with metrics
+    debug_mode
+        [Optional] Enable or disable extra logs
+
+    """
     start_datetime = datetime.now(timezone.utc)
     os.makedirs(save_results_dir_path, exist_ok=True)
 

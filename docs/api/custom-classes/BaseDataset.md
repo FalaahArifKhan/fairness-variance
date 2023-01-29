@@ -28,15 +28,15 @@ Base dataset class that is used as input for user interfaces. Inherit from it to
 
 - **X_data** (*pandas.core.frame.DataFrame*) – defaults to `None`
 
-    Optional, a dataframe of features
+    [Optional] Dataframe of features
 
 - **y_data** (*pandas.core.frame.DataFrame*) – defaults to `None`
 
-    Optional, a dataframe with a target column
+    [Optional] Dataframe with a target column
 
 - **columns_with_nulls** (*list*) – defaults to `None`
 
-    Optional, a list of column names that contains nulls
+    [Optional] List of column names that contains nulls
 
 
 

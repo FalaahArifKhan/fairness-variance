@@ -18,7 +18,7 @@ Calculator that calculates variance metrics for subgroups.
 
     A dictionary where keys are sensitive attributes names (including attributes intersections),  and values are privilege values for these subgroups
 
-- **test_groups** – defaults to `None`
+- **test_protected_groups** – defaults to `None`
 
     A dictionary where keys are sensitive attributes, and values input dataset rows  that are correspondent to these sensitive attributes
 
@@ -31,7 +31,7 @@ Calculator that calculates variance metrics for subgroups.
 
     Compute variance metrics for subgroups.
 
-    Returns a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
+    Return a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
 
     **Parameters**
 

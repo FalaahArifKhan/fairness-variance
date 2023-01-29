@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split
 
 from source.custom_classes.base_dataset import BaseDataset
 from source.preprocessing.basic_preprocessing import make_features_dfs
-from source.utils.common_helpers import create_test_groups
+from source.utils.common_helpers import create_test_protected_groups
 
 
 class GenericPipeline:
@@ -51,7 +51,7 @@ class GenericPipeline:
         self.y_val = None
         self.X_train_val = None
         self.y_train_val = None
-        self.test_groups = None
+        self.test_protected_groups = None
 
     def create_preprocessed_train_test_split(self, dataset, test_set_fraction, seed):
         X_train, X_test, y_train, y_test = train_test_split(self.X_data, self.y_data,
@@ -65,7 +65,7 @@ class GenericPipeline:
         self.X_test = X_test_features
         self.y_train_val = y_train
         self.y_test = y_test
-        self.test_groups = create_test_groups(X_test, self.full_df, self.sensitive_attributes_dct)
+        self.test_protected_groups = create_test_protected_groups(X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train_val, self.y_train_val, self.X_test, self.y_test
 
@@ -80,7 +80,7 @@ class GenericPipeline:
         self.y_test = y_test
         self.X_val = X_val
         self.y_val = y_val
-        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
+        self.test_protected_groups = create_test_protected_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
 
@@ -95,7 +95,7 @@ class GenericPipeline:
         self.y_test = y_test
         self.X_val = X_val
         self.y_val = y_val
-        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
+        self.test_protected_groups = create_test_protected_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
 
@@ -106,7 +106,7 @@ class GenericPipeline:
         self.y_test = self.y_data.loc[test_idx]
         self.X_val = self.X_data.loc[val_idx]
         self.y_val = self.y_data.loc[val_idx]
-        self.test_groups = create_test_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
+        self.test_protected_groups = create_test_protected_groups(self.X_test, self.full_df, self.sensitive_attributes_dct)
 
         return self.X_train, self.y_train, self.X_test, self.y_test, self.X_val, self.y_val
     
