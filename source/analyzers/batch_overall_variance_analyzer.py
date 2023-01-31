@@ -5,7 +5,7 @@ from source.analyzers.abstract_overall_variance_analyzer import AbstractOverallV
 
 class BatchOverallVarianceAnalyzer(AbstractOverallVarianceAnalyzer):
     """
-    Analyzer to compute subgroups variance metrics for batch learning models.
+    Analyzer to compute subgroup variance metrics for batch learning models.
 
     Parameters
     ----------

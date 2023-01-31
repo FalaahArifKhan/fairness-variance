@@ -1,10 +1,10 @@
 import pandas as pd
 
-from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
+from source.analyzers.abstract_subgroup_analyzer import AbstractSubgroupAnalyzer
 from source.utils.common_helpers import confusion_matrix_metrics
 
 
-class SubgroupsStatisticalBiasAnalyzer(AbstractSubgroupsAnalyzer):
+class SubgroupStatisticalBiasAnalyzer(AbstractSubgroupAnalyzer):
     """
     Analyzer to compute statistical bias metrics for subgroups.
 

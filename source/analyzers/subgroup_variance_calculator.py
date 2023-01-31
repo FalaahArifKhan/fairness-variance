@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 
 from source.utils.stability_utils import count_prediction_stats
-from source.analyzers.abstract_subgroups_analyzer import AbstractSubgroupsAnalyzer
+from source.analyzers.abstract_subgroup_analyzer import AbstractSubgroupAnalyzer
 
 
-class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
+class SubgroupVarianceCalculator(AbstractSubgroupAnalyzer):
     """
     Calculator that calculates variance metrics for subgroups.
 
@@ -43,8 +43,8 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
             'Label_Stability': np.mean(prediction_stats.label_stability_lst),
         }
 
-    def compute_subgroups_metrics(self, models_predictions: dict, save_results: bool,
-                                  result_filename: str = None, save_dir_path: str = None):
+    def compute_subgroup_metrics(self, models_predictions: dict, save_results: bool,
+                                 result_filename: str = None, save_dir_path: str = None):
         """
         Compute variance metrics for subgroups.
 
@@ -78,8 +78,8 @@ class SubgroupsVarianceCalculator(AbstractSubgroupsAnalyzer):
             results[group_name] = self._compute_metrics(self.y_test[X_test_group.index].reset_index(drop=True),
                                                         group_models_predictions)
 
-        self.subgroups_variance_metrics_dict = results
+        self.subgroup_variance_metrics_dict = results
         if save_results:
             self.save_metrics_to_file(result_filename, save_dir_path)
 
-        return self.subgroups_variance_metrics_dict
+        return self.subgroup_variance_metrics_dict

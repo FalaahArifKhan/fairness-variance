@@ -71,6 +71,10 @@ This module contains user interfaces for metrics computation.
 
 ## utils
 
+
+Common helpers and utils.
+
+
 - [count_prediction_stats](../utils/count-prediction-stats)
 - [create_test_protected_groups](../utils/create-test-protected-groups)
 - [validate_config](../utils/validate-config)

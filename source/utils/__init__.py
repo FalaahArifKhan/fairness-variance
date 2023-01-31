@@ -1,3 +1,6 @@
+"""
+Common helpers and utils.
+"""
 from .common_helpers import (
     validate_config,
     create_test_protected_groups,

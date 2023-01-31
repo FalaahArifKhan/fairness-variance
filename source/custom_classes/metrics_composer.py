@@ -12,6 +12,7 @@ class MetricsComposer:
          and values are privilege values for these attributes
     model_metrics_df
         Dataframe of subgroups metrics for one model
+
     """
     def __init__(self, sensitive_attributes_dct: dict, model_metrics_df: pd.DataFrame):
         self.sensitive_attributes_dct = sensitive_attributes_dct
@@ -19,7 +20,7 @@ class MetricsComposer:
 
     def compose_metrics(self):
         """
-        Compose subgroups metrics from self.model_metrics_df.
+        Compose subgroup metrics from self.model_metrics_df.
 
         Return a dictionary of composed metrics.
         """

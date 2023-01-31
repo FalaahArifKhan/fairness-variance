@@ -76,7 +76,7 @@ class CompasWithoutSensitiveAttrsDataset(BaseDataset):
         )
 
 
-class ACSEmploymentDataset:
+class ACSEmploymentDataset(BaseDataset):
     def __init__(self, state, year, root_dir="data", with_nulls=False, optimize=True, subsample=None):
         """
         Loading task data: instead of using the task wrapper, we subsample the acs_data dataframe on the task features
@@ -94,26 +94,37 @@ class ACSEmploymentDataset:
         if subsample is not None:
             acs_data = acs_data.sample(subsample)
 
-        self.dataset = acs_data
-        self.features = ACSEmployment.features
-        self.target = ACSEmployment.target
-        self.categorical_columns = ['MAR', 'MIL', 'ESP', 'MIG', 'DREM', 'NATIVITY', 'DIS', 'DEAR', 'DEYE', 'SEX', 'RAC1P', 'RELP', 'CIT', 'ANC','SCHL']
-        self.numerical_columns = ['AGEP']
+        dataset = acs_data
+        features = ACSEmployment.features
+        target = ACSEmployment.target
+        categorical_columns = ['MAR', 'MIL', 'ESP', 'MIG', 'DREM', 'NATIVITY', 'DIS', 'DEAR', 'DEYE', 'SEX', 'RAC1P', 'RELP', 'CIT', 'ANC','SCHL']
+        numerical_columns = ['AGEP']
 
         if with_nulls is True:
-            X_data = acs_data[self.features]
+            X_data = acs_data[features]
         else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+            X_data = acs_data[features].apply(lambda x: np.nan_to_num(x, -1))
 
-        if optimize==True:
-            X_data = optimize_data_loading(X_data, self.categorical_columns)
+        if optimize:
+            X_data = optimize_data_loading(X_data, categorical_columns)
 
-        self.X_data = X_data[self.categorical_columns].astype('str')
-        for col in self.numerical_columns:
-            self.X_data[col] = X_data[col]
-        self.y_data = acs_data[self.target].apply(lambda x: int(x == 1))
+        optimized_X_data = X_data[categorical_columns].astype('str')
+        for col in numerical_columns:
+            optimized_X_data[col] = X_data[col]
+        y_data = acs_data[target].apply(lambda x: int(x == 1))
 
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        columns_with_nulls = optimized_X_data.columns[optimized_X_data.isna().any().to_list()].to_list()
+
+        super().__init__(
+            pandas_df=dataset,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+            X_data=optimized_X_data,
+            y_data=y_data,
+            columns_with_nulls=columns_with_nulls,
+        )
 
     def update_X_data(self, X_data):
         """
@@ -123,7 +134,7 @@ class ACSEmploymentDataset:
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSMobilityDataset:
+class ACSMobilityDataset(BaseDataset):
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -131,23 +142,34 @@ class ACSMobilityDataset:
             survey='person'
         )
         acs_data = data_source.get_data(states=state, download=True)
-        self.features = ACSMobility.features
-        self.target = ACSMobility.target
-        self.categorical_columns = ['MAR','SEX','DIS','ESP','CIT','MIL','ANC','NATIVITY','RELP','DEAR','DEYE','DREM','RAC1P','GCL','COW','ESR']
-        self.numerical_columns = ['AGEP', 'SCHL', 'PINCP', 'WKHP', 'JWMNP']
+        features = ACSMobility.features
+        target = ACSMobility.target
+        categorical_columns = ['MAR','SEX','DIS','ESP','CIT','MIL','ANC','NATIVITY','RELP','DEAR','DEYE','DREM','RAC1P','GCL','COW','ESR']
+        numerical_columns = ['AGEP', 'SCHL', 'PINCP', 'WKHP', 'JWMNP']
 
         if with_nulls:
-            X_data = acs_data[self.features]
+            X_data = acs_data[features]
         else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+            X_data = acs_data[features].apply(lambda x: np.nan_to_num(x, -1))
 
-        self.X_data = X_data[self.categorical_columns].astype('str')
-        for col in self.numerical_columns:
-            self.X_data[col] = X_data[col]
+        filtered_X_data = X_data[categorical_columns].astype('str')
+        for col in numerical_columns:
+            filtered_X_data[col] = X_data[col]
 
-        self.y_data = acs_data[self.target].apply(lambda x: int(x == 1))
+        y_data = acs_data[target].apply(lambda x: int(x == 1))
 
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        columns_with_nulls = filtered_X_data.columns[filtered_X_data.isna().any().to_list()].to_list()
+
+        super().__init__(
+            pandas_df=acs_data,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+            X_data=filtered_X_data,
+            y_data=y_data,
+            columns_with_nulls=columns_with_nulls,
+        )
 
     def update_X_data(self, X_data):
         """
@@ -157,7 +179,7 @@ class ACSMobilityDataset:
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSPublicCoverageDataset:
+class ACSPublicCoverageDataset(BaseDataset):
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -165,23 +187,33 @@ class ACSPublicCoverageDataset:
             survey='person'
         )
         acs_data = data_source.get_data(states=state, download=True)
-        self.features = ACSPublicCoverage.features
-        self.target = ACSPublicCoverage.target
-        self.categorical_columns = ['MAR','SEX','DIS','ESP','CIT','MIG','MIL','ANC','NATIVITY','DEAR','DEYE','DREM','ESR','ST','FER','RAC1P']
-        self.numerical_columns = ['AGEP', 'SCHL', 'PINCP']
+        features = ACSPublicCoverage.features
+        target = ACSPublicCoverage.target
+        categorical_columns = ['MAR','SEX','DIS','ESP','CIT','MIG','MIL','ANC','NATIVITY','DEAR','DEYE','DREM','ESR','ST','FER','RAC1P']
+        numerical_columns = ['AGEP', 'SCHL', 'PINCP']
 
         if with_nulls is True:
-            X_data = acs_data[self.features]
+            X_data = acs_data[features]
         else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+            X_data = acs_data[features].apply(lambda x: np.nan_to_num(x, -1))
 
-        self.X_data = X_data[self.categorical_columns].astype('str')
-        for col in self.numerical_columns:
-            self.X_data[col] = X_data[col]
+        filtered_X_data = X_data[categorical_columns].astype('str')
+        for col in numerical_columns:
+            filtered_X_data[col] = X_data[col]
             
-        self.y_data = acs_data[self.target].apply(lambda x: int(x == 1))
+        y_data = acs_data[target].apply(lambda x: int(x == 1))
+        columns_with_nulls = filtered_X_data.columns[filtered_X_data.isna().any().to_list()].to_list()
 
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        super().__init__(
+            pandas_df=acs_data,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+            X_data=filtered_X_data,
+            y_data=y_data,
+            columns_with_nulls=columns_with_nulls,
+        )
 
     def update_X_data(self, X_data):
         """
@@ -191,7 +223,7 @@ class ACSPublicCoverageDataset:
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSTravelTimeDataset:
+class ACSTravelTimeDataset(BaseDataset):
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -199,23 +231,33 @@ class ACSTravelTimeDataset:
             survey='person'
         )
         acs_data = data_source.get_data(states=state, download=True)
-        self.features = ACSTravelTime.features
-        self.target = ACSTravelTime.target
-        self.categorical_columns = ['MAR','SEX','DIS','ESP','MIG','RELP','RAC1P','PUMA','ST','CIT','OCCP','POWPUMA','POVPIP']
-        self.numerical_columns = ['AGEP', 'SCHL']
+        features = ACSTravelTime.features
+        target = ACSTravelTime.target
+        categorical_columns = ['MAR','SEX','DIS','ESP','MIG','RELP','RAC1P','PUMA','ST','CIT','OCCP','POWPUMA','POVPIP']
+        numerical_columns = ['AGEP', 'SCHL']
 
         if with_nulls:
-            X_data = acs_data[self.features]
+            X_data = acs_data[features]
         else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+            X_data = acs_data[features].apply(lambda x: np.nan_to_num(x, -1))
 
-        self.X_data = X_data[self.categorical_columns].astype('str')
-        for col in self.numerical_columns:
-            self.X_data[col] = X_data[col]
+        filtered_X_data = X_data[categorical_columns].astype('str')
+        for col in numerical_columns:
+            filtered_X_data[col] = X_data[col]
             
-        self.y_data = acs_data[self.target].apply(lambda x: int(x > 20))
+        y_data = acs_data[target].apply(lambda x: int(x > 20))
+        columns_with_nulls = filtered_X_data.columns[filtered_X_data.isna().any().to_list()].to_list()
 
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        super().__init__(
+            pandas_df=acs_data,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+            X_data=filtered_X_data,
+            y_data=y_data,
+            columns_with_nulls=columns_with_nulls,
+        )
 
     def update_X_data(self, X_data):
         """
@@ -225,7 +267,7 @@ class ACSTravelTimeDataset:
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
     
 
-class ACSIncomeDataset:
+class ACSIncomeDataset(BaseDataset):
     def __init__(self, state, year, with_nulls=False):
         data_source = ACSDataSource(
             survey_year=year,
@@ -233,23 +275,33 @@ class ACSIncomeDataset:
             survey='person'
         )
         acs_data = data_source.get_data(states=state, download=True)
-        self.features = ACSIncome.features
-        self.target = ACSIncome.target
-        self.categorical_columns = ['COW','MAR','OCCP','POBP','RELP','WKHP','SEX','RAC1P']
-        self.numerical_columns = ['AGEP', 'SCHL']
+        features = ACSIncome.features
+        target = ACSIncome.target
+        categorical_columns = ['COW','MAR','OCCP','POBP','RELP','WKHP','SEX','RAC1P']
+        numerical_columns = ['AGEP', 'SCHL']
 
         if with_nulls==True:
-            X_data = acs_data[self.features]
+            X_data = acs_data[features]
         else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+            X_data = acs_data[features].apply(lambda x: np.nan_to_num(x, -1))
 
-        self.X_data = X_data[self.categorical_columns].astype('str')
-        for col in self.numerical_columns:
-            self.X_data[col] = X_data[col]
+        filtered_X_data = X_data[categorical_columns].astype('str')
+        for col in numerical_columns:
+            filtered_X_data[col] = X_data[col]
             
-        self.y_data = acs_data[self.target].apply(lambda x: int(x > 50000))
+        y_data = acs_data[target].apply(lambda x: int(x > 50000))
+        columns_with_nulls = filtered_X_data.columns[filtered_X_data.isna().any().to_list()].to_list()
 
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        super().__init__(
+            pandas_df=acs_data,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+            X_data=filtered_X_data,
+            y_data=y_data,
+            columns_with_nulls=columns_with_nulls,
+        )
 
     def update_X_data(self, X_data):
         """
@@ -259,7 +311,7 @@ class ACSIncomeDataset:
         self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
 
 
-class ACSDataset_from_demodq:
+class ACSDataset_from_demodq(BaseDataset):
     """ Following https://github.com/schelterlabs/demographic-data-quality """
     def __init__(self, state, year, with_nulls=False, optimize=True):
         """
@@ -274,23 +326,33 @@ class ACSDataset_from_demodq:
             survey='person'
         )
         acs_data = data_source.get_data(states=state, download=True)
-        self.features =  ['AGEP', 'COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
-        self.target = ['PINCP']
-        self.categorical_columns = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'SEX', 'RAC1P']
-        self.numerical_columns = ['AGEP', 'WKHP']
+        features =  ['AGEP', 'COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'WKHP', 'SEX', 'RAC1P']
+        target = 'PINCP'
+        categorical_columns = ['COW', 'SCHL', 'MAR', 'OCCP', 'POBP', 'RELP', 'SEX', 'RAC1P']
+        numerical_columns = ['AGEP', 'WKHP']
 
         if with_nulls==True:
-            X_data = acs_data[self.features]
+            X_data = acs_data[features]
         else:
-            X_data = acs_data[self.features].apply(lambda x: np.nan_to_num(x, -1))
+            X_data = acs_data[features].apply(lambda x: np.nan_to_num(x, -1))
 
         if optimize==True:
-            X_data = optimize_data_loading(X_data, self.categorical_columns)
+            X_data = optimize_data_loading(X_data, categorical_columns)
 
-        self.X_data = X_data
-        self.y_data = acs_data[self.target].apply(lambda x: x >= 50000).astype(int)
+        filtered_X_data = X_data
+        y_data = acs_data[target].apply(lambda x: x >= 50000).astype(int)
+        columns_with_nulls = filtered_X_data.columns[filtered_X_data.isna().any().to_list()].to_list()
 
-        self.columns_with_nulls = self.X_data.columns[self.X_data.isna().any().to_list()].to_list()
+        super().__init__(
+            pandas_df=acs_data,
+            features=features,
+            target=target,
+            numerical_columns=numerical_columns,
+            categorical_columns=categorical_columns,
+            X_data=filtered_X_data,
+            y_data=y_data,
+            columns_with_nulls=columns_with_nulls,
+        )
 
     def update_X_data(self, X_data):
         """

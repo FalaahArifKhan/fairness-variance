@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from abc import ABCMeta, abstractmethod
 
 
-class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
+class AbstractSubgroupAnalyzer(metaclass=ABCMeta):
     """
-    Abstract class for a subgroups analyzer to compute metrics for subgroups.
+    Abstract class for a subgroup analyzer to compute metrics for subgroups.
 
     Parameters
     ----------
@@ -28,14 +28,14 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
         self.X_test = X_test
         self.y_test = y_test
         self.test_protected_groups = test_protected_groups
-        self.subgroups_metrics_dict = {}
+        self.subgroup_metrics_dict = {}
 
     @abstractmethod
     def _compute_metrics(self, y_test, y_preds):
         pass
 
-    def compute_subgroups_metrics(self, y_preds, save_results: bool,
-                                  result_filename: str = None, save_dir_path: str = None):
+    def compute_subgroup_metrics(self, y_preds, save_results: bool,
+                                 result_filename: str = None, save_dir_path: str = None):
         """
         Compute metrics for each subgroup in self.test_protected_groups using _compute_metrics method.
 
@@ -62,11 +62,11 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
             X_test_group = self.test_protected_groups[group_name]
             results[group_name] = self._compute_metrics(self.y_test[X_test_group.index], y_pred_all[X_test_group.index])
 
-        self.subgroups_metrics_dict = results
+        self.subgroup_metrics_dict = results
         if save_results:
             self.save_metrics_to_file(result_filename, save_dir_path)
 
-        return self.subgroups_metrics_dict
+        return self.subgroup_metrics_dict
 
     def save_metrics_to_file(self, result_filename: str, save_dir_path: str):
         """
@@ -76,7 +76,7 @@ class AbstractSubgroupsAnalyzer(metaclass=ABCMeta):
 
         save_dir_path
         """
-        metrics_df = pd.DataFrame(self.subgroups_metrics_dict)
+        metrics_df = pd.DataFrame(self.subgroup_metrics_dict)
         os.makedirs(save_dir_path, exist_ok=True)
 
         now = datetime.now(timezone.utc)

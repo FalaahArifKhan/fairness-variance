@@ -9,9 +9,9 @@ from configs.constants import ModelSetting
 from configs.models_config_for_tuning import reset_model_seed
 from source.utils.custom_initializers import create_base_pipeline
 from source.custom_classes.base_dataset import BaseDataset
-from source.analyzers.subgroups_variance_analyzer import SubgroupsVarianceAnalyzer
+from source.analyzers.subgroup_variance_analyzer import SubgroupVarianceAnalyzer
 from source.utils.common_helpers import save_metrics_to_file
-from source.analyzers.subgroups_statistical_bias_analyzer import SubgroupsStatisticalBiasAnalyzer
+from source.analyzers.subgroup_statistical_bias_analyzer import SubgroupStatisticalBiasAnalyzer
 
 
 def compute_model_metrics_with_config(base_model, model_name: str, dataset: BaseDataset, config, save_results_dir_path: str,
@@ -108,21 +108,21 @@ def compute_model_metrics(base_model, n_estimators: int, dataset: BaseDataset, t
         display(base_pipeline.X_train_val.head(10))
 
     # Compute variance metrics for subgroups
-    subgroups_variance_analyzer = SubgroupsVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
-                                                            bootstrap_fraction, base_pipeline, dataset_name)
+    subgroup_variance_analyzer = SubgroupVarianceAnalyzer(ModelSetting.BATCH, n_estimators, base_model, base_model_name,
+                                                          bootstrap_fraction, base_pipeline, dataset_name)
 
-    y_preds, variance_metrics_df = subgroups_variance_analyzer.compute_metrics(save_results=False,
-                                                                               result_filename=None,
-                                                                               save_dir_path=None,
-                                                                               make_plots=False)
+    y_preds, variance_metrics_df = subgroup_variance_analyzer.compute_metrics(save_results=False,
+                                                                              result_filename=None,
+                                                                              save_dir_path=None,
+                                                                              make_plots=False)
 
     # Compute bias metrics for subgroups
-    bias_analyzer = SubgroupsStatisticalBiasAnalyzer(base_pipeline.X_test, base_pipeline.y_test,
-                                                     base_pipeline.sensitive_attributes_dct, base_pipeline.test_protected_groups)
-    dtc_res = bias_analyzer.compute_subgroups_metrics(y_preds,
-                                                      save_results=False,
-                                                      result_filename=None,
-                                                      save_dir_path=None)
+    bias_analyzer = SubgroupStatisticalBiasAnalyzer(base_pipeline.X_test, base_pipeline.y_test,
+                                                    base_pipeline.sensitive_attributes_dct, base_pipeline.test_protected_groups)
+    dtc_res = bias_analyzer.compute_subgroup_metrics(y_preds,
+                                                     save_results=False,
+                                                     result_filename=None,
+                                                     save_dir_path=None)
     bias_metrics_df = pd.DataFrame(dtc_res)
 
     metrics_df = pd.concat([variance_metrics_df, bias_metrics_df])

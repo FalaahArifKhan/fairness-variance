@@ -2,11 +2,11 @@ import pandas as pd
 
 from configs.constants import ModelSetting
 from source.custom_classes.generic_pipeline import GenericPipeline
-from source.analyzers.subgroups_variance_calculator import SubgroupsVarianceCalculator
+from source.analyzers.subgroup_variance_calculator import SubgroupVarianceCalculator
 from source.analyzers.batch_overall_variance_analyzer import BatchOverallVarianceAnalyzer
 
 
-class SubgroupsVarianceAnalyzer:
+class SubgroupVarianceAnalyzer:
     """
     Analyzer to compute variance metrics for subgroups.
 
@@ -43,11 +43,11 @@ class SubgroupsVarianceAnalyzer:
         self.base_model_name = overall_variance_analyzer.base_model_name
 
         self.__overall_variance_analyzer = overall_variance_analyzer
-        self.__subgroups_variance_calculator = SubgroupsVarianceCalculator(base_pipeline.X_test, base_pipeline.y_test,
-                                                                           base_pipeline.sensitive_attributes_dct,
-                                                                           base_pipeline.test_protected_groups)
+        self.__subgroup_variance_calculator = SubgroupVarianceCalculator(base_pipeline.X_test, base_pipeline.y_test,
+                                                                         base_pipeline.sensitive_attributes_dct,
+                                                                         base_pipeline.test_protected_groups)
         self.overall_variance_metrics_dct = dict()
-        self.subgroups_variance_metrics_dct = dict()
+        self.subgroup_variance_metrics_dct = dict()
 
     def compute_metrics(self, save_results: bool, result_filename: str = None, save_dir_path: str = None,
                         make_plots: bool = True):
@@ -73,9 +73,9 @@ class SubgroupsVarianceAnalyzer:
         self.overall_variance_metrics_dct = self.__overall_variance_analyzer.get_metrics_dict()
 
         # Count and display fairness metrics
-        self.__subgroups_variance_calculator.set_overall_variance_metrics(self.overall_variance_metrics_dct)
-        self.subgroups_variance_metrics_dct = self.__subgroups_variance_calculator.compute_subgroups_metrics(
+        self.__subgroup_variance_calculator.set_overall_variance_metrics(self.overall_variance_metrics_dct)
+        self.subgroup_variance_metrics_dct = self.__subgroup_variance_calculator.compute_subgroup_metrics(
             self.__overall_variance_analyzer.models_predictions, save_results, result_filename, save_dir_path
         )
 
-        return y_preds, pd.DataFrame(self.subgroups_variance_metrics_dct)
+        return y_preds, pd.DataFrame(self.subgroup_variance_metrics_dct)
