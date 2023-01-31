@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 @dataclass
 class CountPredictionStatsResponse:
-    accuracy: float
     jitter: float
     means_lst: list
     stds_lst: list

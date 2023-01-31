@@ -1,4 +1,4 @@
-# SubgroupsVarianceAnalyzer
+# SubgroupVarianceAnalyzer
 
 Analyzer to compute variance metrics for subgroups.
 

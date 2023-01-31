@@ -1,4 +1,6 @@
+import os
 import yaml
+import pandas as pd
 from munch import DefaultMunch
 
 from source.custom_classes.generic_pipeline import GenericPipeline
@@ -22,6 +24,19 @@ def create_config_obj(config_yaml_path: str):
     validate_config(config_obj)
 
     return config_obj
+
+
+def read_model_metric_dfs(metrics_path, model_names):
+    # Read models metrics dfs
+    metrics_filenames = [filename for filename in os.listdir(metrics_path)]
+    models_metrics_dct = dict()
+    for model_name in model_names:
+        for filename in metrics_filenames:
+            if model_name in filename:
+                models_metrics_dct[model_name] = pd.read_csv(f'{metrics_path}/{filename}')
+                break
+
+    return models_metrics_dct
 
 
 def create_models_config_from_tuned_params_df(models_config_for_tuning, models_tuned_params_df):

@@ -3,18 +3,18 @@
 ## analyzers
 
 
-Subgroups Statistical Bias and Variance Analyzers.
+Subgroup Statistical Bias and Variance Analyzers.
 
 This module contains fairness and stability analysing methods for defined subgroups.
 The purpose of an analyzer is to analyse defined metrics for defined subgroups.
 
 
 - [AbstractOverallVarianceAnalyzer](../analyzers/AbstractOverallVarianceAnalyzer)
-- [AbstractSubgroupsAnalyzer](../analyzers/AbstractSubgroupsAnalyzer)
+- [AbstractSubgroupAnalyzer](../analyzers/AbstractSubgroupAnalyzer)
 - [BatchOverallVarianceAnalyzer](../analyzers/BatchOverallVarianceAnalyzer)
-- [SubgroupsStatisticalBiasAnalyzer](../analyzers/SubgroupsStatisticalBiasAnalyzer)
-- [SubgroupsVarianceAnalyzer](../analyzers/SubgroupsVarianceAnalyzer)
-- [SubgroupsVarianceCalculator](../analyzers/SubgroupsVarianceCalculator)
+- [SubgroupStatisticalBiasAnalyzer](../analyzers/SubgroupStatisticalBiasAnalyzer)
+- [SubgroupVarianceAnalyzer](../analyzers/SubgroupVarianceAnalyzer)
+- [SubgroupVarianceCalculator](../analyzers/SubgroupVarianceCalculator)
 
 ## custom_classes
 

@@ -232,7 +232,7 @@ def run_metrics_computation(dataset: BaseDataset, test_set_fraction: float, boot
                                                      save_results_dir_path=save_results_dir_path,
                                                      debug_mode=debug_mode)
             model_metrics_df['Model_Name'] = model_name
-            models_metrics_dct[f'Model_{model_idx + 1}_{model_name}'] = model_metrics_df
+            models_metrics_dct[model_name] = model_metrics_df
             if debug_mode:
                 print(f'\n[{model_name}] Metrics matrix:')
                 display(model_metrics_df)

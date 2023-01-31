@@ -33,7 +33,6 @@ class SubgroupVarianceCalculator(AbstractSubgroupAnalyzer):
     def _compute_metrics(self, y_test: pd.DataFrame, group_models_predictions):
         _, _, prediction_stats = count_prediction_stats(y_test, group_models_predictions)
         return {
-            'General_Ensemble_Accuracy': prediction_stats.accuracy,
             'Mean': np.mean(prediction_stats.means_lst),
             'Std': np.mean(prediction_stats.stds_lst),
             'IQR': np.mean(prediction_stats.iqr_lst),

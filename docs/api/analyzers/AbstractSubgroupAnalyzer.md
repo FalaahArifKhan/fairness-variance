@@ -1,6 +1,6 @@
-# AbstractSubgroupsAnalyzer
+# AbstractSubgroupAnalyzer
 
-Abstract class for a subgroups analyzer to compute metrics for subgroups.
+Abstract class for a subgroup analyzer to compute metrics for subgroups.
 
 
 
@@ -27,7 +27,7 @@ Abstract class for a subgroups analyzer to compute metrics for subgroups.
 
 ## Methods
 
-???- note "compute_subgroups_metrics"
+???- note "compute_subgroup_metrics"
 
     Compute metrics for each subgroup in self.test_protected_groups using _compute_metrics method.
 

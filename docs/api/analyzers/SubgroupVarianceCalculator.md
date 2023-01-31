@@ -1,6 +1,6 @@
-# SubgroupsStatisticalBiasAnalyzer
+# SubgroupVarianceCalculator
 
-Analyzer to compute statistical bias metrics for subgroups.
+Calculator that calculates variance metrics for subgroups.
 
 
 
@@ -18,7 +18,7 @@ Analyzer to compute statistical bias metrics for subgroups.
 
     A dictionary where keys are sensitive attributes names (including attributes intersections),  and values are privilege values for these subgroups
 
-- **test_protected_groups** (*dict*) – defaults to `None`
+- **test_protected_groups** – defaults to `None`
 
     A dictionary where keys are sensitive attributes, and values input dataset rows  that are correspondent to these sensitive attributes
 
@@ -27,15 +27,15 @@ Analyzer to compute statistical bias metrics for subgroups.
 
 ## Methods
 
-???- note "compute_subgroups_metrics"
+???- note "compute_subgroup_metrics"
 
-    Compute metrics for each subgroup in self.test_protected_groups using _compute_metrics method.
+    Compute variance metrics for subgroups.
 
-    Return a dictionary where keys are subgroup names, and values are subgroup metrics.
+    Return a dict of dicts where key is 'overall' or a subgroup name, and value is a dict of metrics for this subgroup.
 
     **Parameters**
 
-    - **y_preds**    
+    - **models_predictions**     (*dict*)    
     - **save_results**     (*bool*)    
     - **result_filename**     (*str*)     – defaults to `None`    
     - **save_dir_path**     (*str*)     – defaults to `None`    
@@ -49,3 +49,5 @@ Analyzer to compute statistical bias metrics for subgroups.
     - **result_filename**     (*str*)    
     - **save_dir_path**     (*str*)    
     
+???- note "set_overall_variance_metrics"
+

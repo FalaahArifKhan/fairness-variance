@@ -57,7 +57,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         self.y_test = y_test
 
         # Metrics
-        self.general_accuracy = None
         self.mean = None
         self.std = None
         self.iqr = None
@@ -95,8 +94,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         y_preds, uq_labels, prediction_stats = count_prediction_stats(self.y_test.values, self.models_predictions)
         self.__logger.info(f'Successfully computed predict proba metrics')
 
-        self.__update_metrics(prediction_stats.accuracy,
-                              prediction_stats.means_lst,
+        self.__update_metrics(prediction_stats.means_lst,
                               prediction_stats.stds_lst,
                               prediction_stats.iqr_lst,
                               prediction_stats.entropy_lst,
@@ -158,9 +156,8 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
 
         return models_predictions
 
-    def __update_metrics(self, accuracy, means_lst, stds_lst, iqr_lst, entropy_lst, jitter_lst,
+    def __update_metrics(self, means_lst, stds_lst, iqr_lst, entropy_lst, jitter_lst,
                          per_sample_accuracy, label_stability):
-        self.general_accuracy = accuracy
         self.mean = np.mean(means_lst)
         self.std = np.mean(stds_lst)
         self.iqr = np.mean(iqr_lst)
@@ -173,8 +170,7 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         precision = 4
         print('\n')
         print("#" * 30, " Stability metrics ", "#" * 30)
-        print(f'General Ensemble Accuracy: {np.round(self.general_accuracy, precision)}\n'
-              f'Mean: {np.round(self.mean, precision)}\n'
+        print(f'Mean: {np.round(self.mean, precision)}\n'
               f'Std: {np.round(self.std, precision)}\n'
               f'IQR: {np.round(self.iqr, precision)}\n'
               f'Entropy: {np.round(self.entropy, precision)}\n'
@@ -184,7 +180,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
 
     def get_metrics_dict(self):
         return {
-            'General_Ensemble_Accuracy': self.general_accuracy,
             'Mean': self.mean,
             'Std': self.std,
             'IQR': self.iqr,
@@ -200,7 +195,6 @@ class AbstractOverallVarianceAnalyzer(metaclass=ABCMeta):
         metrics_to_report['Base_Model_Name'] = [self.base_model_name]
         metrics_to_report['N_Estimators'] = [self.n_estimators]
 
-        metrics_to_report['General_Ensemble_Accuracy'] = [self.general_accuracy]
         metrics_to_report['Mean'] = [self.mean]
         metrics_to_report['Std'] = [self.std]
         metrics_to_report['IQR'] = [self.iqr]

@@ -1,6 +1,6 @@
 # BatchOverallVarianceAnalyzer
 
-Analyzer to compute subgroups variance metrics for batch learning models.
+Analyzer to compute subgroup variance metrics for batch learning models.
 
 
 

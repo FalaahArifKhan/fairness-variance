@@ -38,10 +38,9 @@ def count_prediction_stats(y_test: pd.DataFrame, uq_results):
     jitter = compute_jitter(uq_labels.values)
 
     y_preds = np.array([int(x<0.5) for x in results.mean().values])
-    accuracy = np.mean(np.array([y_preds[i] == int(y_test[i]) for i in range(len(y_test))]))
 
     per_sample_accuracy_lst, label_stability_lst = compute_per_sample_accuracy(y_test, results)
-    prediction_stats = CountPredictionStatsResponse(accuracy, jitter, means_lst, stds_lst, iqr_lst, entropy_lst,
+    prediction_stats = CountPredictionStatsResponse(jitter, means_lst, stds_lst, iqr_lst, entropy_lst,
                                                     per_sample_accuracy_lst, label_stability_lst)
 
     return y_preds, uq_labels, prediction_stats
@@ -67,7 +66,7 @@ def display_result_plots(results_dir):
         results[f'{results_df.iloc[0]["Base_Model_Name"]}_{results_df.iloc[0]["N_Estimators"]}_estimators'] = results_df
 
     y_metrics = ['SPD_Race', 'SPD_Sex', 'SPD_Race_Sex', 'EO_Race', 'EO_Sex', 'EO_Race_Sex']
-    x_metrics = ['Label_Stability', 'General_Ensemble_Accuracy', 'Std']
+    x_metrics = ['Label_Stability', 'Std']
     for x_metric in x_metrics:
         for y_metric in y_metrics:
             x_lim = 0.3 if x_metric == 'SD' else 1.0

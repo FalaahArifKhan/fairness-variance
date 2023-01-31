@@ -21,7 +21,7 @@ Composer class that combines different metrics to create new ones such as 'Dispa
 
 ???- note "compose_metrics"
 
-    Compose subgroups metrics from self.model_metrics_df.
+    Compose subgroup metrics from self.model_metrics_df.
 
     Return a dictionary of composed metrics.
 

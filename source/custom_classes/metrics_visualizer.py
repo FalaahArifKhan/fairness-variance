@@ -6,9 +6,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from datetime import datetime, timezone
 
-from source.custom_classes.metrics_composer import MetricsComposer
-
-
 # TODO: complete documentation when finish this class
 
 class MetricsVisualizer:
@@ -17,8 +14,10 @@ class MetricsVisualizer:
 
     Parameters
     ----------
-    metrics_path
-        Path to a folder with metrics
+    models_metrics_dct
+        Dictionary where keys are model names and values are dataframes of subgroups metrics for each model
+    models_composed_metrics_df
+        Dataframe of all models composed metrics
     dataset_name
         Name of a dataset that was included in metrics filenames and was used for the metrics computation
     model_names
@@ -28,7 +27,8 @@ class MetricsVisualizer:
          and values are privilege values for these attributes
 
     """
-    def __init__(self, metrics_path: str, dataset_name: str, model_names: list, sensitive_attributes_dct: dict):
+    def __init__(self, models_metrics_dct: dict, models_composed_metrics_df: pd.DataFrame,
+                 dataset_name: str, model_names: list, sensitive_attributes_dct: dict):
         sns.set_theme(style="whitegrid")
 
         self.dataset_name = dataset_name
@@ -36,18 +36,12 @@ class MetricsVisualizer:
         self.sensitive_attributes_dct = sensitive_attributes_dct
         self.__create_report = False
 
-        # Read models metrics dfs
-        metrics_filenames = [filename for filename in os.listdir(metrics_path)]
-        models_metrics_dct = dict()
+        # Create models_average_metrics_dct
         models_average_metrics_dct = dict()
         for model_name in model_names:
-            for filename in metrics_filenames:
-                if dataset_name in filename and model_name in filename:
-                    models_metrics_dct[model_name] = pd.read_csv(f'{metrics_path}/{filename}')
-                    columns_to_group = [col for col in models_metrics_dct[model_name].columns
-                                        if col not in ('Model_Seed', 'Run_Number')]
-                    models_average_metrics_dct[model_name] = models_metrics_dct[model_name][columns_to_group].groupby(['Metric', 'Model_Name']).mean().reset_index()
-                    break
+            columns_to_group = [col for col in models_metrics_dct[model_name].columns
+                                if col not in ('Model_Seed', 'Run_Number')]
+            models_average_metrics_dct[model_name] = models_metrics_dct[model_name][columns_to_group].groupby(['Metric', 'Model_Name']).mean().reset_index()
 
         # Create one average metrics df with all model_dfs
         models_average_metrics_df = pd.DataFrame()
@@ -60,14 +54,6 @@ class MetricsVisualizer:
         for model_name in models_metrics_dct.keys():
             model_metrics_df = models_metrics_dct[model_name]
             all_models_metrics_df = pd.concat([all_models_metrics_df, model_metrics_df])
-
-        # Create a composed metrics df
-        models_composed_metrics_df = pd.DataFrame()
-        for model_name in models_average_metrics_dct.keys():
-            metrics_composer = MetricsComposer(sensitive_attributes_dct, models_average_metrics_dct[model_name])
-            model_composed_metrics_df = metrics_composer.compose_metrics()
-            model_composed_metrics_df['Model_Name'] = model_name
-            models_composed_metrics_df = pd.concat([models_composed_metrics_df, model_composed_metrics_df])
 
         self.models_metrics_dct = models_metrics_dct
         self.models_average_metrics_dct = models_average_metrics_dct
@@ -216,6 +202,10 @@ class MetricsVisualizer:
         )
 
     def create_html_report(self, report_save_path: str):
+        # Create a directory if it does not exist
+        if not os.path.exists(report_save_path):
+            os.makedirs(report_save_path, exist_ok=True)
+
         self.__create_report = True
         boxes_and_whiskers_plot = self.create_boxes_and_whiskers_for_models_multiple_runs(metrics_lst=['Std', 'IQR', 'Jitter', 'FNR','FPR'])
         interactive_bar_chart = self.create_bias_variance_interactive_bar_chart()
