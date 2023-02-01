@@ -49,11 +49,15 @@ class MetricsVisualizer:
             model_average_metrics_df = models_average_metrics_dct[model_name]
             models_average_metrics_df = pd.concat([models_average_metrics_df, model_average_metrics_df])
 
+        models_average_metrics_df = models_average_metrics_df.reset_index(drop=True)
+
         # Create one metrics df with all model_dfs
         all_models_metrics_df = pd.DataFrame()
         for model_name in models_metrics_dct.keys():
             model_metrics_df = models_metrics_dct[model_name]
             all_models_metrics_df = pd.concat([all_models_metrics_df, model_metrics_df])
+
+        all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
 
         self.models_metrics_dct = models_metrics_dct
         self.models_average_metrics_dct = models_average_metrics_dct
@@ -103,7 +107,7 @@ class MetricsVisualizer:
         """
         to_plot = self.all_models_metrics_df[self.all_models_metrics_df['Metric'].isin(metrics_lst)]
 
-        plt.figure(figsize=(15, 8))
+        plt.figure(figsize=(15, 10))
         ax = sns.boxplot(x=to_plot['Metric'],
                          y=to_plot['overall'],
                          hue=to_plot['Model_Name'])
@@ -126,6 +130,7 @@ class MetricsVisualizer:
             default_plot_metric = metrics_lst[0]
 
         df_for_model_metrics_chart = self.melted_models_composed_metrics_df.loc[self.melted_models_composed_metrics_df['Metric'].isin(metrics_lst)]
+        df_for_model_metrics_chart = df_for_model_metrics_chart.reset_index(drop=True)
 
         radio_select = alt.selection_single(fields=['Metric'], init={'Metric': default_plot_metric}, empty="none")
         color_condition = alt.condition(radio_select,
@@ -174,14 +179,14 @@ class MetricsVisualizer:
             'Equalized_Odds_TPR',
             'Equalized_Odds_FPR',
             'Disparate_Impact',
-            'Statistical_Parity_Difference',
+            'Statistical_Parity_Impact',
         ]
         models_bias_metrics_chart, select_bias_metric_legend, bias_color_legend = \
             self.create_models_metrics_bar_chart(bias_metrics_lst, metrics_group_name="Bias")
 
         variance_metrics_lst = [
             'IQR_Parity',
-            'Label_Stability_Ratio',
+            'Label_Stability_Impact',
             'Std_Parity',
             'Std_Ratio',
             'Jitter_Parity',

@@ -17,6 +17,7 @@ class MetricsComposer:
     def __init__(self, models_metrics_dct: dict, sensitive_attributes_dct: dict):
         self.models_metrics_dct = models_metrics_dct
         self.sensitive_attributes_dct = sensitive_attributes_dct
+        self.models_average_metrics_dct = None # will be created in self.compose_metrics()
 
     def compose_metrics(self):
         """
@@ -24,10 +25,19 @@ class MetricsComposer:
 
         Return a dictionary of composed metrics.
         """
+        # Create models_average_metrics_dct
+        models_average_metrics_dct = dict()
+        for model_name in self.models_metrics_dct.keys():
+            columns_to_group = [col for col in self.models_metrics_dct[model_name].columns
+                                if col not in ('Model_Seed', 'Run_Number')]
+            models_average_metrics_dct[model_name] = self.models_metrics_dct[model_name][columns_to_group].groupby(['Metric', 'Model_Name']).mean().reset_index()
+
+        self.models_average_metrics_dct = models_average_metrics_dct
+
         groups_metrics_dct = dict()
         models_composed_metrics_df = pd.DataFrame()
-        for model_name in self.models_metrics_dct.keys():
-            cfm = self.models_metrics_dct[model_name]
+        for model_name in self.models_average_metrics_dct.keys():
+            cfm = self.models_average_metrics_dct[model_name]
             cfm = cfm.set_index('Metric')
 
             for sensitive_attr in self.sensitive_attributes_dct.keys():
@@ -39,7 +49,7 @@ class MetricsComposer:
                     'Equalized_Odds_TPR': cfm[dis_group]['TPR'] - cfm[priv_group]['TPR'],
                     'Equalized_Odds_FPR': cfm[dis_group]['FPR'] - cfm[priv_group]['FPR'],
                     'Disparate_Impact': cfm[dis_group]['Positive-Rate'] / cfm[priv_group]['Positive-Rate'],
-                    'Statistical_Parity_Difference': cfm[dis_group]['Positive-Rate'] - cfm[priv_group]['Positive-Rate'],
+                    'Statistical_Parity_Impact': cfm[dis_group]['Positive-Rate'] - cfm[priv_group]['Positive-Rate'],
                     'Accuracy_Parity': cfm[dis_group]['Accuracy'] - cfm[priv_group]['Accuracy'],
                     # Group variance metrics
                     'Label_Stability_Ratio': cfm[dis_group]['Label_Stability'] / cfm[priv_group]['Label_Stability'],
@@ -54,4 +64,5 @@ class MetricsComposer:
             model_composed_metrics_df['Model_Name'] = model_name
             models_composed_metrics_df = pd.concat([models_composed_metrics_df, model_composed_metrics_df])
 
+        models_composed_metrics_df = models_composed_metrics_df.reset_index(drop=True)
         return models_composed_metrics_df

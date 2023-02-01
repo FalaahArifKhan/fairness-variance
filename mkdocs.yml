@@ -1,9 +1,9 @@
 # Project information
-site_name: My Docs
+site_name: Virny
 site_description: Responsible AI Toolset in Python
 
 # Repository
-repo_name: raiser
+repo_name: virny
 repo_url: https://github.com/FalaahArifKhan/fairness-variance/tree/denys
 edit_uri: ""
 

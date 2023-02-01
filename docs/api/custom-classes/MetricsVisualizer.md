@@ -6,9 +6,13 @@ Class to create useful visualizations of models metrics.
 
 ## Parameters
 
-- **metrics_path** (*str*)
+- **models_metrics_dct** (*dict*)
 
-    Path to a folder with metrics
+    Dictionary where keys are model names and values are dataframes of subgroups metrics for each model
+
+- **models_composed_metrics_df** (*pandas.core.frame.DataFrame*)
+
+    Dataframe of all models composed metrics
 
 - **dataset_name** (*str*)
 

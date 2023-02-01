@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from copy import deepcopy
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 from abc import ABCMeta, abstractmethod
 
 from source.custom_classes.custom_logger import get_logger

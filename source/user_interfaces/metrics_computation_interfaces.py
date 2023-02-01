@@ -1,7 +1,7 @@
 import os
 import random
 import pandas as pd
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from IPython.display import display
 
