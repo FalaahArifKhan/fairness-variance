@@ -1,5 +1,4 @@
 *_venv
-.idea
 .DS_Store
 .ipynb_checkpoints
 *.env

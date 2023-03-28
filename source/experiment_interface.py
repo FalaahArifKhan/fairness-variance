@@ -17,7 +17,9 @@ def run_exp_iteration(data_loader, experiment_seed, preprocessor: ColumnTransfor
                       metrics_computation_config, custom_table_fields_dct,
                       with_tuning: bool = False, save_results_dir_path: str = None, tuned_params_df_path: str = None):
     logger = get_logger()
-    logger.info(f"Start an experiment iteration for the following custom params: {pprint(custom_table_fields_dct)}")
+    logger.info(f"Start an experiment iteration for the following custom params:")
+    pprint(custom_table_fields_dct)
+    print('\n')
 
     # Set seeds for metrics computation
     metrics_computation_config.runs_seed_lst = [experiment_seed + i for i in range(1, metrics_computation_config.num_runs + 1)]
@@ -33,10 +35,10 @@ def run_exp_iteration(data_loader, experiment_seed, preprocessor: ColumnTransfor
                                                         metrics_computation_config.dataset_name, n_folds=NUM_TUNING_FOLDS)
 
         # Create models_config from the saved tuned_params_df for higher reliability
-        now = datetime.now(timezone.utc)
-        date_time_str = now.strftime("%Y%m%d__%H%M%S")
-        tuned_df_path = os.path.join(save_results_dir_path, 'models_tuning',
-                                     f'tuning_results_{metrics_computation_config.dataset_name}_{date_time_str}.csv')
+        date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")
+        models_tuning_results_dir = os.path.join(save_results_dir_path, 'models_tuning')
+        os.makedirs(models_tuning_results_dir, exist_ok=True)
+        tuned_df_path = os.path.join(models_tuning_results_dir, f'tuning_results_{metrics_computation_config.dataset_name}_{date_time_str}.csv')
         tuned_params_df.to_csv(tuned_df_path, sep=",", columns=tuned_params_df.columns, float_format="%.4f", index=False)
         logger.info("Models are tuned and saved to a file")
     else:
