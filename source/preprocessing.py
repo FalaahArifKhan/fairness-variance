@@ -1,29 +1,33 @@
-import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
 
-
-def get_dummies(data, categorical_columns, numerical_columns):
-    """
-    Return a dataset made by one-hot encoding for categorical columns and concatenate with numerical columns
-    """
-    feature_df = pd.get_dummies(data[categorical_columns], columns=categorical_columns)
-    for col in numerical_columns:
-        if col in data.columns:
-            feature_df[col] = data[col]
-    return feature_df
+from virny.preprocessing.null_imputer import NullImputer
 
 
-def make_features_dfs(X_train, X_test, dataset):
-    X_train_features = get_dummies(X_train, dataset.categorical_columns, dataset.numerical_columns)
-    X_test_features = get_dummies(X_test, dataset.categorical_columns, dataset.numerical_columns)
+def get_null_imputer_preprocessor(data_loader, categorical_strategy="mode", numerical_strategy="median"):
+    categorial_null_columns = list(set(data_loader.columns_with_nulls).intersection(data_loader.categorical_columns))
+    numerical_null_columns = list(set(data_loader.columns_with_nulls).intersection(data_loader.numerical_columns))
 
-    # Align columns
-    features_columns = list(set(X_train_features.columns) & set(X_test_features.columns))
-    X_train_features = X_train_features[features_columns]
-    X_test_features = X_test_features[features_columns]
+    categorical_transformer = Pipeline(
+        steps=[
+            ("imputer", NullImputer(categorial_null_columns, how=categorical_strategy)),
+            ("encoder", OneHotEncoder(sparse=False)),
+        ]
+    )
+    numeric_transformer = Pipeline(
+        steps=[
+            ("imputer", NullImputer(numerical_null_columns, how=numerical_strategy)),
+            ("scaler", StandardScaler())
+        ]
+    )
 
-    scaler = StandardScaler()
-    X_train_features[dataset.numerical_columns] = scaler.fit_transform(X_train_features[dataset.numerical_columns])
-    X_test_features[dataset.numerical_columns] = scaler.transform(X_test_features[dataset.numerical_columns])
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("cat", categorical_transformer, data_loader.categorical_columns),
+            ("num", numeric_transformer, data_loader.numerical_columns),
+        ]
+    )
 
-    return X_train_features, X_test_features
+    return preprocessor
