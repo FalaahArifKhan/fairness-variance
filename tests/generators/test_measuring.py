@@ -10,8 +10,8 @@ def test_mislabels_generator():
     data_loader = CreditDataset(subsample_size=50_000)
     data_loader.full_df = data_loader.full_df.reset_index(drop=True)
 
-    generator = MislabelsGenerator(seed)
-    new_df = generator.fit_transform(data_loader.full_df, data_loader.target, mislabels_percentage)
+    generator = MislabelsGenerator(seed, mislabels_percentage)
+    new_df = generator.fit_transform(data_loader.full_df, data_loader.target)
     bool_series = data_loader.full_df[data_loader.target] == new_df[data_loader.target]
     mislabels_num = np.size(bool_series) - np.sum(bool_series)
 

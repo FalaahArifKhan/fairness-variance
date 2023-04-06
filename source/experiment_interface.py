@@ -18,6 +18,7 @@ def run_exp_iteration(data_loader, experiment_seed, db_collection_name, preproce
                       with_tuning: bool = False, save_results_dir_path: str = None, tuned_params_df_path: str = None):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
+
     logger = get_logger()
     logger.info(f"Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
