@@ -13,11 +13,11 @@ from source.custom_logger import get_logger
 from source.db_functions import connect_to_mongodb
 
 
-def run_exp_iteration(data_loader, experiment_seed, preprocessor: ColumnTransformer, models_params_for_tuning,
-                      metrics_computation_config, custom_table_fields_dct,
+def run_exp_iteration(data_loader, experiment_seed, db_collection_name, preprocessor: ColumnTransformer,
+                      models_params_for_tuning, metrics_computation_config, custom_table_fields_dct,
                       with_tuning: bool = False, save_results_dir_path: str = None, tuned_params_df_path: str = None):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
-    custom_table_fields_dct['models_init_seed'] = experiment_seed
+    custom_table_fields_dct['model_init_seed'] = experiment_seed
     logger = get_logger()
     logger.info(f"Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
@@ -48,10 +48,10 @@ def run_exp_iteration(data_loader, experiment_seed, preprocessor: ColumnTransfor
         logger.info("Models config is loaded from the input file")
 
     # Compute metrics for tuned models
-    client, collection, db_writer_func = connect_to_mongodb()
+    client, collection, db_writer_func = connect_to_mongodb(db_collection_name)
     logger.info("Connected to MongoDB")
     multiple_run_metrics_dct = compute_metrics_multiple_runs_with_db_writer(base_flow_dataset, metrics_computation_config, models_config,
-                                                                            custom_table_fields_dct, db_writer_func, verbose=1)
+                                                                            custom_table_fields_dct, db_writer_func, verbose=0)
     logger.info("Metrics are computed")
     client.close()
 
