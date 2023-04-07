@@ -80,20 +80,24 @@ class OutliersGenerator(AbstractGenerator):
 
     def _generate_outliers(self, val, col_name):
         if val > self.columns_stats[col_name]['mean']:
-            val += 3 * self.columns_stats[col_name]['std']
+            new_val = val + 3 * self.columns_stats[col_name]['std']
             if isinstance(val, int):
-                val = math.ceil(val)
-            # return min(val, self.columns_stats[col_name]['max'])
-            return val
-
+                new_val = math.ceil(new_val)
+            return new_val
         else:
-            val -= 3 * self.columns_stats[col_name]['std']
+            new_val = val - 3 * self.columns_stats[col_name]['std']
             if isinstance(val, int):
-                val = math.floor(val)
+                new_val = math.floor(new_val)
+
+            # Avoid outliers that are less than zero
+            if new_val < 0:
+                new_val = val + 2 * (self.columns_stats[col_name]['mean'] - val) + 3 * self.columns_stats[col_name]['std']
+                if isinstance(val, int):
+                    new_val = math.floor(new_val)
             # TODO: is it correct?
             # return max(val, self.columns_stats[col_name]['min'])
             # return max(val, 0)
-            return val
+            return new_val
 
     def fit(self, df, target_column: str = None):
         self._validate_input(df)
