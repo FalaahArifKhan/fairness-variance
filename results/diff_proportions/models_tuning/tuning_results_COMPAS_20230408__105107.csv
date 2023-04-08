@@ -1,3 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-COMPAS,DecisionTreeClassifier,0.6511,0.6595,"{'criterion': 'gini', 'max_depth': 20, 'max_features': 'sqrt', 'min_samples_split': 0.1}"
-COMPAS,LogisticRegression,0.6593,0.6686,"{'C': 100, 'max_iter': 250, 'penalty': 'l2', 'solver': 'newton-cg'}"
