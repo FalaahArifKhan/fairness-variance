@@ -1,6 +1,6 @@
 from virny.datasets.data_loaders import CompasDataset
 
-from source.generators.sampling import ProportionsGenerator
+from source.error_injectors.proportions_sampler import ProportionsSampler
 
 
 def test_proportions_generator():
@@ -11,7 +11,7 @@ def test_proportions_generator():
         'Caucasian': 0.5,
     }
     data_loader = CompasDataset()
-    generator = ProportionsGenerator(seed, column_for_subsampling, new_proportions_dct)
+    generator = ProportionsSampler(seed, column_for_subsampling, new_proportions_dct)
     new_df = generator.fit_transform(data_loader.full_df, target_column=None)
     col_value_counts = new_df[column_for_subsampling].value_counts().to_dict()
     total_sum = 0
@@ -20,8 +20,8 @@ def test_proportions_generator():
             total_sum += col_value_count
 
     for col_val, col_value_count in col_value_counts.items():
-        subsample_val_propostion = col_value_count / total_sum
-        assert abs(subsample_val_propostion - new_proportions_dct[col_val]) <= 0.02
+        subsample_val_proportion = col_value_count / total_sum
+        assert abs(subsample_val_proportion - new_proportions_dct[col_val]) <= 0.02
 
 
 def test_proportions_generator_with_null_columns():
@@ -32,7 +32,7 @@ def test_proportions_generator_with_null_columns():
         'Caucasian': 0.5,
     }
     data_loader = CompasDataset()
-    generator = ProportionsGenerator(seed, column_for_subsampling, new_proportions_dct)
+    generator = ProportionsSampler(seed, column_for_subsampling, new_proportions_dct)
     try:
         new_df = generator.fit_transform(data_loader.full_df, target_column=None)
         assert True

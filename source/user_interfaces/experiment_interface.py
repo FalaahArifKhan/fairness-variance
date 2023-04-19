@@ -11,10 +11,11 @@ from source.utils.model_tuning_utils import tune_ML_models
 from source.custom_classes.custom_logger import get_logger
 
 
-def run_exp_iteration(data_loader, experiment_seed, test_set_fraction, db_writer_func, preprocessor: ColumnTransformer,
-                      models_params_for_tuning, metrics_computation_config, custom_table_fields_dct,
-                      with_tuning: bool = False, save_results_dir_path: str = None,
-                      tuned_params_df_path: str = None, num_folds_for_tuning: int = 3):
+def run_exp_iteration_with_db_writer(data_loader, experiment_seed, test_set_fraction, db_writer_func,
+                                     preprocessor: ColumnTransformer, models_params_for_tuning,
+                                     metrics_computation_config, custom_table_fields_dct,
+                                     with_tuning: bool = False, save_results_dir_path: str = None,
+                                     tuned_params_df_path: str = None, num_folds_for_tuning: int = 3):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
 
