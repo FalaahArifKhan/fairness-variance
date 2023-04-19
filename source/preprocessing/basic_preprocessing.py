@@ -3,7 +3,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
 
-from virny.preprocessing.null_imputer import NullImputer
+from source.preprocessing.null_imputer import NullImputer
 
 
 def get_simple_preprocessor(data_loader):

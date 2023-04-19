@@ -2,7 +2,7 @@ import pandas as pd
 from abc import ABCMeta, abstractmethod
 
 
-class AbstractGenerator(metaclass=ABCMeta):
+class AbstractErrorInjector(metaclass=ABCMeta):
     def __init__(self, seed: int):
         self.seed = seed
 

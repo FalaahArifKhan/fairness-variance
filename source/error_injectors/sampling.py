@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from source.generators.abstract_generator import AbstractGenerator
+from sklearn.utils import shuffle
+from source.error_injectors.abstract_error_injector import AbstractErrorInjector
 
 
-class ProportionsGenerator(AbstractGenerator):
+class ProportionsGenerator(AbstractErrorInjector):
     """
     Parameters
     ----------
@@ -57,6 +58,7 @@ class ProportionsGenerator(AbstractGenerator):
             random_row_idxs = np.random.choice(group_idxs, size=subsample_rows_count, replace=False)
             df_subsample = pd.concat([df_subsample, df.loc[random_row_idxs, :]])
 
+        df_subsample = shuffle(df_subsample, random_state=self.seed)
         return df_subsample.reset_index(drop=True)
 
     def fit_transform(self, df, target_column: str = None):
