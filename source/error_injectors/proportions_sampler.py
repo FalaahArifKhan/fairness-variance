@@ -5,7 +5,7 @@ from sklearn.utils import shuffle
 from source.error_injectors.abstract_error_injector import AbstractErrorInjector
 
 
-class ProportionsGenerator(AbstractErrorInjector):
+class ProportionsSampler(AbstractErrorInjector):
     """
     Parameters
     ----------
