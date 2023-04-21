@@ -11,7 +11,7 @@ class AbstractErrorInjector(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def transform(self, df: pd.DataFrame, target_column: str = None):
+    def transform(self, df: pd.DataFrame):
         pass
 
     @abstractmethod

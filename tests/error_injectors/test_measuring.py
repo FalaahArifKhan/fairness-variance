@@ -5,6 +5,8 @@ from tests.utils import detect_outliers_std
 from source.error_injectors.outliers_injector import OutliersInjector
 from source.error_injectors.mislabels_injector import MislabelsInjector
 from source.error_injectors.random_nulls_injector import RandomNullsInjector
+from source.error_injectors.random_nulls_injector_v2 import RandomNullsInjectorV2
+from source.error_injectors.outliers_injector_v2 import OutliersInjectorV2
 
 
 def test_mislabels_generator():
@@ -40,6 +42,25 @@ def test_outliers_generator():
         assert outliers_count == int(notna_idxs.shape[0] * outliers_pct)
 
 
+def test_outliers_injector_v2():
+    seed = 42
+    data_loader = CreditDataset(subsample_size=50_000)
+    row_idx_percentage = 0.36
+    columns_to_transform = ['NumberRealEstateLoansOrLines', 'NumberOfOpenCreditLinesAndLoans']
+    injector = OutliersInjectorV2(seed,
+                                  columns_to_transform=columns_to_transform,
+                                  row_idx_percentage=row_idx_percentage)
+    new_df = injector.fit_transform(data_loader.full_df, target_column=None)
+
+    total_outliers_count = 0
+    for col_name in columns_to_transform:
+        new_outliers = detect_outliers_std(data_loader.full_df, new_df, col_name)
+        outliers_count = new_outliers.shape[0]
+        total_outliers_count += outliers_count
+
+    assert total_outliers_count >= int(data_loader.full_df.shape[0] * row_idx_percentage)
+
+
 def test_random_nulls_generator():
     seed = 42
     columns_nulls_percentage_dct = {
@@ -70,3 +91,21 @@ def test_random_nulls_generator_with_null_columns():
     for col_name, nulls_pct in columns_nulls_percentage_dct.items():
         nulls_count = new_df[col_name].isna().sum()
         assert nulls_count == int(data_loader.full_df[col_name].shape[0] * nulls_pct)
+
+
+def test_random_nulls_injector_v2():
+    seed = 42
+    data_loader = CreditDataset(subsample_size=50_000)
+    row_idx_nulls_percentage = 0.5
+    columns_to_transform = ['NumberRealEstateLoansOrLines', 'NumberOfOpenCreditLinesAndLoans']
+    injector = RandomNullsInjectorV2(seed,
+                                     columns_to_transform=columns_to_transform,
+                                     row_idx_nulls_percentage=row_idx_nulls_percentage)
+    new_df = injector.fit_transform(data_loader.full_df, target_column=None)
+
+    total_nulls_count = 0
+    for col_name in columns_to_transform:
+        nulls_count = new_df[col_name].isna().sum()
+        total_nulls_count += nulls_count
+
+    assert total_nulls_count == int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)
