@@ -31,10 +31,10 @@ class MislabelsInjector(AbstractErrorInjector):
         self._validate_input(df[target_column])
 
     def transform(self, df: pd.DataFrame, target_column: str = None):
-        if self.mislabels_percentage == 0.0:
-            return df
-
         df_copy = df.copy(deep=True)
+        if self.mislabels_percentage == 0.0:
+            return df_copy
+
         np.random.seed(self.seed)
         mislabels_sample_size = int(df_copy.shape[0] * self.mislabels_percentage)
         random_row_idxs = np.random.choice(df_copy.index, size=mislabels_sample_size, replace=False)

@@ -12,7 +12,7 @@ class OutliersInjector(AbstractErrorInjector):
     seed
         Seed for all randomized operations in this generator
     columns_outliers_percentage_dct
-        Dictionary where keys are column names and values are target percentages of outliers in not null values of each column
+        Dictionary where keys are column names and values are target percentages of outliers in not-null values of each column
 
     """
     def __init__(self, seed: int, columns_outliers_percentage_dct: dict):
@@ -36,12 +36,12 @@ class OutliersInjector(AbstractErrorInjector):
 
     def _generate_outliers(self, val, col_name):
         if val > self.columns_stats[col_name]['mean']:
-            new_val = val + 3 * self.columns_stats[col_name]['std']  # + normal(min, max) // std
+            new_val = val + 3 * self.columns_stats[col_name]['std']
             if isinstance(val, int):
                 new_val = math.ceil(new_val)
             return new_val
         else:
-            new_val = val - 3 * self.columns_stats[col_name]['std']  # - normal(min, max) // std
+            new_val = val - 3 * self.columns_stats[col_name]['std']
             if isinstance(val, int):
                 new_val = math.floor(new_val)
 
