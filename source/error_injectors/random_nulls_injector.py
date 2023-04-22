@@ -27,6 +27,9 @@ class RandomNullsInjector(AbstractErrorInjector):
                 raise ValueError(f"Value caused the issue is {col_nulls_pct}. "
                                  f"Column nulls percentage must be in [0.0-1.0] range.")
 
+    def set_percentage_var(self, new_columns_nulls_percentage_dct):
+        self.columns_nulls_percentage_dct = new_columns_nulls_percentage_dct
+
     def fit(self, df, target_column: str = None):
         self._validate_input(df)
 
@@ -48,7 +51,7 @@ class RandomNullsInjector(AbstractErrorInjector):
             notna_idxs = df_copy[df_copy[col_name].notna()].index
             np.random.seed(self.seed + idx)
             random_row_idxs = np.random.choice(notna_idxs, size=nulls_sample_size, replace=False)
-            df_copy.loc[random_row_idxs, col_name] = np.nan
+            df_copy.loc[random_row_idxs, col_name] = None
 
         return df_copy
 

@@ -28,6 +28,9 @@ class RandomNullsInjectorV2(AbstractErrorInjector):
         if self.row_idx_nulls_percentage < 0 or self.row_idx_nulls_percentage > 1:
             raise ValueError("Column nulls percentage must be in [0.0-1.0] range.")
 
+    def set_percentage_var(self, new_row_idx_nulls_percentage):
+        self.row_idx_nulls_percentage = new_row_idx_nulls_percentage
+
     def fit(self, df, target_column: str = None):
         self._validate_input(df)
 
@@ -48,7 +51,7 @@ class RandomNullsInjectorV2(AbstractErrorInjector):
             if col_random_row_idxs.shape[0] == 0:
                 continue
 
-            df_copy.loc[col_random_row_idxs, col_name] = np.nan
+            df_copy.loc[col_random_row_idxs, col_name] = None
 
         return df_copy
 

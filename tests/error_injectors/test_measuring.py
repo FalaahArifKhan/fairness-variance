@@ -109,3 +109,21 @@ def test_random_nulls_injector_v2():
         total_nulls_count += nulls_count
 
     assert total_nulls_count == int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)
+
+
+def test_random_nulls_injector_v2_zero():
+    seed = 42
+    data_loader = CreditDataset(subsample_size=50_000)
+    row_idx_nulls_percentage = 0.0
+    columns_to_transform = ['NumberRealEstateLoansOrLines', 'NumberOfOpenCreditLinesAndLoans']
+    injector = RandomNullsInjectorV2(seed,
+                                     columns_to_transform=columns_to_transform,
+                                     row_idx_nulls_percentage=row_idx_nulls_percentage)
+    new_df = injector.fit_transform(data_loader.full_df, target_column=None)
+
+    total_nulls_count = 0
+    for col_name in columns_to_transform:
+        nulls_count = new_df[col_name].isna().sum()
+        total_nulls_count += nulls_count
+
+    assert total_nulls_count == int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)

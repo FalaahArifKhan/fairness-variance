@@ -30,6 +30,9 @@ class OutliersInjectorV2(AbstractErrorInjector):
         if self.row_idx_percentage < 0 or self.row_idx_percentage > 1:
             raise ValueError("Column nulls percentage must be in [0.0-1.0] range.")
 
+    def set_percentage_var(self, new_row_idx_percentage):
+        self.row_idx_percentage = new_row_idx_percentage
+
     def _detect_outliers_std(self, df, col_name):
         mean = self.columns_stats[col_name]['mean']
         std = self.columns_stats[col_name]['std']

@@ -2,8 +2,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from virny.custom_classes.base_dataset import BaseFlowDataset
 
 from source.preprocessing.null_imputer import NullImputer
+from source.datasets.base import BaseDataLoader
 
 
 def get_simple_preprocessor(data_loader):
@@ -20,7 +23,7 @@ def get_null_imputer_preprocessor(data_loader, categorical_strategy="mode", nume
     categorical_transformer = Pipeline(
         steps=[
             ("imputer", NullImputer(categorial_null_columns, how=categorical_strategy)),
-            ("encoder", OneHotEncoder(sparse=False)),
+            ("encoder", OneHotEncoder(sparse=False, handle_unknown='ignore')),
         ]
     )
     numeric_transformer = Pipeline(
@@ -38,3 +41,42 @@ def get_null_imputer_preprocessor(data_loader, categorical_strategy="mode", nume
     )
 
     return preprocessor
+
+
+def preprocess_experiment_dataset(data_loader: BaseDataLoader, column_transformer: ColumnTransformer,
+                                  test_set_fraction: float, dataset_split_seed: int):
+    if test_set_fraction < 0.0 or test_set_fraction > 1.0:
+        raise ValueError("test_set_fraction must be a float in the [0.0-1.0] range")
+
+    # Split and preprocess the dataset
+    X_train_val, X_test, y_train_val, y_test = train_test_split(data_loader.X_data, data_loader.y_data,
+                                                                test_size=test_set_fraction,
+                                                                random_state=dataset_split_seed)
+    column_transformer = column_transformer.set_output(transform="pandas")  # Set transformer output to a pandas df
+    X_train_features = column_transformer.fit_transform(X_train_val)
+    X_test_features = column_transformer.transform(X_test)
+
+    base_flow_dataset = BaseFlowDataset(init_features_df=data_loader.full_df.drop(data_loader.target, axis=1, errors='ignore'),
+                                        X_train_val=X_train_features,
+                                        X_test=X_test_features,
+                                        y_train_val=y_train_val,
+                                        y_test=y_test,
+                                        target=data_loader.target,
+                                        numerical_columns=data_loader.numerical_columns,
+                                        categorical_columns=data_loader.categorical_columns)
+
+    return base_flow_dataset, (X_train_val, X_test, y_train_val, y_test), column_transformer
+
+
+def create_stress_testing_sets(original_X_test, original_y_test, error_injector, injector_config_lst, fitted_column_transformer):
+    # Create test sets for model stress testing
+    extra_test_sets_lst = []
+    for percentage_var in injector_config_lst:
+        X_test = original_X_test.copy(deep=True)
+        error_injector.set_percentage_var(percentage_var)
+        transformed_X_test = error_injector.transform(X_test)  # Use only transform without fit
+        new_X_test_features = fitted_column_transformer.transform(transformed_X_test)  # Preprocess the feature set
+
+        extra_test_sets_lst.append((new_X_test_features, original_y_test))
+
+    return extra_test_sets_lst

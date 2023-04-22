@@ -10,6 +10,7 @@ from virny.user_interfaces.metrics_computation_interfaces import (
 from virny.utils.custom_initializers import create_models_config_from_tuned_params_df
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
+from source.preprocessing.basic_preprocessing import preprocess_experiment_dataset, create_stress_testing_sets
 from source.utils.model_tuning_utils import tune_ML_models
 from source.custom_classes.custom_logger import get_logger
 
@@ -64,7 +65,7 @@ def run_exp_iteration(data_loader, experiment_seed, test_set_fraction, db_writer
 
 
 def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_set_fraction, db_writer_func,
-                                            error_injector_class, injector_config_lst,
+                                            error_injector, injector_config_lst,
                                             preprocessor: ColumnTransformer, models_params_for_tuning,
                                             metrics_computation_config, custom_table_fields_dct,
                                             with_tuning: bool = False, save_results_dir_path: str = None,
@@ -72,7 +73,7 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
                                             verbose: bool = False):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
-    custom_table_fields_dct['injector_config_lst'] = injector_config_lst
+    custom_table_fields_dct['injector_config_lst'] = str(injector_config_lst)
 
     logger = get_logger()
     logger.info(f"Start an experiment iteration for the following custom params:")
@@ -83,11 +84,18 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
     metrics_computation_config.runs_seed_lst = [experiment_seed + i for i in range(1, metrics_computation_config.num_runs + 1)]
 
     # Preprocess the dataset using the defined preprocessor
-    base_flow_dataset = preprocess_dataset(data_loader, preprocessor, test_set_fraction, experiment_seed)
+    base_flow_dataset, train_test_sets, fitted_column_transformer = \
+        preprocess_experiment_dataset(data_loader, preprocessor, test_set_fraction, experiment_seed)
     if verbose:
         logger.info("The dataset is preprocessed")
         print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
         print("Top indexes of an y_test in a base flow dataset: ", base_flow_dataset.y_test.index[:20])
+
+    # Create extra stress testing sets
+    original_X_train_val, original_X_test, original_y_train_val, original_y_test = train_test_sets
+    extra_test_sets_lst = create_stress_testing_sets(original_X_test, original_y_test,
+                                                     error_injector, injector_config_lst,
+                                                     fitted_column_transformer)
 
     # Tune model parameters if needed
     if with_tuning:
@@ -105,12 +113,6 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
     else:
         models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_path)
         logger.info("Models config is loaded from the input file")
-
-    extra_test_sets_lst = []
-    for percentage_var in injector_config_lst:
-        error_injector = error_injector_class(experiment_seed, percentage_var)
-        transformed_df = error_injector.fit_transform(base_flow_dataset.X_test).copy(deep=True)
-        extra_test_sets_lst.append((transformed_df, base_flow_dataset.y_test))
 
     # Compute metrics for tuned models
     compute_metrics_multiple_runs_with_multiple_test_sets(dataset=base_flow_dataset,

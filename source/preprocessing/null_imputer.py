@@ -94,6 +94,7 @@ class NullImputer(TransformerMixin, BaseEstimator):
         else:
             for col in self.target_columns:
                 missing_mask = data[col].isna()
+                print('missing_mask -- ', missing_mask)
                 data.loc[missing_mask, col] = data.loc[missing_mask, self.conditional_column].map(self.values_to_impute[col])
 
         return data

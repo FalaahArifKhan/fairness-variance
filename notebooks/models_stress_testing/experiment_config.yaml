@@ -1,0 +1,8 @@
+
+dataset_name: Folktables_GA_2018
+bootstrap_fraction: 0.8
+# n_estimators: 50
+n_estimators: 10
+# num_runs: 5
+num_runs: 2
+sensitive_attributes_dct: {'SEX': '1', 'RAC1P': '1', 'AGEP': [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40], 'SEX & RAC1P & AGEP': None}
