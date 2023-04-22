@@ -1,10 +1,7 @@
-import os
 import altair as alt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from datetime import datetime, timezone
 
 from source.configs.constants import SubgroupMetricsType, GroupMetricsType
 
@@ -104,6 +101,83 @@ class ExperimentsVisualizer:
                         melted_model_group_metrics_df
 
         self.melted_exp_avg_runs_group_metrics_dct = melted_exp_avg_runs_group_metrics_dct
+
+    def create_subgroup_metrics_box_plot_for_multiple_exp_iters(self, target_percentage: float,
+                                                                subgroup_metrics: list = None,
+                                                                subgroup_metrics_type: str = None):
+        if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
+            raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
+
+        if subgroup_metrics is None:
+            if subgroup_metrics_type is None:
+                subgroup_metrics = self.all_error_subgroup_metrics + self.all_variance_subgroup_metrics
+            else:
+                subgroup_metrics = self.all_error_subgroup_metrics if subgroup_metrics_type == SubgroupMetricsType.ERROR.value \
+                    else self.all_variance_subgroup_metrics
+
+        subgroup = 'overall'
+        all_models_pct_subgroup_metrics_df = pd.DataFrame()
+        for model_name in self.exp_avg_runs_subgroup_metrics_dct.keys():
+            for exp_iter in self.exp_avg_runs_subgroup_metrics_dct[model_name].keys():
+                all_models_pct_subgroup_metrics_df = pd.concat([
+                    all_models_pct_subgroup_metrics_df,
+                    self.exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][target_percentage]
+                ])
+        all_models_pct_subgroup_metrics_df = all_models_pct_subgroup_metrics_df.reset_index(drop=True)
+
+        to_plot = all_models_pct_subgroup_metrics_df[all_models_pct_subgroup_metrics_df['Metric'].isin(subgroup_metrics)]
+        plt.figure(figsize=(15, 10))
+        ax = sns.boxplot(x=to_plot['Metric'],
+                         y=to_plot[subgroup],
+                         hue=to_plot['Model_Name'])
+
+        plt.legend(loc='upper left',
+                   ncol=2,
+                   fancybox=True,
+                   shadow=True)
+        plt.xlabel("Metric name")
+        plt.ylabel("Metric value")
+        fig = ax.get_figure()
+        fig.tight_layout()
+
+    def create_subgroup_metrics_box_plot_for_multiple_percentages(self, target_exp_iter: str,
+                                                                  subgroup_metrics: list = None,
+                                                                  subgroup_metrics_type: str = None):
+        if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
+            raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
+
+        if subgroup_metrics is None:
+            if subgroup_metrics_type is None:
+                subgroup_metrics = self.all_error_subgroup_metrics + self.all_variance_subgroup_metrics
+            else:
+                subgroup_metrics = self.all_error_subgroup_metrics if subgroup_metrics_type == SubgroupMetricsType.ERROR.value \
+                    else self.all_variance_subgroup_metrics
+
+        subgroup = 'overall'
+        all_models_pct_subgroup_metrics_df = pd.DataFrame()
+        # Take all percentages for the specific exp iter
+        for model_name in self.exp_avg_runs_subgroup_metrics_dct.keys():
+            for percentage in self.exp_avg_runs_subgroup_metrics_dct[model_name][target_exp_iter].keys():
+                all_models_pct_subgroup_metrics_df = pd.concat([
+                    all_models_pct_subgroup_metrics_df,
+                    self.exp_avg_runs_subgroup_metrics_dct[model_name][target_exp_iter][percentage]
+                ])
+        all_models_pct_subgroup_metrics_df = all_models_pct_subgroup_metrics_df.reset_index(drop=True)
+
+        to_plot = all_models_pct_subgroup_metrics_df[all_models_pct_subgroup_metrics_df['Metric'].isin(subgroup_metrics)]
+        plt.figure(figsize=(15, 10))
+        ax = sns.boxplot(x=to_plot['Metric'],
+                         y=to_plot[subgroup],
+                         hue=to_plot['Model_Name'])
+
+        plt.legend(loc='upper left',
+                   ncol=2,
+                   fancybox=True,
+                   shadow=True)
+        plt.xlabel("Metric name")
+        plt.ylabel("Metric value")
+        fig = ax.get_figure()
+        fig.tight_layout()
 
     def create_subgroups_grid_pct_lines_plot(self, model_name: str, exp_iter: str,
                                              subgroup_metrics: list = None, subgroups: list = None,

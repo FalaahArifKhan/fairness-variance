@@ -25,7 +25,7 @@ def connect_to_mongodb(collection_name, secrets_path: str = pathlib.Path(__file_
 
 
 def read_model_metric_dfs_from_db(collection, session_uuid):
-    cursor = collection.find({'session_uuid': session_uuid})
+    cursor = collection.find({'session_uuid': session_uuid, 'tag': 'OK'})
     records = []
     for record in cursor:
         del record['_id']
