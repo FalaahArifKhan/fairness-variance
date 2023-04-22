@@ -241,3 +241,129 @@ class ExperimentsVisualizer:
             )
         )
         return grid_chart
+
+    def create_subgroups_grid_pct_lines_per_model_plot(self, subgroup_metric: str, exp_iter: str,
+                                                       model_names: list = None, subgroups: list = None):
+        if subgroups is None:
+            subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
+                        [attr + '_dis' for attr in self.sensitive_attrs] + ['overall']
+
+        if model_names is None:
+            model_names = self.model_names
+
+        # Create a grid framing
+        row_len = 3
+        subgroup_models_len = len(model_names)
+        div_val, mod_val = divmod(subgroup_models_len, row_len)
+        grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
+
+        all_models_percentage_subgroup_metrics_df = pd.DataFrame()
+        for model_name in model_names:
+            for pct in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter].keys():
+                percentage_subgroup_metrics_df = self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][pct]
+                percentage_subgroup_metrics_df['Percentage'] = pct
+                all_models_percentage_subgroup_metrics_df = pd.concat(
+                    [all_models_percentage_subgroup_metrics_df, percentage_subgroup_metrics_df]
+                )
+
+        all_models_percentage_subgroup_metrics_df = all_models_percentage_subgroup_metrics_df.reset_index(drop=True)
+
+        grid_chart = alt.vconcat()
+        model_idx = -1
+        for num_subplots in grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                model_idx += 1
+                subplot_metrics_df = all_models_percentage_subgroup_metrics_df[
+                    (all_models_percentage_subgroup_metrics_df.Metric == subgroup_metric) &
+                    (all_models_percentage_subgroup_metrics_df.Model_Name == model_names[model_idx]) &
+                    (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
+                    ]
+                base = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x='Percentage:Q',
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
+                    color='Subgroup:N',
+                    strokeWidth=alt.condition(
+                        "datum.Subgroup == 'overall'",
+                        alt.value(4),
+                        alt.value(2)
+                    ),
+                ).properties(
+                    width=250, height=250, title = model_names[model_idx]
+                )
+
+                row |= base
+
+            grid_chart &= row
+
+        grid_chart = (
+            grid_chart.configure_axis(
+                labelFontSize=15,
+                titleFontSize=15
+            ).configure_legend(
+                titleFontSize=15,
+                labelFontSize=13,
+                symbolStrokeWidth=10,
+            )
+        )
+        return grid_chart
+
+    def create_groups_grid_pct_lines_per_model_plot(self, group_metric: str, exp_iter: str,
+                                                    model_names: list = None, groups: list = None):
+        if groups is None:
+            groups = [attr for attr in self.sensitive_attrs]
+
+        if model_names is None:
+            model_names = self.model_names
+
+        # Create a grid framing
+        row_len = 3
+        group_models_len = len(model_names)
+        div_val, mod_val = divmod(group_models_len, row_len)
+        grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
+
+
+        all_models_percentage_group_metrics_df = pd.DataFrame()
+        for model_name in model_names:
+            for pct in self.melted_exp_avg_runs_group_metrics_dct[model_name][exp_iter].keys():
+                percentage_group_metrics_df = self.melted_exp_avg_runs_group_metrics_dct[model_name][exp_iter][pct]
+                percentage_group_metrics_df['Percentage'] = pct
+                all_models_percentage_group_metrics_df = pd.concat(
+                    [all_models_percentage_group_metrics_df, percentage_group_metrics_df]
+                )
+        all_models_percentage_group_metrics_df = all_models_percentage_group_metrics_df.reset_index(drop=True)
+
+        grid_chart = alt.vconcat()
+        model_idx = -1
+        for num_subplots in grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                model_idx += 1
+                subplot_metrics_df = all_models_percentage_group_metrics_df[
+                    (all_models_percentage_group_metrics_df.Metric == group_metric) &
+                    (all_models_percentage_group_metrics_df.Model_Name == model_names[model_idx]) &
+                    (all_models_percentage_group_metrics_df.Group.isin(groups))
+                    ]
+                base = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x='Percentage:Q',
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=group_metric),
+                    color='Group:N',
+                ).properties(
+                    width=250, height=250, title=model_names[model_idx]
+                )
+
+                row |= base
+
+            grid_chart &= row
+
+        grid_chart = (
+            grid_chart.configure_axis(
+                labelFontSize=15,
+                titleFontSize=15
+            ).configure_legend(
+                titleFontSize=15,
+                labelFontSize=13,
+                symbolStrokeWidth=10,
+            )
+        )
+        return grid_chart
