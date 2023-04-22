@@ -9,7 +9,7 @@ class ExperimentsComposer:
         self.sensitive_attrs = sensitive_attrs
         self.sensitive_attributes_dct = {attr: None for attr in sensitive_attrs}
 
-    def create_structured_exp_results_dct(self):
+    def create_exp_subgroup_metrics_dct(self):
         structured_exp_results_dct = dict()
         for model_name in self.models_metrics_dct.keys():
             structured_exp_results_dct[model_name] = dict()
