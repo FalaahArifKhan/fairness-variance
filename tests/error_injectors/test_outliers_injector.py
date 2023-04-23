@@ -2,7 +2,7 @@ from virny.datasets.data_loaders import CreditDataset, CompasDataset
 
 from source.error_injectors.outliers_injector import OutliersInjector
 from source.error_injectors.outliers_injector_v2 import OutliersInjectorV2
-from tests.utils import detect_outliers_std
+from source.utils.common_helpers import detect_outliers_std
 
 
 def test_outliers_injector():

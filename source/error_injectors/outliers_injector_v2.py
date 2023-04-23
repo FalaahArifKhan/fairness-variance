@@ -89,6 +89,9 @@ class OutliersInjectorV2(AbstractErrorInjector):
         if self.row_idx_percentage == 0.0:
             return df_copy
 
+        if len(self.columns_stats.keys()) == 0:
+            self.fit(df_copy)
+
         random_sample_df = self._create_random_sample_df(df_copy)
         for idx, col_name in enumerate(self.columns_to_transform):
             col_random_row_idxs = random_sample_df[random_sample_df['random_column_name'] == col_name]['random_row_idx'].values
