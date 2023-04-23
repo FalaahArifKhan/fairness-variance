@@ -135,6 +135,31 @@ class ExperimentsVisualizer:
 
         self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct = melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct
 
+        # Create melted_exp_avg_exp_iters_avg_runs_group_metrics_dct
+        melted_exp_avg_exp_iters_avg_runs_group_metrics_dct = dict()
+        for model_name in self.melted_exp_avg_runs_group_metrics_dct.keys():
+            for preprocessing_technique in self.melted_exp_avg_runs_group_metrics_dct[model_name].keys():
+                first_exp_iter = list(self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique].keys())[0]
+
+                for percentage in self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][first_exp_iter].keys():
+                    multiple_pct_exp_iters_subgroup_metrics_df = pd.DataFrame()
+
+                    for exp_iter in self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique].keys():
+                        multiple_runs_subgroup_metrics_df = self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
+                        multiple_pct_exp_iters_subgroup_metrics_df = pd.concat([multiple_pct_exp_iters_subgroup_metrics_df, multiple_runs_subgroup_metrics_df])
+
+                    columns_to_group = [col for col in multiple_pct_exp_iters_subgroup_metrics_df.columns
+                                        if col not in ('Bootstrap_Model_Seed', 'Run_Number', 'Record_Create_Date_Time',
+                                                       'Dataset_Split_Seed', 'Experiment_Iteration', 'Model_Init_Seed',
+                                                       'Model_Params')]
+                    melted_exp_avg_exp_iters_avg_runs_group_metrics_dct.setdefault(model_name, {}) \
+                        .setdefault(preprocessing_technique, {})[percentage] = \
+                        multiple_pct_exp_iters_subgroup_metrics_df[columns_to_group].groupby(
+                            ['Model_Name', 'Metric', 'Group']
+                        ).mean().reset_index()
+
+        self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct = melted_exp_avg_exp_iters_avg_runs_group_metrics_dct
+
     def create_subgroup_metrics_box_plot_for_multiple_exp_iters(self, target_percentage: float,
                                                                 target_preprocessing_technique: str,
                                                                 subgroup_metrics: list = None,
@@ -290,7 +315,7 @@ class ExperimentsVisualizer:
         )
         return grid_chart
 
-    def create_groups_grid_pct_lines_plot(self, model_name: str, exp_iter: str,
+    def create_groups_grid_pct_lines_plot(self, model_name: str, target_preprocessing_technique: str = None,
                                           group_metrics: list = None, groups: list = None, group_metrics_type = None):
         if group_metrics_type is not None and not GroupMetricsType.has_value(group_metrics_type):
             raise ValueError(f'group_metrics_type must be in {tuple(GroupMetricsType._value2member_map_.keys())}')
@@ -312,8 +337,8 @@ class ExperimentsVisualizer:
         grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
 
         all_percentage_group_metrics_df = pd.DataFrame()
-        for pct in self.melted_exp_avg_runs_group_metrics_dct[model_name][exp_iter].keys():
-            percentage_group_metrics_df = self.melted_exp_avg_runs_group_metrics_dct[model_name][exp_iter][pct]
+        for pct in self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique].keys():
+            percentage_group_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique][pct]
             percentage_group_metrics_df['Percentage'] = pct
             all_percentage_group_metrics_df = pd.concat(
                 [all_percentage_group_metrics_df, percentage_group_metrics_df]
@@ -421,7 +446,7 @@ class ExperimentsVisualizer:
         )
         return grid_chart
 
-    def create_groups_grid_pct_lines_per_model_plot(self, group_metric: str, exp_iter: str,
+    def create_groups_grid_pct_lines_per_model_plot(self, group_metric: str, target_preprocessing_technique: str = None,
                                                     model_names: list = None, groups: list = None):
         if groups is None:
             groups = [attr for attr in self.sensitive_attrs]
@@ -437,8 +462,8 @@ class ExperimentsVisualizer:
 
         all_models_percentage_group_metrics_df = pd.DataFrame()
         for model_name in model_names:
-            for pct in self.melted_exp_avg_runs_group_metrics_dct[model_name][exp_iter].keys():
-                percentage_group_metrics_df = self.melted_exp_avg_runs_group_metrics_dct[model_name][exp_iter][pct]
+            for pct in self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique].keys():
+                percentage_group_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique][pct]
                 percentage_group_metrics_df['Percentage'] = pct
                 all_models_percentage_group_metrics_df = pd.concat(
                     [all_models_percentage_group_metrics_df, percentage_group_metrics_df]
