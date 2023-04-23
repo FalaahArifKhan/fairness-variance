@@ -215,15 +215,18 @@ class ExperimentsVisualizer:
         fig = ax.get_figure()
         fig.tight_layout()
 
-    def create_subgroups_grid_pct_lines_plot(self, model_name: str, exp_iter: str,
-                                             preprocessing_technique: str = None, subgroup_metrics: list = None,
-                                             subgroups: list = None, subgroup_metrics_type = None):
+    def create_subgroups_grid_pct_lines_plot(self, model_name: str, target_preprocessing_technique: str = None,
+                                             subgroup_metrics: list = None, subgroups: list = None,
+                                             subgroup_metrics_type = None):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
             raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
 
         if subgroups is None:
             subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
                         [attr + '_dis' for attr in self.sensitive_attrs] + ['overall']
+
+        if target_preprocessing_technique is None:
+            target_preprocessing_technique = list(self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name].keys())[0]
 
         if subgroup_metrics is None:
             if subgroup_metrics_type is None:
@@ -239,12 +242,8 @@ class ExperimentsVisualizer:
         grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
 
         all_percentage_subgroup_metrics_df = pd.DataFrame()
-        for pct in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter].keys():
-            percentage_subgroup_metrics_df = self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][pct]
-            # Filter by a preprocessing technique if defined
-            if preprocessing_technique is not None:
-                percentage_subgroup_metrics_df = \
-                    percentage_subgroup_metrics_df[percentage_subgroup_metrics_df.Preprocessing_Technique == preprocessing_technique]
+        for pct in self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique].keys():
+            percentage_subgroup_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique][pct]
             percentage_subgroup_metrics_df['Percentage'] = pct
             all_percentage_subgroup_metrics_df = pd.concat(
                 [all_percentage_subgroup_metrics_df, percentage_subgroup_metrics_df]
@@ -356,7 +355,7 @@ class ExperimentsVisualizer:
         )
         return grid_chart
 
-    def create_subgroups_grid_pct_lines_per_model_plot(self, subgroup_metric: str, exp_iter: str,
+    def create_subgroups_grid_pct_lines_per_model_plot(self, subgroup_metric: str, target_preprocessing_technique: str,
                                                        model_names: list = None, subgroups: list = None):
         if subgroups is None:
             subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
@@ -373,8 +372,8 @@ class ExperimentsVisualizer:
 
         all_models_percentage_subgroup_metrics_df = pd.DataFrame()
         for model_name in model_names:
-            for pct in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter].keys():
-                percentage_subgroup_metrics_df = self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][pct]
+            for pct in self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique].keys():
+                percentage_subgroup_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique][pct]
                 percentage_subgroup_metrics_df['Percentage'] = pct
                 all_models_percentage_subgroup_metrics_df = pd.concat(
                     [all_models_percentage_subgroup_metrics_df, percentage_subgroup_metrics_df]
