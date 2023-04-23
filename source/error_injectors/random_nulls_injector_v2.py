@@ -43,7 +43,7 @@ class RandomNullsInjectorV2(AbstractErrorInjector):
         nulls_sample_size = int(df_copy.shape[0] * self.row_idx_nulls_percentage)
         np.random.seed(self.seed)
         random_row_idxs = np.random.choice(df_copy.index, size=nulls_sample_size, replace=False)
-        # Choose random number of columns to place nulls for each selected row index
+        # Choose a random number of columns to place nulls for each selected row index
         np.random.seed(self.seed)
         random_num_columns_for_nulls = np.random.choice(
             [i + 1 for i in range(math.ceil(len(self.columns_to_transform) * self.row_idx_nulls_percentage))],
