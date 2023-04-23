@@ -56,53 +56,87 @@ class ExperimentsVisualizer:
         # Create exp_avg_runs_subgroup_metrics_dct
         exp_avg_runs_subgroup_metrics_dct = dict()
         for model_name in self.exp_subgroup_metrics_dct.keys():
-            for exp_iter in self.exp_subgroup_metrics_dct[model_name].keys():
-                for percentage in self.exp_subgroup_metrics_dct[model_name][exp_iter].keys():
-                    multiple_runs_subgroup_metrics_df = self.exp_subgroup_metrics_dct[model_name][exp_iter][percentage]
-                    columns_to_group = [col for col in multiple_runs_subgroup_metrics_df.columns
-                                        if col not in ('Model_Seed', 'Run_Number')]
-                    exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {}).setdefault(exp_iter, {})[percentage] = \
-                        multiple_runs_subgroup_metrics_df[columns_to_group].groupby(['Metric', 'Model_Name']).mean().reset_index()
+            for preprocessing_technique in self.exp_subgroup_metrics_dct[model_name].keys():
+                for exp_iter in self.exp_subgroup_metrics_dct[model_name][preprocessing_technique].keys():
+                    for percentage in self.exp_subgroup_metrics_dct[model_name][preprocessing_technique][exp_iter].keys():
+                        multiple_runs_subgroup_metrics_df = self.exp_subgroup_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
+                        columns_to_group = [col for col in multiple_runs_subgroup_metrics_df.columns
+                                            if col not in ('Bootstrap_Model_Seed', 'Run_Number', 'Record_Create_Date_Time')]
+                        exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {})\
+                            .setdefault(preprocessing_technique, {})\
+                            .setdefault(exp_iter, {})[percentage] = multiple_runs_subgroup_metrics_df[columns_to_group].groupby(
+                                                                        ['Metric', 'Model_Name']
+                                                                    ).mean().reset_index()
 
         self.exp_avg_runs_subgroup_metrics_dct = exp_avg_runs_subgroup_metrics_dct
 
         # Create melted_exp_avg_runs_subgroup_metrics_dct
         melted_exp_avg_runs_subgroup_metrics_dct = dict()
         for model_name in self.exp_avg_runs_subgroup_metrics_dct.keys():
-            for exp_iter in self.exp_avg_runs_subgroup_metrics_dct[model_name].keys():
-                for percentage in self.exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter].keys():
-                    model_subgroup_metrics_df = self.exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][percentage]
-                    subgroup_names = [col for col in model_subgroup_metrics_df.columns if '_priv' in col or '_dis' in col] + ['overall']
-                    melted_model_subgroup_metrics_df = model_subgroup_metrics_df.melt(
-                        id_vars=[col for col in model_subgroup_metrics_df.columns if col not in subgroup_names],
-                        value_vars=subgroup_names,
-                        var_name="Subgroup",
-                        value_name="Metric_Value"
-                    )
-                    melted_exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {}).setdefault(exp_iter, {})[percentage] = \
-                        melted_model_subgroup_metrics_df
+            for preprocessing_technique in self.exp_avg_runs_subgroup_metrics_dct[model_name].keys():
+                for exp_iter in self.exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique].keys():
+                    for percentage in self.exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique][exp_iter].keys():
+                        model_subgroup_metrics_df = self.exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
+                        subgroup_names = [col for col in model_subgroup_metrics_df.columns if '_priv' in col or '_dis' in col] + ['overall']
+                        melted_model_subgroup_metrics_df = model_subgroup_metrics_df.melt(
+                            id_vars=[col for col in model_subgroup_metrics_df.columns if col not in subgroup_names],
+                            value_vars=subgroup_names,
+                            var_name="Subgroup",
+                            value_name="Metric_Value"
+                        )
+                        melted_exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {})\
+                            .setdefault(preprocessing_technique, {})\
+                            .setdefault(exp_iter, {})[percentage] = melted_model_subgroup_metrics_df
 
         self.melted_exp_avg_runs_subgroup_metrics_dct = melted_exp_avg_runs_subgroup_metrics_dct
 
         # Create melted_exp_avg_runs_group_metrics_dct
         melted_exp_avg_runs_group_metrics_dct = dict()
         for model_name in self.exp_avg_runs_group_metrics_dct.keys():
-            for exp_iter in self.exp_avg_runs_group_metrics_dct[model_name].keys():
-                for percentage in self.exp_avg_runs_group_metrics_dct[model_name][exp_iter].keys():
-                    model_group_metrics_df = self.exp_avg_runs_group_metrics_dct[model_name][exp_iter][percentage]
-                    group_names = [col for col in model_group_metrics_df.columns if col not in ('Metric', 'Model_Name')]
-                    melted_model_group_metrics_df = model_group_metrics_df.melt(
-                        id_vars=[col for col in model_group_metrics_df.columns if col not in group_names],
-                        value_vars=group_names,
-                        var_name="Group",
-                        value_name="Metric_Value"
-                    )
-                    melted_exp_avg_runs_group_metrics_dct.setdefault(model_name, {}).setdefault(exp_iter, {})[percentage] = \
-                        melted_model_group_metrics_df
+            for preprocessing_technique in self.exp_avg_runs_group_metrics_dct[model_name].keys():
+                for exp_iter in self.exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique].keys():
+                    for percentage in self.exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][exp_iter].keys():
+                        model_group_metrics_df = self.exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
+                        group_names = [col for col in model_group_metrics_df.columns if col not in ('Metric', 'Model_Name')]
+                        melted_model_group_metrics_df = model_group_metrics_df.melt(
+                            id_vars=[col for col in model_group_metrics_df.columns if col not in group_names],
+                            value_vars=group_names,
+                            var_name="Group",
+                            value_name="Metric_Value"
+                        )
+                        melted_exp_avg_runs_group_metrics_dct.setdefault(model_name, {})\
+                            .setdefault(preprocessing_technique, {})\
+                            .setdefault(exp_iter, {})[percentage] = melted_model_group_metrics_df
 
         self.melted_exp_avg_runs_group_metrics_dct = melted_exp_avg_runs_group_metrics_dct
 
+        # Create exp_avg_exp_iters_avg_runs_subgroup_metrics_dct
+        exp_avg_exp_iters_avg_runs_subgroup_metrics_dct = dict()
+        for model_name in self.melted_exp_avg_runs_subgroup_metrics_dct.keys():
+            for preprocessing_technique in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name].keys():
+                first_exp_iter = list(self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique].keys())[0]
+
+                for percentage in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique][first_exp_iter].keys():
+                    multiple_pct_exp_iters_subgroup_metrics_df = pd.DataFrame()
+
+                    for exp_iter in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique].keys():
+                        multiple_runs_subgroup_metrics_df = self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
+                        multiple_pct_exp_iters_subgroup_metrics_df = pd.concat([multiple_pct_exp_iters_subgroup_metrics_df, multiple_runs_subgroup_metrics_df])
+
+                    columns_to_group = [col for col in multiple_pct_exp_iters_subgroup_metrics_df.columns
+                                        if col not in ('Bootstrap_Model_Seed', 'Run_Number', 'Record_Create_Date_Time',
+                                                       'Dataset_Split_Seed', 'Experiment_Iteration', 'Model_Init_Seed',
+                                                       'Model_Params')]
+                    exp_avg_exp_iters_avg_runs_subgroup_metrics_dct.setdefault(model_name, {}) \
+                        .setdefault(preprocessing_technique, {})[percentage] = \
+                            multiple_pct_exp_iters_subgroup_metrics_df[columns_to_group].groupby(
+                                ['Model_Name', 'Test_Set_Index', 'Metric', 'Subgroup']
+                            ).mean().reset_index()
+
+        self.exp_avg_exp_iters_avg_runs_subgroup_metrics_dct = exp_avg_exp_iters_avg_runs_subgroup_metrics_dct
+
     def create_subgroup_metrics_box_plot_for_multiple_exp_iters(self, target_percentage: float,
+                                                                target_preprocessing_technique: str,
                                                                 subgroup_metrics: list = None,
                                                                 subgroup_metrics_type: str = None):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
@@ -118,10 +152,10 @@ class ExperimentsVisualizer:
         subgroup = 'overall'
         all_models_pct_subgroup_metrics_df = pd.DataFrame()
         for model_name in self.exp_avg_runs_subgroup_metrics_dct.keys():
-            for exp_iter in self.exp_avg_runs_subgroup_metrics_dct[model_name].keys():
+            for exp_iter in self.exp_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique].keys():
                 all_models_pct_subgroup_metrics_df = pd.concat([
                     all_models_pct_subgroup_metrics_df,
-                    self.exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][target_percentage]
+                    self.exp_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique][exp_iter][target_percentage]
                 ])
         all_models_pct_subgroup_metrics_df = all_models_pct_subgroup_metrics_df.reset_index(drop=True)
 
@@ -180,8 +214,8 @@ class ExperimentsVisualizer:
         fig.tight_layout()
 
     def create_subgroups_grid_pct_lines_plot(self, model_name: str, exp_iter: str,
-                                             subgroup_metrics: list = None, subgroups: list = None,
-                                             subgroup_metrics_type = None):
+                                             preprocessing_technique: str = None, subgroup_metrics: list = None,
+                                             subgroups: list = None, subgroup_metrics_type = None):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
             raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
 
@@ -205,6 +239,10 @@ class ExperimentsVisualizer:
         all_percentage_subgroup_metrics_df = pd.DataFrame()
         for pct in self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter].keys():
             percentage_subgroup_metrics_df = self.melted_exp_avg_runs_subgroup_metrics_dct[model_name][exp_iter][pct]
+            # Filter by a preprocessing technique if defined
+            if preprocessing_technique is not None:
+                percentage_subgroup_metrics_df = \
+                    percentage_subgroup_metrics_df[percentage_subgroup_metrics_df.Preprocessing_Technique == preprocessing_technique]
             percentage_subgroup_metrics_df['Percentage'] = pct
             all_percentage_subgroup_metrics_df = pd.concat(
                 [all_percentage_subgroup_metrics_df, percentage_subgroup_metrics_df]
@@ -395,7 +433,6 @@ class ExperimentsVisualizer:
         group_models_len = len(model_names)
         div_val, mod_val = divmod(group_models_len, row_len)
         grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
-
 
         all_models_percentage_group_metrics_df = pd.DataFrame()
         for model_name in model_names:
