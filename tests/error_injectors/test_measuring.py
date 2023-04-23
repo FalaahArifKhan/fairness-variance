@@ -1,5 +1,5 @@
 import numpy as np
-from virny.datasets.data_loaders import CreditDataset
+from virny.datasets.data_loaders import CreditDataset, CompasDataset
 
 from tests.utils import detect_outliers_std
 from source.error_injectors.outliers_injector import OutliersInjector
@@ -95,9 +95,9 @@ def test_random_nulls_generator_with_null_columns():
 
 def test_random_nulls_injector_v2():
     seed = 42
-    data_loader = CreditDataset(subsample_size=50_000)
+    data_loader = CompasDataset(subsample_size=5000)
     row_idx_nulls_percentage = 0.5
-    columns_to_transform = ['NumberRealEstateLoansOrLines', 'NumberOfOpenCreditLinesAndLoans']
+    columns_to_transform = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count', 'sex']
     injector = RandomNullsInjectorV2(seed,
                                      columns_to_transform=columns_to_transform,
                                      row_idx_nulls_percentage=row_idx_nulls_percentage)
@@ -108,7 +108,27 @@ def test_random_nulls_injector_v2():
         nulls_count = new_df[col_name].isna().sum()
         total_nulls_count += nulls_count
 
-    assert total_nulls_count == int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)
+    assert total_nulls_count >= int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)
+    assert total_nulls_count == 4936
+
+
+def test_random_nulls_injector_v2_other():
+    seed = 42
+    data_loader = CompasDataset(subsample_size=5000)
+    row_idx_nulls_percentage = 0.3
+    columns_to_transform = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count', 'sex']
+    injector = RandomNullsInjectorV2(seed,
+                                     columns_to_transform=columns_to_transform,
+                                     row_idx_nulls_percentage=row_idx_nulls_percentage)
+    new_df = injector.fit_transform(data_loader.full_df, target_column=None)
+
+    total_nulls_count = 0
+    for col_name in columns_to_transform:
+        nulls_count = new_df[col_name].isna().sum()
+        total_nulls_count += nulls_count
+
+    assert total_nulls_count >= int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)
+    assert total_nulls_count == 2247
 
 
 def test_random_nulls_injector_v2_zero():

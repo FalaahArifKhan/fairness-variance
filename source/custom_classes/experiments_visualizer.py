@@ -33,7 +33,7 @@ class ExperimentsVisualizer:
             'Mean',
             'Std',
             'IQR',
-            'Entropy',
+            # 'Entropy',
             'Jitter',
             'Per_Sample_Accuracy',
             'Label_Stability',
