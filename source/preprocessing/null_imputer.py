@@ -19,7 +19,10 @@ class NullImputer(TransformerMixin, BaseEstimator):
     special_value
 
     """
-    def __init__(self, target_columns: list, how="mean", trimmed=0, conditional_column=None, special_value=None):
+    def __init__(self, target_columns: list, how="mean", trimmed=0.0, conditional_column=None, special_value=None):
+        if trimmed < 0.0 or trimmed > 1.0:
+            raise ValueError(f'Trimmed value ({trimmed}) must be in [0.0, 1.0] range')
+
         self.how = how
         self.target_columns = target_columns
         self.conditional_column = conditional_column
@@ -63,8 +66,8 @@ class NullImputer(TransformerMixin, BaseEstimator):
             filtered_df = data[~data[col].isnull()].copy(deep=True)
 
             # Trimming rows
-            if self.trimmed > 0:
-                reduce_n_rows = int(filtered_df.shape[0] / 100 * self.trimmed)
+            if self.trimmed > 0.0:
+                reduce_n_rows = int(filtered_df.shape[0] * self.trimmed)
                 filtered_df.sort_values(by=[col], ascending=False, inplace=True)
                 filtered_df = filtered_df[reduce_n_rows: -reduce_n_rows]
 
@@ -94,7 +97,6 @@ class NullImputer(TransformerMixin, BaseEstimator):
         else:
             for col in self.target_columns:
                 missing_mask = data[col].isna()
-                print('missing_mask -- ', missing_mask)
                 data.loc[missing_mask, col] = data.loc[missing_mask, self.conditional_column].map(self.values_to_impute[col])
 
         return data

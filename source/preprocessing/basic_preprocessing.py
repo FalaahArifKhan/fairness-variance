@@ -16,19 +16,20 @@ def get_simple_preprocessor(data_loader):
     ])
 
 
-def get_null_imputer_preprocessor(data_loader, categorical_strategy="mode", numerical_strategy="median"):
+def get_null_imputer_preprocessor(data_loader, categorical_strategy="mode", numerical_strategy="median",
+                                  categorical_trimmed=0.0, numerical_trimmed=0.0):
     categorial_null_columns = list(set(data_loader.columns_with_nulls).intersection(data_loader.categorical_columns))
     numerical_null_columns = list(set(data_loader.columns_with_nulls).intersection(data_loader.numerical_columns))
 
     categorical_transformer = Pipeline(
         steps=[
-            ("imputer", NullImputer(categorial_null_columns, how=categorical_strategy)),
+            ("imputer", NullImputer(categorial_null_columns, how=categorical_strategy, trimmed=categorical_trimmed)),
             ("encoder", OneHotEncoder(sparse=False, handle_unknown='ignore')),
         ]
     )
     numeric_transformer = Pipeline(
         steps=[
-            ("imputer", NullImputer(numerical_null_columns, how=numerical_strategy)),
+            ("imputer", NullImputer(numerical_null_columns, how=numerical_strategy, trimmed=numerical_trimmed)),
             ("scaler", StandardScaler())
         ]
     )
