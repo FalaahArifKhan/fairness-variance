@@ -65,7 +65,7 @@ def get_compas_models_params_for_tuning(models_tuning_seed):
     }
 
 
-def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
+def get_folktables_income_models_params_for_tuning(models_tuning_seed):
     return {
         'DecisionTreeClassifier': {
             'model': DecisionTreeClassifier(random_state=models_tuning_seed),
@@ -80,9 +80,9 @@ def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
             'model': LogisticRegression(random_state=models_tuning_seed),
             'params': {
                 'penalty': ['l1', 'l2'],
-                'C' : [0.001, 0.01, 0.1, 1, 5, 10],
-                'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-                'max_iter': range(50, 251, 50),
+                'C' : [0.001, 0.01, 0.1, 1],
+                'solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
+                'max_iter': range(50, 201, 50),
             }
         },
         'RandomForestClassifier': {
@@ -111,13 +111,13 @@ def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
                 'metric' : ['minkowski', 'euclidean', 'manhattan']
             }
         },
-        'MLPClassifier': {
-            'model': MLPClassifier(random_state=models_tuning_seed),
-            'params': {
-                'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
-                'activation': ['logistic', 'tanh', 'relu'],
-                'solver': ['lbfgs', 'sgd', 'adam'],
-                'learning_rate': ['constant', 'invscaling', 'adaptive']
-            }
-        }
+#         'MLPClassifier': {
+#             'model': MLPClassifier(random_state=models_tuning_seed),
+#             'params': {
+#                 'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
+#                 'activation': ['logistic', 'tanh', 'relu'],
+#                 'solver': ['lbfgs', 'sgd', 'adam'],
+#                 'learning_rate': ['constant', 'invscaling', 'adaptive']
+#             }
+#         }
     }
