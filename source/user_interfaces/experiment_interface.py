@@ -101,17 +101,21 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
     if with_tuning:
         # Tune models and create a models config for metrics computation
         tuned_params_df, models_config = tune_ML_models(models_params_for_tuning, base_flow_dataset,
-                                                        metrics_computation_config.dataset_name, n_folds=num_folds_for_tuning)
+                                                        metrics_computation_config.dataset_name,
+                                                        n_folds=num_folds_for_tuning)
 
         # Create models_config from the saved tuned_params_df for higher reliability
         date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")
         models_tuning_results_dir = os.path.join(save_results_dir_path, 'models_tuning')
         os.makedirs(models_tuning_results_dir, exist_ok=True)
-        tuned_df_path = os.path.join(models_tuning_results_dir, f'tuning_results_{metrics_computation_config.dataset_name}_{date_time_str}.csv')
+        tuned_df_path = os.path.join(models_tuning_results_dir,
+                                     f'tuning_results_{metrics_computation_config.dataset_name}_{custom_table_fields_dct["experiment_iteration"].lower()}_{date_time_str}.csv')
         tuned_params_df.to_csv(tuned_df_path, sep=",", columns=tuned_params_df.columns, float_format="%.4f", index=False)
         logger.info("Models are tuned and saved to a file")
     else:
         models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_path)
+        print(f'{list(models_config.keys())[0]}: ', models_config[list(models_config.keys())[0]].get_params())
+        print(f'{list(models_config.keys())[1]}: ', models_config[list(models_config.keys())[1]].get_params())
         logger.info("Models config is loaded from the input file")
 
     # Compute metrics for tuned models

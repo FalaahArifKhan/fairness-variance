@@ -30,12 +30,12 @@ class ExperimentsVisualizer:
             'Selection-Rate',
         ]
         self.all_variance_subgroup_metrics = [
-            'Mean',
+            # 'Mean',
             'Std',
             'IQR',
             # 'Entropy',
             'Jitter',
-            'Per_Sample_Accuracy',
+            # 'Per_Sample_Accuracy',
             'Label_Stability',
         ]
         self.all_group_fairness_metrics_lst = [

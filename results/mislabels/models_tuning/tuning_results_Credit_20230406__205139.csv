@@ -1,3 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Credit,DecisionTreeClassifier,0.4828,0.9337,"{'criterion': 'gini', 'max_depth': 20, 'max_features': 'sqrt', 'min_samples_split': 0.1}"
-Credit,LogisticRegression,0.4994,0.9337,"{'C': 1, 'max_iter': 250, 'penalty': 'l2', 'solver': 'newton-cg'}"
