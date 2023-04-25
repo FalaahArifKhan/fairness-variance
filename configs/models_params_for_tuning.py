@@ -53,15 +53,15 @@ def get_compas_models_params_for_tuning(models_tuning_seed):
                 'metric' : ['minkowski', 'euclidean', 'manhattan']
             }
         },
-        'MLPClassifier': {
-            'model': MLPClassifier(random_state=models_tuning_seed),
-            'params': {
-                'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
-                'activation': ['logistic', 'tanh', 'relu'],
-                'solver': ['lbfgs', 'sgd', 'adam'],
-                'learning_rate': ['constant', 'invscaling', 'adaptive']
-            }
-        }
+#         'MLPClassifier': {
+#             'model': MLPClassifier(random_state=models_tuning_seed),
+#             'params': {
+#                 'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
+#                 'activation': ['logistic', 'tanh', 'relu'],
+#                 'solver': ['lbfgs', 'sgd', 'adam'],
+#                 'learning_rate': ['constant', 'invscaling', 'adaptive']
+#             }
+#         }
     }
 
 

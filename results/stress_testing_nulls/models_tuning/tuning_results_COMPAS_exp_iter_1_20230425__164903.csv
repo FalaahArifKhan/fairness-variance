@@ -1,0 +1,7 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+COMPAS,DecisionTreeClassifier,0.6666,0.6730,"{'criterion': 'gini', 'max_depth': 5, 'max_features': 0.6, 'min_samples_split': 0.01}"
+COMPAS,LogisticRegression,0.6708,0.6730,"{'C': 0.01, 'max_iter': 50, 'penalty': 'l1', 'solver': 'liblinear'}"
+COMPAS,RandomForestClassifier,0.6745,0.6787,"{'max_depth': 6, 'max_features': 0.6, 'min_samples_leaf': 4, 'n_estimators': 50}"
+COMPAS,XGBClassifier,0.6855,0.6894,"{'lambda': 1, 'learning_rate': 0.1, 'max_depth': 5, 'n_estimators': 100}"
+COMPAS,KNeighborsClassifier,0.6559,0.6604,"{'metric': 'minkowski', 'n_neighbors': 11, 'weights': 'distance'}"
+COMPAS,MLPClassifier,0.6635,0.6705,"{'activation': 'relu', 'hidden_layer_sizes': (100, 100), 'learning_rate': 'constant', 'solver': 'adam'}"
