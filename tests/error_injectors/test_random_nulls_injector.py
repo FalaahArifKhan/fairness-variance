@@ -43,7 +43,8 @@ def test_random_nulls_injector_v2():
     columns_to_transform = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count', 'sex']
     injector = RandomNullsInjectorV2(seed,
                                      columns_to_transform=columns_to_transform,
-                                     row_idx_nulls_percentage=row_idx_nulls_percentage)
+                                     row_idx_nulls_percentage=row_idx_nulls_percentage,
+                                     max_num_columns_to_effect=3)
     new_df = injector.fit_transform(data_loader.full_df, target_column=None)
 
     total_nulls_count = 0
@@ -62,7 +63,8 @@ def test_random_nulls_injector_v2_other():
     columns_to_transform = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count', 'sex']
     injector = RandomNullsInjectorV2(seed,
                                      columns_to_transform=columns_to_transform,
-                                     row_idx_nulls_percentage=row_idx_nulls_percentage)
+                                     row_idx_nulls_percentage=row_idx_nulls_percentage,
+                                     max_num_columns_to_effect=3)
     new_df = injector.fit_transform(data_loader.full_df, target_column=None)
 
     total_nulls_count = 0
@@ -71,7 +73,7 @@ def test_random_nulls_injector_v2_other():
         total_nulls_count += nulls_count
 
     assert total_nulls_count >= int(data_loader.full_df.shape[0] * row_idx_nulls_percentage)
-    assert total_nulls_count == 2247
+    assert total_nulls_count == 2968
 
 
 def test_random_nulls_injector_v2_zero():
@@ -81,7 +83,8 @@ def test_random_nulls_injector_v2_zero():
     columns_to_transform = ['NumberRealEstateLoansOrLines', 'NumberOfOpenCreditLinesAndLoans']
     injector = RandomNullsInjectorV2(seed,
                                      columns_to_transform=columns_to_transform,
-                                     row_idx_nulls_percentage=row_idx_nulls_percentage)
+                                     row_idx_nulls_percentage=row_idx_nulls_percentage,
+                                     max_num_columns_to_effect=2)
     new_df = injector.fit_transform(data_loader.full_df, target_column=None)
 
     total_nulls_count = 0

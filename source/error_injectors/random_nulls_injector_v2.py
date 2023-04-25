@@ -15,10 +15,12 @@ class RandomNullsInjectorV2(AbstractErrorInjector):
         Dictionary where keys are column names and values are target percentages of nulls for a column
 
     """
-    def __init__(self, seed: int, columns_to_transform: list, row_idx_nulls_percentage: float):
+    def __init__(self, seed: int, columns_to_transform: list,
+                 row_idx_nulls_percentage: float, num_columns_to_effect: int):
         super().__init__(seed)
         self.columns_to_transform = columns_to_transform
         self.row_idx_nulls_percentage = row_idx_nulls_percentage
+        self.num_columns_to_effect = num_columns_to_effect
 
     def _validate_input(self, df):
         for col in self.columns_to_transform:
@@ -46,7 +48,8 @@ class RandomNullsInjectorV2(AbstractErrorInjector):
         # Choose a random number of columns to place nulls for each selected row index
         np.random.seed(self.seed)
         random_num_columns_for_nulls = np.random.choice(
-            [i + 1 for i in range(math.ceil(len(self.columns_to_transform) * self.row_idx_nulls_percentage))],
+            # [i + 1 for i in range(math.ceil(len(self.columns_to_transform) * self.row_idx_nulls_percentage))],
+            [i + 1 for i in range(self.num_columns_to_effect)],
             size=nulls_sample_size, replace=True
         )
 
