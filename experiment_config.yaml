@@ -1,7 +1,7 @@
 
-dataset_name: Folktables_Income_GA_2018
+dataset_name: COMPAS
 bootstrap_fraction: 0.8
-n_estimators: 200
+n_estimators: 200  # Better to input the higher number of estimators than 100; this is only for this use case example
 num_runs: 1
 runs_seed_lst: [100]
-sensitive_attributes_dct: {'SEX': '1', 'RAC1P': '1', 'AGEP': [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45], 'SEX & RAC1P': None, 'RAC1P & AGEP': None}
+sensitive_attributes_dct: {'sex': 0, 'race': 'Caucasian', 'sex&race': None}
