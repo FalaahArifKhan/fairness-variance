@@ -142,19 +142,19 @@ class ExperimentsVisualizer:
                 first_exp_iter = list(self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique].keys())[0]
 
                 for percentage in self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][first_exp_iter].keys():
-                    multiple_pct_exp_iters_subgroup_metrics_df = pd.DataFrame()
+                    multiple_pct_exp_iters_group_metrics_df = pd.DataFrame()
 
                     for exp_iter in self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique].keys():
-                        multiple_runs_subgroup_metrics_df = self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
-                        multiple_pct_exp_iters_subgroup_metrics_df = pd.concat([multiple_pct_exp_iters_subgroup_metrics_df, multiple_runs_subgroup_metrics_df])
+                        multiple_runs_group_metrics_df = self.melted_exp_avg_runs_group_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
+                        multiple_pct_exp_iters_group_metrics_df = pd.concat([multiple_pct_exp_iters_group_metrics_df, multiple_runs_group_metrics_df])
 
-                    columns_to_group = [col for col in multiple_pct_exp_iters_subgroup_metrics_df.columns
+                    columns_to_group = [col for col in multiple_pct_exp_iters_group_metrics_df.columns
                                         if col not in ('Bootstrap_Model_Seed', 'Run_Number', 'Record_Create_Date_Time',
                                                        'Dataset_Split_Seed', 'Experiment_Iteration', 'Model_Init_Seed',
                                                        'Model_Params')]
                     melted_exp_avg_exp_iters_avg_runs_group_metrics_dct.setdefault(model_name, {}) \
                         .setdefault(preprocessing_technique, {})[percentage] = \
-                        multiple_pct_exp_iters_subgroup_metrics_df[columns_to_group].groupby(
+                        multiple_pct_exp_iters_group_metrics_df[columns_to_group].groupby(
                             ['Model_Name', 'Metric', 'Group']
                         ).mean().reset_index()
 

@@ -32,7 +32,8 @@ def test_outliers_injector_v2():
     columns_to_transform = ['age', 'juv_fel_count', 'juv_misd_count', 'juv_other_count', 'priors_count']
     injector = OutliersInjectorV2(seed,
                                   columns_to_transform=columns_to_transform,
-                                  row_idx_percentage=row_idx_percentage)
+                                  row_idx_percentage=row_idx_percentage,
+                                  max_num_columns_to_effect=3)
     new_df = injector.fit_transform(data_loader.full_df, target_column=None)
 
     total_outliers_count = 0
@@ -42,4 +43,4 @@ def test_outliers_injector_v2():
         total_outliers_count += outliers_count
 
     assert total_outliers_count >= int(data_loader.full_df.shape[0] * row_idx_percentage)
-    assert total_outliers_count == 2988
+    assert total_outliers_count == 3836

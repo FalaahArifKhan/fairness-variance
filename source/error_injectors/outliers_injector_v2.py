@@ -15,10 +15,12 @@ class OutliersInjectorV2(AbstractErrorInjector):
         Dictionary where keys are column names and values are target percentages of outliers in not-null values of each column
 
     """
-    def __init__(self, seed: int, columns_to_transform: list, row_idx_percentage: float):
+    def __init__(self, seed: int, columns_to_transform: list, row_idx_percentage: float,
+                 max_num_columns_to_effect: int):
         super().__init__(seed)
         self.columns_to_transform = columns_to_transform
         self.row_idx_percentage = row_idx_percentage
+        self.max_num_columns_to_effect = max_num_columns_to_effect
         self.columns_stats = dict()  # Dict for mean and std of selected columns
 
     def _validate_input(self, df):
@@ -32,6 +34,9 @@ class OutliersInjectorV2(AbstractErrorInjector):
 
     def set_percentage_var(self, new_row_idx_percentage):
         self.row_idx_percentage = new_row_idx_percentage
+
+    def increment_seed(self):
+        self.seed += 1
 
     def _detect_outliers_std(self, df, col_name):
         mean = self.columns_stats[col_name]['mean']
@@ -59,7 +64,7 @@ class OutliersInjectorV2(AbstractErrorInjector):
         # Choose a random number of columns to place nulls for each selected row index
         np.random.seed(self.seed)
         random_num_columns_for_nulls = np.random.choice(
-            [i + 1 for i in range(math.ceil(len(self.columns_to_transform) * self.row_idx_percentage))],
+            [i + 1 for i in range(self.max_num_columns_to_effect)],
             size=nulls_sample_size, replace=True
         )
 
