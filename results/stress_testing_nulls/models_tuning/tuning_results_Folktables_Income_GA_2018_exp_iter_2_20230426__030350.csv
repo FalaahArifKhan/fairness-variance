@@ -1,0 +1,6 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_Income_GA_2018,DecisionTreeClassifier,0.7535,0.7802,"{'criterion': 'entropy', 'max_depth': 15, 'max_features': 0.6, 'min_samples_split': 0.01}"
+Folktables_Income_GA_2018,LogisticRegression,0.7991,0.8210,"{'C': 1, 'max_iter': 50, 'penalty': 'l1', 'solver': 'saga'}"
+Folktables_Income_GA_2018,RandomForestClassifier,0.7685,0.7942,"{'max_depth': 15, 'max_features': 0.6, 'min_samples_leaf': 2, 'n_estimators': 100}"
+Folktables_Income_GA_2018,XGBClassifier,0.8014,0.8218,"{'lambda': 1, 'learning_rate': 0.1, 'max_depth': 7, 'n_estimators': 300}"
+Folktables_Income_GA_2018,KNeighborsClassifier,0.7652,0.7878,"{'metric': 'manhattan', 'n_neighbors': 25, 'weights': 'distance'}"
