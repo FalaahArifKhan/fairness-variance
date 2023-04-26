@@ -81,6 +81,12 @@ def create_stress_testing_sets(original_X_test, original_y_test, error_injector,
         transformed_X_test = error_injector.transform(X_test)  # Use only transform without fit
         print('transformed_X_test:\n', transformed_X_test.isna().sum())
         
+        print('\n')
+        for col_name2 in error_injector.columns_to_transform:
+            new_outliers = detect_outliers_std(X_test, transformed_X_test, col_name2)
+            print(f'{col_name2}: {new_outliers.shape[0]}')
+        print('\n')
+        
         new_X_test_features = fitted_column_transformer.transform(transformed_X_test)  # Preprocess the feature set
 
         extra_test_sets_lst.append((new_X_test_features, original_y_test))
