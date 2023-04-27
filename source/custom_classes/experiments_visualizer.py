@@ -287,7 +287,7 @@ class ExperimentsVisualizer:
                     (all_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                 ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x='Percentage:Q',
+                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx]),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
@@ -357,7 +357,7 @@ class ExperimentsVisualizer:
                     (all_percentage_group_metrics_df.Group.isin(groups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x='Percentage:Q',
+                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[metric_idx]),
                     color='Group:N',
                 ).properties(
@@ -418,7 +418,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x='Percentage:Q',
+                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
@@ -482,7 +482,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_group_metrics_df.Group.isin(groups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x='Percentage:Q',
+                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=group_metric),
                     color='Group:N',
                 ).properties(
@@ -543,7 +543,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                 ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x='Percentage:Q',
+                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
