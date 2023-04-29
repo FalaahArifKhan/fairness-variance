@@ -240,6 +240,46 @@ class ExperimentsVisualizer:
         fig = ax.get_figure()
         fig.tight_layout()
 
+    def create_group_metrics_box_plot_for_multiple_percentages(self, target_preprocessing_technique: str,
+                                                               target_group: str, group_metrics: list = None,
+                                                               group_metrics_type: str = None):
+        if group_metrics_type is not None and not GroupMetricsType.has_value(group_metrics_type):
+            raise ValueError(f'group_metrics_type must be in {tuple(GroupMetricsType._value2member_map_.keys())}')
+
+        if group_metrics is None:
+            if group_metrics_type is None:
+                group_metrics = self.all_group_fairness_metrics_lst + self.all_group_variance_metrics_lst
+            else:
+                group_metrics = self.all_group_fairness_metrics_lst if group_metrics_type == GroupMetricsType.FAIRNESS.value \
+                    else self.all_group_variance_metrics_lst
+
+        all_models_pct_group_metrics_df = pd.DataFrame()
+        # Take all percentages for the specific exp iter
+        for model_name in self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct.keys():
+            for percentage in self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique].keys():
+                pct_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique][percentage]
+                pct_metrics_df = pct_metrics_df[pct_metrics_df.Group == target_group]
+                all_models_pct_group_metrics_df = pd.concat([
+                    all_models_pct_group_metrics_df,
+                    pct_metrics_df
+                ])
+        all_models_pct_group_metrics_df = all_models_pct_group_metrics_df.reset_index(drop=True)
+
+        to_plot = all_models_pct_group_metrics_df[all_models_pct_group_metrics_df['Metric'].isin(group_metrics)]
+        plt.figure(figsize=(15, 10))
+        ax = sns.boxplot(x=to_plot['Metric'],
+                         y=to_plot['Metric_Value'],
+                         hue=to_plot['Model_Name'])
+
+        plt.legend(loc='upper left',
+                   ncol=2,
+                   fancybox=True,
+                   shadow=True)
+        plt.xlabel("Metric name")
+        plt.ylabel("Metric value")
+        fig = ax.get_figure()
+        fig.tight_layout()
+
     def create_subgroups_grid_pct_lines_plot(self, model_name: str, target_preprocessing_technique: str = None,
                                              subgroup_metrics: list = None, subgroups: list = None,
                                              subgroup_metrics_type = None):
