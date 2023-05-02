@@ -31,8 +31,14 @@ class RandomNullsInjectorV2(AbstractErrorInjector):
         if self.row_idx_nulls_percentage < 0 or self.row_idx_nulls_percentage > 1:
             raise ValueError("Column nulls percentage must be in [0.0-1.0] range.")
 
+    def set_columns_to_transform(self, new_columns_to_transform):
+        self.columns_to_transform = new_columns_to_transform
+
     def set_percentage_var(self, new_row_idx_nulls_percentage):
         self.row_idx_nulls_percentage = new_row_idx_nulls_percentage
+
+    def set_max_num_columns_to_effect(self, new_max_num_columns_to_effect):
+        self.max_num_columns_to_effect = new_max_num_columns_to_effect
 
     def increment_seed(self):
         self.seed += 1

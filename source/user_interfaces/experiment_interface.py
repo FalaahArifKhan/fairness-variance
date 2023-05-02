@@ -10,7 +10,8 @@ from virny.user_interfaces.metrics_computation_interfaces import (
 from virny.utils.custom_initializers import create_models_config_from_tuned_params_df
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
-from source.preprocessing.basic_preprocessing import preprocess_experiment_dataset, create_stress_testing_sets
+from source.preprocessing.basic_preprocessing import preprocess_experiment_dataset, create_stress_testing_sets, \
+    create_stress_testing_sets_using_columns
 from source.utils.model_tuning_utils import tune_ML_models
 from source.custom_classes.custom_logger import get_logger
 
@@ -70,6 +71,7 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
                                             metrics_computation_config, custom_table_fields_dct,
                                             with_tuning: bool = False, save_results_dir_path: str = None,
                                             tuned_params_df_path: str = None, num_folds_for_tuning: int = 3,
+                                            mode='rows_pct',
                                             verbose: bool = False):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
@@ -93,9 +95,15 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
 
     # Create extra stress testing sets
     original_X_train_val, original_X_test, original_y_train_val, original_y_test = train_test_sets
-    extra_test_sets_lst = create_stress_testing_sets(original_X_test, original_y_test,
-                                                     error_injector, injector_config_lst,
-                                                     fitted_column_transformer)
+    if mode == 'max_num_columns':
+        print('Creating test sets based on max_num_columns')
+        extra_test_sets_lst = create_stress_testing_sets_using_columns(original_X_test, original_y_test,
+                                                                       error_injector, injector_config_lst,
+                                                                       fitted_column_transformer)
+    else:
+        extra_test_sets_lst = create_stress_testing_sets(original_X_test, original_y_test,
+                                                         error_injector, injector_config_lst,
+                                                         fitted_column_transformer)
 
     # Tune model parameters if needed
     if with_tuning:
