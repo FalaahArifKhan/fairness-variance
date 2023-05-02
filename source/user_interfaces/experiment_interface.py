@@ -96,7 +96,7 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
     # Create extra stress testing sets
     original_X_train_val, original_X_test, original_y_train_val, original_y_test = train_test_sets
     if mode == 'max_num_columns':
-        print('Creating test sets based on max_num_columns')
+        print('Creating test sets based on max_num_columns...')
         extra_test_sets_lst = create_stress_testing_sets_using_columns(original_X_test, original_y_test,
                                                                        error_injector, injector_config_lst,
                                                                        fitted_column_transformer)

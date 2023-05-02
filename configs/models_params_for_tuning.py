@@ -90,8 +90,7 @@ def get_folktables_income_models_params_for_tuning(models_tuning_seed):
             'params': {
                 "max_depth": [3, 6, 10, 15],
                 "min_samples_leaf": [2, 4, 6],
-#                 "n_estimators": [50, 100, 200],
-                "n_estimators": [100],
+                "n_estimators": [50, 100, 200],
                 "max_features": [0.6, 'auto', 'sqrt']
             }
         },
@@ -99,8 +98,7 @@ def get_folktables_income_models_params_for_tuning(models_tuning_seed):
             'model': XGBClassifier(random_state=models_tuning_seed, verbosity=0),
             'params': {
                 'learning_rate': [0.1],
-#                 'n_estimators': [50, 100, 200, 300],
-                'n_estimators': [300],
+                'n_estimators': [50, 100, 200, 300],
                 'max_depth': [3, 5, 7, 10],
                 'lambda':  [1, 10, 100]
             }
