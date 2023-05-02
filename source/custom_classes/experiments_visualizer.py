@@ -62,11 +62,11 @@ class ExperimentsVisualizer:
                         multiple_runs_subgroup_metrics_df = self.exp_subgroup_metrics_dct[model_name][preprocessing_technique][exp_iter][percentage]
                         columns_to_group = [col for col in multiple_runs_subgroup_metrics_df.columns
                                             if col not in ('Bootstrap_Model_Seed', 'Run_Number', 'Record_Create_Date_Time')]
-                        exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {})\
-                            .setdefault(preprocessing_technique, {})\
+                        exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {}) \
+                            .setdefault(preprocessing_technique, {}) \
                             .setdefault(exp_iter, {})[percentage] = multiple_runs_subgroup_metrics_df[columns_to_group].groupby(
-                                                                        ['Metric', 'Model_Name']
-                                                                    ).mean().reset_index()
+                            ['Metric', 'Model_Name']
+                        ).mean().reset_index()
 
         self.exp_avg_runs_subgroup_metrics_dct = exp_avg_runs_subgroup_metrics_dct
 
@@ -84,8 +84,8 @@ class ExperimentsVisualizer:
                             var_name="Subgroup",
                             value_name="Metric_Value"
                         )
-                        melted_exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {})\
-                            .setdefault(preprocessing_technique, {})\
+                        melted_exp_avg_runs_subgroup_metrics_dct.setdefault(model_name, {}) \
+                            .setdefault(preprocessing_technique, {}) \
                             .setdefault(exp_iter, {})[percentage] = melted_model_subgroup_metrics_df
 
         self.melted_exp_avg_runs_subgroup_metrics_dct = melted_exp_avg_runs_subgroup_metrics_dct
@@ -104,8 +104,8 @@ class ExperimentsVisualizer:
                             var_name="Group",
                             value_name="Metric_Value"
                         )
-                        melted_exp_avg_runs_group_metrics_dct.setdefault(model_name, {})\
-                            .setdefault(preprocessing_technique, {})\
+                        melted_exp_avg_runs_group_metrics_dct.setdefault(model_name, {}) \
+                            .setdefault(preprocessing_technique, {}) \
                             .setdefault(exp_iter, {})[percentage] = melted_model_group_metrics_df
 
         self.melted_exp_avg_runs_group_metrics_dct = melted_exp_avg_runs_group_metrics_dct
@@ -129,9 +129,9 @@ class ExperimentsVisualizer:
                                                        'Model_Params')]
                     melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct.setdefault(model_name, {}) \
                         .setdefault(preprocessing_technique, {})[percentage] = \
-                            multiple_pct_exp_iters_subgroup_metrics_df[columns_to_group].groupby(
-                                ['Model_Name', 'Test_Set_Index', 'Metric', 'Subgroup']
-                            ).mean().reset_index()
+                        multiple_pct_exp_iters_subgroup_metrics_df[columns_to_group].groupby(
+                            ['Model_Name', 'Test_Set_Index', 'Metric', 'Subgroup']
+                        ).mean().reset_index()
 
         self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct = melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct
 
@@ -318,8 +318,10 @@ class ExperimentsVisualizer:
 
         if mode == 'max_num_columns':
             x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
         else:
             x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
         grid_chart = alt.vconcat()
         metric_idx = -1
         for num_subplots in grid_framing:
@@ -329,9 +331,9 @@ class ExperimentsVisualizer:
                 subplot_metrics_df = all_percentage_subgroup_metrics_df[
                     (all_percentage_subgroup_metrics_df.Metric == subgroup_metrics[metric_idx]) &
                     (all_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
-                ]
+                    ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
+                    x=x_axis,
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx]),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
@@ -393,8 +395,10 @@ class ExperimentsVisualizer:
 
         if mode == 'max_num_columns':
             x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
         else:
             x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
         grid_chart = alt.vconcat()
         metric_idx = -1
         for num_subplots in grid_framing:
@@ -406,7 +410,7 @@ class ExperimentsVisualizer:
                     (all_percentage_group_metrics_df.Group.isin(groups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
+                    x=x_axis,
                     y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[metric_idx]),
                     color='Group:N',
                 ).properties(
@@ -458,8 +462,10 @@ class ExperimentsVisualizer:
 
         if mode == 'max_num_columns':
             x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
         else:
             x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
         grid_chart = alt.vconcat()
         model_idx = -1
         for num_subplots in grid_framing:
@@ -472,7 +478,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
+                    x=x_axis,
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
@@ -527,8 +533,10 @@ class ExperimentsVisualizer:
 
         if mode == 'max_num_columns':
             x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
         else:
             x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
         grid_chart = alt.vconcat()
         model_idx = -1
         for num_subplots in grid_framing:
@@ -541,7 +549,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_group_metrics_df.Group.isin(groups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
+                    x=x_axis,
                     y=alt.Y(field='Metric_Value', type='quantitative', title=group_metric),
                     color='Group:N',
                 ).properties(
@@ -592,8 +600,10 @@ class ExperimentsVisualizer:
 
         if mode == 'max_num_columns':
             x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
         else:
             x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
         grid_chart = alt.vconcat()
         technique_idx = -1
         for num_subplots in grid_framing:
@@ -604,9 +614,9 @@ class ExperimentsVisualizer:
                     (all_models_percentage_subgroup_metrics_df.Metric == subgroup_metric) &
                     (all_models_percentage_subgroup_metrics_df.Preprocessing_Technique == preprocessing_techniques[technique_idx]) &
                     (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
-                ]
+                    ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
+                    x=x_axis,
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
