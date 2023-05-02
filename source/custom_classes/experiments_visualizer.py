@@ -282,7 +282,7 @@ class ExperimentsVisualizer:
 
     def create_subgroups_grid_pct_lines_plot(self, model_name: str, target_preprocessing_technique: str = None,
                                              subgroup_metrics: list = None, subgroups: list = None,
-                                             subgroup_metrics_type = None):
+                                             subgroup_metrics_type = None, mode: str = 'rows_pct'):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
             raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
 
@@ -316,6 +316,10 @@ class ExperimentsVisualizer:
 
         all_percentage_subgroup_metrics_df = all_percentage_subgroup_metrics_df.reset_index(drop=True)
 
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+        else:
+            x_title = 'Percentage of Affected Rows'
         grid_chart = alt.vconcat()
         metric_idx = -1
         for num_subplots in grid_framing:
@@ -327,7 +331,7 @@ class ExperimentsVisualizer:
                     (all_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                 ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
+                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx]),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
@@ -356,7 +360,8 @@ class ExperimentsVisualizer:
         return grid_chart
 
     def create_groups_grid_pct_lines_plot(self, model_name: str, target_preprocessing_technique: str = None,
-                                          group_metrics: list = None, groups: list = None, group_metrics_type = None):
+                                          group_metrics: list = None, groups: list = None, group_metrics_type = None,
+                                          mode: str = 'rows_pct'):
         if group_metrics_type is not None and not GroupMetricsType.has_value(group_metrics_type):
             raise ValueError(f'group_metrics_type must be in {tuple(GroupMetricsType._value2member_map_.keys())}')
 
@@ -386,6 +391,10 @@ class ExperimentsVisualizer:
 
         all_percentage_group_metrics_df = all_percentage_group_metrics_df.reset_index(drop=True)
 
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+        else:
+            x_title = 'Percentage of Affected Rows'
         grid_chart = alt.vconcat()
         metric_idx = -1
         for num_subplots in grid_framing:
@@ -397,7 +406,7 @@ class ExperimentsVisualizer:
                     (all_percentage_group_metrics_df.Group.isin(groups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
+                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[metric_idx]),
                     color='Group:N',
                 ).properties(
@@ -421,7 +430,8 @@ class ExperimentsVisualizer:
         return grid_chart
 
     def create_subgroups_grid_pct_lines_per_model_plot(self, subgroup_metric: str, target_preprocessing_technique: str,
-                                                       model_names: list = None, subgroups: list = None):
+                                                       model_names: list = None, subgroups: list = None,
+                                                       mode: str = 'rows_pct'):
         if subgroups is None:
             subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
                         [attr + '_dis' for attr in self.sensitive_attrs] + ['overall']
@@ -446,6 +456,10 @@ class ExperimentsVisualizer:
 
         all_models_percentage_subgroup_metrics_df = all_models_percentage_subgroup_metrics_df.reset_index(drop=True)
 
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+        else:
+            x_title = 'Percentage of Affected Rows'
         grid_chart = alt.vconcat()
         model_idx = -1
         for num_subplots in grid_framing:
@@ -458,7 +472,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
+                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
@@ -487,7 +501,8 @@ class ExperimentsVisualizer:
         return grid_chart
 
     def create_groups_grid_pct_lines_per_model_plot(self, group_metric: str, target_preprocessing_technique: str = None,
-                                                    model_names: list = None, groups: list = None):
+                                                    model_names: list = None, groups: list = None,
+                                                    mode: str = 'rows_pct'):
         if groups is None:
             groups = [attr for attr in self.sensitive_attrs]
 
@@ -510,6 +525,10 @@ class ExperimentsVisualizer:
                 )
         all_models_percentage_group_metrics_df = all_models_percentage_group_metrics_df.reset_index(drop=True)
 
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+        else:
+            x_title = 'Percentage of Affected Rows'
         grid_chart = alt.vconcat()
         model_idx = -1
         for num_subplots in grid_framing:
@@ -522,7 +541,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_group_metrics_df.Group.isin(groups))
                     ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
+                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=group_metric),
                     color='Group:N',
                 ).properties(
@@ -546,7 +565,7 @@ class ExperimentsVisualizer:
         return grid_chart
 
     def create_subgroups_grid_pct_lines_per_model_and_preprocessing_plot(self, subgroup_metric: str, model_name: str,
-                                                                         subgroups: list = None):
+                                                                         subgroups: list = None, mode: str = 'rows_pct'):
         if subgroups is None:
             subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
                         [attr + '_dis' for attr in self.sensitive_attrs] + ['overall']
@@ -571,6 +590,10 @@ class ExperimentsVisualizer:
 
         all_models_percentage_subgroup_metrics_df = all_models_percentage_subgroup_metrics_df.reset_index(drop=True)
 
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+        else:
+            x_title = 'Percentage of Affected Rows'
         grid_chart = alt.vconcat()
         technique_idx = -1
         for num_subplots in grid_framing:
@@ -583,7 +606,7 @@ class ExperimentsVisualizer:
                     (all_models_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
                 ]
                 base = alt.Chart(subplot_metrics_df).mark_line().encode(
-                    x=alt.X(field='Percentage', type='quantitative', title='Percentage of Affected Rows'),
+                    x=alt.X(field='Percentage', type='quantitative', title=x_title),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric),
                     color='Subgroup:N',
                     strokeWidth=alt.condition(
