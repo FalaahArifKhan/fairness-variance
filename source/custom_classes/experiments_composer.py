@@ -41,7 +41,7 @@ class ExperimentsComposer:
                                     (self.models_metrics_dct[model_name]['Test_Set_Index'] == test_set_idx)
                                 ]
                         if test_set_idx == 0:
-                            dct_pct_key = 0.0
+                            dct_pct_key = 0.0 if not isinstance(injector_config_lst[0], str) else 'baseline'
                         else:
                             dct_pct_key = injector_config_lst[test_set_idx - 1]  # minus 1 since we do not save 0% errors in injector_config_lst
 

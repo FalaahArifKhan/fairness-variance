@@ -11,7 +11,7 @@ from virny.utils.custom_initializers import create_models_config_from_tuned_para
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
 from source.preprocessing.basic_preprocessing import preprocess_experiment_dataset, create_stress_testing_sets, \
-    create_stress_testing_sets_using_columns
+    create_stress_testing_sets_using_columns, create_stress_testing_sets_using_cols_importance
 from source.utils.model_tuning_utils import tune_ML_models
 from source.custom_classes.custom_logger import get_logger
 
@@ -100,6 +100,11 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
         extra_test_sets_lst = create_stress_testing_sets_using_columns(original_X_test, original_y_test,
                                                                        error_injector, injector_config_lst,
                                                                        fitted_column_transformer)
+    elif mode == 'column_importance':
+        print('Creating test sets based on column_importance...')
+        extra_test_sets_lst = create_stress_testing_sets_using_cols_importance(original_X_test, original_y_test,
+                                                                               error_injector, injector_config_lst,
+                                                                               fitted_column_transformer)
     else:
         extra_test_sets_lst = create_stress_testing_sets(original_X_test, original_y_test,
                                                          error_injector, injector_config_lst,
@@ -123,7 +128,7 @@ def run_exp_iter_with_models_stress_testing(data_loader, experiment_seed, test_s
     else:
         models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_path)
         print(f'{list(models_config.keys())[0]}: ', models_config[list(models_config.keys())[0]].get_params())
-        print(f'{list(models_config.keys())[1]}: ', models_config[list(models_config.keys())[1]].get_params())
+        # print(f'{list(models_config.keys())[1]}: ', models_config[list(models_config.keys())[1]].get_params())
         logger.info("Models config is loaded from the input file")
 
     # Compute metrics for tuned models
