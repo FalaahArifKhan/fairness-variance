@@ -401,7 +401,7 @@ class ExperimentsVisualizer:
 
         all_percentage_subgroup_metrics_df = all_percentage_subgroup_metrics_df.reset_index(drop=True)
 
-        grid_chart = alt.vconcat()
+        grid_chart = alt.vconcat(spacing=50)
         metric_idx = -1
         for num_subplots in grid_framing:
             row = alt.hconcat()
@@ -417,7 +417,7 @@ class ExperimentsVisualizer:
                         type='nominal',
                         title='Column Name (LR coef.)',
                         sort=sort_cols_lst,
-                        axis=alt.Axis(labelAngle=-20, grid=True),
+                        axis=alt.Axis(labelAngle=-20, grid=True, titlePadding=-6),
                         scale=alt.Scale(domain=sort_cols_lst, nice=False, padding=0)
                     ),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx]),
