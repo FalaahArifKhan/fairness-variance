@@ -418,7 +418,7 @@ class ExperimentsVisualizer:
                         type='nominal',
                         title='Affected Column Name (LR coef.)',
                         sort=sort_cols_lst,
-                        axis=alt.Axis(labelAngle=-20, grid=True, titlePadding=-6),
+                        axis=alt.Axis(labelAngle=-20, grid=True),
                         scale=alt.Scale(domain=sort_cols_lst, nice=False, padding=0)
                     ),
                     y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx]),

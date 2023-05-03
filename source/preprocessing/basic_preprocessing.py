@@ -129,7 +129,7 @@ def create_stress_testing_sets_using_cols_importance(original_X_test, original_y
         print('error_injector.columns_to_transform -- ', error_injector.columns_to_transform)
         error_injector.increment_seed()
         print('error_injector.seed -- ', error_injector.seed)
-        transformed_X_test = error_injector.transform(X_test)  # Use only transform without fit
+        transformed_X_test = error_injector.fit_transform(X_test)
         print('transformed_X_test:\n', transformed_X_test.isna().sum())
 
         # print('\n')
