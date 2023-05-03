@@ -201,7 +201,8 @@ class ExperimentsVisualizer:
 
     def create_subgroup_metrics_box_plot_for_multiple_percentages(self, target_preprocessing_technique: str,
                                                                   subgroup_metrics: list = None,
-                                                                  subgroup_metrics_type: str = None):
+                                                                  subgroup_metrics_type: str = None,
+                                                                  figsize=(15, 10)):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
             raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
 
@@ -226,7 +227,7 @@ class ExperimentsVisualizer:
         all_models_pct_subgroup_metrics_df = all_models_pct_subgroup_metrics_df.reset_index(drop=True)
 
         to_plot = all_models_pct_subgroup_metrics_df[all_models_pct_subgroup_metrics_df['Metric'].isin(subgroup_metrics)]
-        plt.figure(figsize=(15, 10))
+        plt.figure(figsize=figsize)
         ax = sns.boxplot(x=to_plot['Metric'],
                          y=to_plot['Metric_Value'],
                          hue=to_plot['Model_Name'])
@@ -415,7 +416,7 @@ class ExperimentsVisualizer:
                     x=alt.X(
                         field='Column_With_Imp',
                         type='nominal',
-                        title='Column Name (LR coef.)',
+                        title='Affected Column Name (LR coef.)',
                         sort=sort_cols_lst,
                         axis=alt.Axis(labelAngle=-20, grid=True, titlePadding=-6),
                         scale=alt.Scale(domain=sort_cols_lst, nice=False, padding=0)
@@ -638,7 +639,7 @@ class ExperimentsVisualizer:
                     x=alt.X(
                         field='Column_With_Imp',
                         type='nominal',
-                        title='Column Name (LR coef.)',
+                        title='Affected Column Name (LR coef.)',
                         sort=sort_cols_lst,
                         axis=alt.Axis(labelAngle=-30),
 
