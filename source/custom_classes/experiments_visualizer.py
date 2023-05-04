@@ -354,9 +354,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
@@ -440,9 +442,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
@@ -512,9 +516,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
@@ -585,9 +591,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
@@ -663,9 +671,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
@@ -729,9 +739,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
@@ -801,9 +813,11 @@ class ExperimentsVisualizer:
             grid_chart.configure_axis(
                 labelFontSize=15,
                 titleFontSize=15
+            ).configure_title(
+                fontSize=15
             ).configure_legend(
-                titleFontSize=15,
-                labelFontSize=13,
+                titleFontSize=17,
+                labelFontSize=15,
                 symbolStrokeWidth=10,
             )
         )
