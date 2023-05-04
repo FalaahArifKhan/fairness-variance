@@ -185,7 +185,7 @@ class ExperimentsVisualizer:
         all_models_pct_subgroup_metrics_df = all_models_pct_subgroup_metrics_df.reset_index(drop=True)
 
         to_plot = all_models_pct_subgroup_metrics_df[all_models_pct_subgroup_metrics_df['Metric'].isin(subgroup_metrics)]
-        plt.figure(figsize=(15, 10))
+        plt.figure(figsize=(15, 7))
         ax = sns.boxplot(x=to_plot['Metric'],
                          y=to_plot[subgroup],
                          hue=to_plot['Model_Name'])
@@ -193,16 +193,18 @@ class ExperimentsVisualizer:
         plt.legend(loc='upper left',
                    ncol=2,
                    fancybox=True,
-                   shadow=True)
-        plt.xlabel("Metric name")
-        plt.ylabel("Metric value")
+                   shadow=True,
+                   fontsize=14)
+        plt.xlabel("Metric name", fontsize=16)
+        plt.ylabel("Metric value", fontsize=16)
+        ax.tick_params(labelsize=14)
         fig = ax.get_figure()
         fig.tight_layout()
 
     def create_subgroup_metrics_box_plot_for_multiple_percentages(self, target_preprocessing_technique: str,
                                                                   subgroup_metrics: list = None,
                                                                   subgroup_metrics_type: str = None,
-                                                                  figsize=(15, 10)):
+                                                                  figsize=(15, 7)):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
             raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
 
@@ -235,15 +237,18 @@ class ExperimentsVisualizer:
         plt.legend(loc='upper left',
                    ncol=2,
                    fancybox=True,
-                   shadow=True)
-        plt.xlabel("Metric name")
-        plt.ylabel("Metric value")
+                   shadow=True,
+                   fontsize=14)
+        plt.xlabel("Metric name", fontsize=16)
+        plt.ylabel("Metric value", fontsize=16)
+        ax.tick_params(labelsize=14)
         fig = ax.get_figure()
         fig.tight_layout()
 
     def create_group_metrics_box_plot_for_multiple_percentages(self, target_preprocessing_technique: str,
                                                                target_group: str, group_metrics: list = None,
-                                                               group_metrics_type: str = None):
+                                                               group_metrics_type: str = None,
+                                                               figsize=(15, 10)):
         if group_metrics_type is not None and not GroupMetricsType.has_value(group_metrics_type):
             raise ValueError(f'group_metrics_type must be in {tuple(GroupMetricsType._value2member_map_.keys())}')
 
@@ -267,7 +272,7 @@ class ExperimentsVisualizer:
         all_models_pct_group_metrics_df = all_models_pct_group_metrics_df.reset_index(drop=True)
 
         to_plot = all_models_pct_group_metrics_df[all_models_pct_group_metrics_df['Metric'].isin(group_metrics)]
-        plt.figure(figsize=(15, 10))
+        plt.figure(figsize=figsize)
         ax = sns.boxplot(x=to_plot['Metric'],
                          y=to_plot['Metric_Value'],
                          hue=to_plot['Model_Name'])
@@ -275,9 +280,11 @@ class ExperimentsVisualizer:
         plt.legend(loc='upper left',
                    ncol=2,
                    fancybox=True,
-                   shadow=True)
-        plt.xlabel("Metric name")
-        plt.ylabel("Metric value")
+                   shadow=True,
+                   fontsize=14)
+        plt.xlabel("Metric name", fontsize=16)
+        plt.ylabel("Metric value", fontsize=16)
+        ax.tick_params(labelsize=14)
         fig = ax.get_figure()
         fig.tight_layout()
 
