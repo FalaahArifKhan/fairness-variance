@@ -204,7 +204,7 @@ class ExperimentsVisualizer:
     def create_subgroup_metrics_box_plot_for_multiple_percentages(self, target_preprocessing_technique: str,
                                                                   subgroup_metrics: list = None,
                                                                   subgroup_metrics_type: str = None,
-                                                                  figsize=(15, 7)):
+                                                                  figsize=(15, 7), legend_loc='upper left'):
         if subgroup_metrics_type is not None and not SubgroupMetricsType.has_value(subgroup_metrics_type):
             raise ValueError(f'subgroup_metrics_type must be in {tuple(SubgroupMetricsType._value2member_map_.keys())}')
 
@@ -234,11 +234,11 @@ class ExperimentsVisualizer:
                          y=to_plot['Metric_Value'],
                          hue=to_plot['Model_Name'])
 
-        plt.legend(loc='upper left',
+        plt.legend(loc=legend_loc,
                    ncol=2,
                    fancybox=True,
                    shadow=True,
-                   fontsize=14)
+                   fontsize=13)
         plt.xlabel("Metric name", fontsize=16)
         plt.ylabel("Metric value", fontsize=16)
         ax.tick_params(labelsize=14)
