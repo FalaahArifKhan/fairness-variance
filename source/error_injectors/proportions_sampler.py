@@ -17,10 +17,11 @@ class ProportionsSampler(AbstractErrorInjector):
         Dictionary where keys are all unique column values and values are target proportions of the unique column values to each other
 
     """
-    def __init__(self, seed: int, column_for_subsampling, new_proportions_dct: dict):
+    def __init__(self, seed: int, column_for_subsampling, new_proportions_dct: dict, hold_prevalence: bool = True):
         super().__init__(seed)
         self.column_for_subsampling = column_for_subsampling
         self.new_proportions_pct_dct = new_proportions_dct
+        self.hold_prevalence = hold_prevalence
         self.old_proportions_count_dct = None
         self.new_proportions_count_dct = None
 

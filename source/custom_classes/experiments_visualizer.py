@@ -2,6 +2,7 @@ import altair as alt
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from IPython.display import display
 
 from source.configs.constants import SubgroupMetricsType, GroupMetricsType
 
@@ -42,6 +43,7 @@ class ExperimentsVisualizer:
             'Accuracy_Parity',
             'Equalized_Odds_TPR',
             'Equalized_Odds_FPR',
+            'Equalized_Odds_FNR',
             'Disparate_Impact',
             'Statistical_Parity_Difference',
         ]
@@ -229,6 +231,7 @@ class ExperimentsVisualizer:
         all_models_pct_subgroup_metrics_df = all_models_pct_subgroup_metrics_df.reset_index(drop=True)
 
         to_plot = all_models_pct_subgroup_metrics_df[all_models_pct_subgroup_metrics_df['Metric'].isin(subgroup_metrics)]
+        display(to_plot)
         plt.figure(figsize=figsize)
         ax = sns.boxplot(x=to_plot['Metric'],
                          y=to_plot['Metric_Value'],
@@ -238,10 +241,10 @@ class ExperimentsVisualizer:
                    ncol=2,
                    fancybox=True,
                    shadow=True,
-                   fontsize=13)
-        plt.xlabel("Metric name", fontsize=16)
-        plt.ylabel("Metric value", fontsize=16)
-        ax.tick_params(labelsize=14)
+                   fontsize=13 + 3)
+        plt.xlabel("Metric name", fontsize=16 + 4)
+        plt.ylabel("Metric value", fontsize=16 + 4)
+        ax.tick_params(labelsize=14 + 4)
         fig = ax.get_figure()
         fig.tight_layout()
 
@@ -277,7 +280,7 @@ class ExperimentsVisualizer:
                          y=to_plot['Metric_Value'],
                          hue=to_plot['Model_Name'])
 
-        plt.legend(loc='upper left',
+        plt.legend(loc='upper right',
                    ncol=2,
                    fancybox=True,
                    shadow=True,
@@ -309,7 +312,8 @@ class ExperimentsVisualizer:
                     else self.all_variance_subgroup_metrics
 
         # Create a grid framing
-        row_len = 3
+        # row_len = 3
+        row_len = 2
         subgroup_metrics_len = len(subgroup_metrics)
         div_val, mod_val = divmod(subgroup_metrics_len, row_len)
         grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
@@ -323,6 +327,9 @@ class ExperimentsVisualizer:
             )
 
         all_percentage_subgroup_metrics_df = all_percentage_subgroup_metrics_df.reset_index(drop=True)
+        # print('all_percentage_subgroup_metrics_df')
+        # display(all_percentage_subgroup_metrics_df[(all_percentage_subgroup_metrics_df['Metric'] == 'Label_Stability') &
+        #                                            (all_percentage_subgroup_metrics_df['Subgroup'] == 'overall')])
 
         if mode == 'max_num_columns':
             x_title = 'Max Number of Affected Columns'
@@ -359,17 +366,258 @@ class ExperimentsVisualizer:
 
         grid_chart = (
             grid_chart.configure_axis(
-                labelFontSize=15,
-                titleFontSize=15
+                labelFontSize=15 + 2,
+                titleFontSize=15 + 4,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
             ).configure_title(
-                fontSize=15
+                fontSize=15 + 2
             ).configure_legend(
-                titleFontSize=17,
-                labelFontSize=15,
+                titleFontSize=17 + 2,
+                labelFontSize=15 + 2,
                 symbolStrokeWidth=10,
+            ).properties(
+                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10)
             )
         )
         return grid_chart
+
+    def create_grid_for_metrics_comparison(self, model_name: str, target_preprocessing_technique: str = None,
+                                           subgroup_metrics: list = None, subgroups: list = None,
+                                           group_metrics: list = None, groups: list = None,
+                                           mode: str = 'rows_pct'):
+        if subgroups is None:
+            subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
+                        [attr + '_dis' for attr in self.sensitive_attrs] + ['overall']
+
+        if target_preprocessing_technique is None:
+            target_preprocessing_technique = list(self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name].keys())[0]
+
+        if groups is None:
+            groups = [attr for attr in self.sensitive_attrs]
+
+        if group_metrics is None:
+            group_metrics = self.all_group_fairness_metrics_lst + self.all_group_variance_metrics_lst
+
+        # Create a grid framing
+        # row_len = 3
+        row_len = 2
+        subgroup_metrics_len = len(subgroup_metrics)
+        div_val, mod_val = divmod(subgroup_metrics_len, row_len)
+        grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
+
+        all_percentage_subgroup_metrics_df = pd.DataFrame()
+        for pct in self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique].keys():
+            percentage_subgroup_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique][pct]
+            percentage_subgroup_metrics_df['Percentage'] = pct
+            all_percentage_subgroup_metrics_df = pd.concat(
+                [all_percentage_subgroup_metrics_df, percentage_subgroup_metrics_df]
+            )
+        all_percentage_subgroup_metrics_df = all_percentage_subgroup_metrics_df.reset_index(drop=True)
+
+        all_percentage_group_metrics_df = pd.DataFrame()
+        for pct in self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique].keys():
+            percentage_group_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique][pct]
+            percentage_group_metrics_df['Percentage'] = pct
+            all_percentage_group_metrics_df = pd.concat(
+                [all_percentage_group_metrics_df, percentage_group_metrics_df]
+            )
+        all_percentage_group_metrics_df = all_percentage_group_metrics_df.reset_index(drop=True)
+
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
+        else:
+            x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
+        subgroups_grid_chart = alt.vconcat()
+        metric_idx = -1
+        for num_subplots in grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                metric_idx += 1
+                subplot_metrics_df = all_percentage_subgroup_metrics_df[
+                    (all_percentage_subgroup_metrics_df.Metric == subgroup_metrics[metric_idx]) &
+                    (all_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
+                    ]
+                base = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x=x_axis,
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx]),
+                    color='Subgroup:N',
+                    strokeWidth=alt.condition(
+                        "datum.Subgroup == 'overall'",
+                        alt.value(4),
+                        alt.value(2)
+                    ),
+                ).properties(
+                    width=250, height=250
+                )
+
+                row |= base
+
+            subgroups_grid_chart &= row
+
+        groups_grid_chart = alt.vconcat()
+        metric_idx = -1
+        for num_subplots in grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                metric_idx += 1
+                subplot_metrics_df = all_percentage_group_metrics_df[
+                    (all_percentage_group_metrics_df.Metric == group_metrics[metric_idx]) &
+                    (all_percentage_group_metrics_df.Group.isin(groups))
+                    ]
+                base = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x=x_axis,
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[metric_idx]),
+                    color='Group:N',
+                ).properties(
+                    width=250, height=250
+                )
+
+                row |= base
+
+            groups_grid_chart &= row
+
+        final_grid_chart = alt.vconcat(subgroups_grid_chart, groups_grid_chart, spacing=40)
+        final_grid_chart = (
+            final_grid_chart.configure_axis(
+                labelFontSize=15 + 2,
+                titleFontSize=15 + 4,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
+            ).configure_title(
+                fontSize=15 + 2
+            ).configure_legend(
+                titleFontSize=17 + 2,
+                labelFontSize=15 + 2,
+                symbolStrokeWidth=10,
+            ).properties(
+                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
+                resolve = alt.Resolve(scale=alt.LegendResolveMap(color=alt.ResolveMode('independent')))
+            )
+        )
+        return final_grid_chart
+
+    def create_grid_for_metrics_comparison2(self, model_name: str, target_preprocessing_technique: str = None,
+                                            mode: str = 'rows_pct'):
+        if target_preprocessing_technique is None:
+            target_preprocessing_technique = list(self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name].keys())[0]
+
+        subgroups = [attr + '_priv' for attr in self.sensitive_attrs] + \
+                    [attr + '_dis' for attr in self.sensitive_attrs] + ['overall']
+        groups = [attr for attr in self.sensitive_attrs]
+
+        group_metrics = ['Equalized_Odds_FPR', 'Equalized_Odds_FNR',]
+        subgroup_metrics = ['Accuracy', 'Jitter', 'F1', 'Label_Stability']
+
+        # Create a grid framing
+        # row_len = 3
+        row_len = 2
+        subgroup_metrics_len = len(subgroup_metrics)
+        div_val, mod_val = divmod(subgroup_metrics_len, row_len)
+        subgroup_grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
+
+        all_percentage_subgroup_metrics_df = pd.DataFrame()
+        for pct in self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique].keys():
+            percentage_subgroup_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_subgroup_metrics_dct[model_name][target_preprocessing_technique][pct]
+            percentage_subgroup_metrics_df['Percentage'] = pct
+            all_percentage_subgroup_metrics_df = pd.concat(
+                [all_percentage_subgroup_metrics_df, percentage_subgroup_metrics_df]
+            )
+        all_percentage_subgroup_metrics_df = all_percentage_subgroup_metrics_df.reset_index(drop=True)
+
+        all_percentage_group_metrics_df = pd.DataFrame()
+        for pct in self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique].keys():
+            percentage_group_metrics_df = self.melted_exp_avg_exp_iters_avg_runs_group_metrics_dct[model_name][target_preprocessing_technique][pct]
+            percentage_group_metrics_df['Percentage'] = pct
+            all_percentage_group_metrics_df = pd.concat(
+                [all_percentage_group_metrics_df, percentage_group_metrics_df]
+            )
+        all_percentage_group_metrics_df = all_percentage_group_metrics_df.reset_index(drop=True)
+
+        if mode == 'max_num_columns':
+            x_title = 'Max Number of Affected Columns'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title, axis=alt.Axis(tickMinStep=1))
+        else:
+            x_title = 'Percentage of Affected Rows'
+            x_axis = alt.X(field='Percentage', type='quantitative', title=x_title)
+        subgroups_grid_chart = alt.vconcat()
+        subgroup_metric_idx = -1
+        for num_subplots in subgroup_grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                subgroup_metric_idx += 1
+                subplot_metrics_df = all_percentage_subgroup_metrics_df[
+                    (all_percentage_subgroup_metrics_df.Metric == subgroup_metrics[subgroup_metric_idx]) &
+                    (all_percentage_subgroup_metrics_df.Subgroup.isin(subgroups))
+                    ]
+                base = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x=x_axis,
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[subgroup_metric_idx]),
+                    color='Subgroup:N',
+                    strokeWidth=alt.condition(
+                        "datum.Subgroup == 'overall'",
+                        alt.value(4),
+                        alt.value(2)
+                    ),
+                ).properties(
+                    width=250, height=250
+                )
+
+                row |= base
+
+            subgroups_grid_chart &= row
+
+        row_len = 1
+        group_metrics_len = len(group_metrics)
+        div_val, mod_val = divmod(group_metrics_len, row_len)
+        group_grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
+        groups_grid_chart = alt.vconcat()
+        group_metric_idx = -1
+        for num_subplots in group_grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                group_metric_idx += 1
+                subplot_metrics_df = all_percentage_group_metrics_df[
+                    (all_percentage_group_metrics_df.Metric == group_metrics[group_metric_idx]) &
+                    (all_percentage_group_metrics_df.Group.isin(groups))
+                    ]
+                base = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x=x_axis,
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[group_metric_idx]),
+                    color='Group:N',
+                ).properties(
+                    width=250, height=250
+                )
+
+                row |= base
+
+            groups_grid_chart &= row
+
+        final_grid_chart = alt.hconcat(subgroups_grid_chart, groups_grid_chart)
+
+        final_grid_chart = (
+            final_grid_chart.configure_axis(
+                labelFontSize=15 + 2,
+                titleFontSize=15 + 4,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
+            ).configure_title(
+                fontSize=15 + 2
+            ).configure_legend(
+                titleFontSize=17 + 2,
+                labelFontSize=15 + 2,
+                symbolStrokeWidth=10,
+                # orient='top',
+                # columns=5,
+            ).properties(
+                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
+                resolve = alt.Resolve(scale=alt.LegendResolveMap(color=alt.ResolveMode('independent')))
+            )
+        )
+
+        return final_grid_chart
 
     def create_subgroups_grid_pct_lines_plot_for_col_imp(self, model_name: str, feature_imp_df, sort_cols_lst: list,
                                                          target_preprocessing_technique: str = None,
@@ -448,7 +696,10 @@ class ExperimentsVisualizer:
         grid_chart = (
             grid_chart.configure_axis(
                 labelFontSize=15,
-                titleFontSize=15
+                titleFontSize=15 + 3,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
+                titlePadding=10,
             ).configure_title(
                 fontSize=15
             ).configure_legend(
@@ -596,14 +847,18 @@ class ExperimentsVisualizer:
 
         grid_chart = (
             grid_chart.configure_axis(
-                labelFontSize=15,
-                titleFontSize=15
+                labelFontSize=15 + 4,
+                titleFontSize=15 + 6,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
             ).configure_title(
-                fontSize=15
+                fontSize=15 + 6,
             ).configure_legend(
-                titleFontSize=17,
-                labelFontSize=15,
+                titleFontSize=17 + 6,
+                # labelFontSize=15 + 6,
+                labelFontSize=15 + 3,
                 symbolStrokeWidth=10,
+                labelLimit=300
             )
         )
         return grid_chart
