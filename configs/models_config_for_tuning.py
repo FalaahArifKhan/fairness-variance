@@ -18,33 +18,33 @@ def get_compas_models_params_for_tuning(models_tuning_seed):
                 "criterion": ["gini", "entropy"]
             }
         },
-        'LogisticRegression': {
-            'model': LogisticRegression(random_state=models_tuning_seed),
-            'params': {
-                'penalty': ['l2'],
-                'C' : [0.0001, 0.1, 1, 100],
-                'solver': ['newton-cg', 'lbfgs'],
-                'max_iter': [250],
-            }
-        },
-        'RandomForestClassifier': {
-            'model': RandomForestClassifier(random_state=models_tuning_seed),
-            'params': {
-                "max_depth": [6, 10],
-                "min_samples_leaf": [1],
-                "n_estimators": [50, 100],
-                "max_features": [0.6]
-            }
-        },
-        'XGBClassifier': {
-            'model': XGBClassifier(random_state=models_tuning_seed, verbosity=0),
-            'params': {
-                'learning_rate': [0.1],
-                'n_estimators': [200],
-                'max_depth': [5, 7],
-                'lambda':  [10, 100]
-            }
-        }
+        # 'LogisticRegression': {
+        #     'model': LogisticRegression(random_state=models_tuning_seed),
+        #     'params': {
+        #         'penalty': ['l2'],
+        #         'C' : [0.0001, 0.1, 1, 100],
+        #         'solver': ['newton-cg', 'lbfgs'],
+        #         'max_iter': [250],
+        #     }
+        # },
+        # 'RandomForestClassifier': {
+        #     'model': RandomForestClassifier(random_state=models_tuning_seed),
+        #     'params': {
+        #         "max_depth": [6, 10],
+        #         "min_samples_leaf": [1],
+        #         "n_estimators": [50, 100],
+        #         "max_features": [0.6]
+        #     }
+        # },
+        # 'XGBClassifier': {
+        #     'model': XGBClassifier(random_state=models_tuning_seed, verbosity=0),
+        #     'params': {
+        #         'learning_rate': [0.1],
+        #         'n_estimators': [200],
+        #         'max_depth': [5, 7],
+        #         'lambda':  [10, 100]
+        #     }
+        # }
     }
 
 
