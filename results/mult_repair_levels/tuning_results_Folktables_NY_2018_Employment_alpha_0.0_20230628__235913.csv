@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_NY_2018_Employment,LogisticRegression,0.7385,0.7515,"{'C': 1, 'penalty': 'l2'}"

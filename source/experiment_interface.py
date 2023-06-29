@@ -1,6 +1,6 @@
 import os
-from tqdm import tqdm
 from pprint import pprint
+from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 
@@ -39,13 +39,14 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
         print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
         print("Top indexes of an y_test in a base flow dataset: ", base_flow_dataset.y_test.index[:20])
 
-    for intervention_param in tqdm(enumerate(fair_intervention_params_lst),
+    for intervention_param in tqdm(fair_intervention_params_lst,
                                    total=len(metrics_computation_config.runs_seed_lst),
                                    desc="Multiple alphas",
                                    colour="#40E0D0"):
+        custom_table_fields_dct['intervention_param'] = intervention_param
+
         # Fair preprocessing
         cur_base_flow_dataset = remove_correlation(base_flow_dataset, alpha=intervention_param)
-
         # Tune model parameters if needed
         if with_tuning:
             # Tune models and create a models config for metrics computation
@@ -55,9 +56,8 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
 
             # Create models_config from the saved tuned_params_df for higher reliability
             date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")
-            models_tuning_results_dir = os.path.join(save_results_dir_path, 'models_tuning')
-            os.makedirs(models_tuning_results_dir, exist_ok=True)
-            tuned_df_path = os.path.join(models_tuning_results_dir,
+            os.makedirs(save_results_dir_path, exist_ok=True)
+            tuned_df_path = os.path.join(save_results_dir_path,
                                          f'tuning_results_{metrics_computation_config.dataset_name}_alpha_{intervention_param}_{date_time_str}.csv')
             tuned_params_df.to_csv(tuned_df_path, sep=",", columns=tuned_params_df.columns, float_format="%.4f", index=False)
             logger.info("Models are tuned and saved to a file")
