@@ -2,6 +2,7 @@ numpy
 matplotlib
 pandas
 altair
+virny==0.2.0
 scikit-learn==1.2.0
 tqdm==4.64.1
 sklearn-utils

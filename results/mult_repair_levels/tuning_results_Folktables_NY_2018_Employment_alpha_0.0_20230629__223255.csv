@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_NY_2018_Employment,RandomForestClassifier,0.7365,0.7448,{'n_estimators': 200}
