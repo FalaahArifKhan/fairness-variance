@@ -1,8 +1,6 @@
 import altair as alt
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
-from IPython.display import display
 
 
 class ExperimentsVisualizer:
@@ -83,37 +81,60 @@ class ExperimentsVisualizer:
 
         self.melted_all_subgroup_metrics_per_model_dct = melted_all_subgroup_metrics_per_model_dct
 
-    def create_subgroup_metrics_line_band(self, model_name: str, subgroup_metric):
+    def create_subgroup_metrics_line_band(self, model_name: str, subgroup_metrics: list):
         subgroup = 'overall'
         subgroup_metrics_df = self.melted_all_subgroup_metrics_per_model_dct[model_name]
-        subplot_metrics_df = subgroup_metrics_df[
-            (subgroup_metrics_df.Metric == subgroup_metric) &
-            (subgroup_metrics_df.Subgroup == subgroup)
-        ]
 
-        line = alt.Chart(subplot_metrics_df).mark_line().encode(
-            x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-            y=alt.Y('mean(Metric_Value)', type='quantitative', title=subgroup_metric, scale=alt.Scale(zero=False)),
-        )
+        # Create a grid framing
+        row_len = 3
+        subgroup_metrics_len = len(subgroup_metrics)
+        div_val, mod_val = divmod(subgroup_metrics_len, row_len)
+        grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
 
-        band = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
-            x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-            y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metric, scale=alt.Scale(zero=False))
-        )
+        subgroups_grid_chart = alt.vconcat()
+        metric_idx = -1
+        for num_subplots in grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                metric_idx += 1
+                subplot_metrics_df = subgroup_metrics_df[
+                    (subgroup_metrics_df.Metric == subgroup_metrics[metric_idx]) &
+                    (subgroup_metrics_df.Subgroup == subgroup)
+                ]
 
-        final_chart = (
-            (band + line).configure_axis(
+                line = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+                    y=alt.Y('mean(Metric_Value)', type='quantitative', title=subgroup_metrics[metric_idx], scale=alt.Scale(zero=False)),
+                )
+
+                band = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
+                    x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx], scale=alt.Scale(zero=False))
+                )
+
+                base = (band + line).properties(
+                    width=280, height=280
+                )
+
+                row |= base
+
+            subgroups_grid_chart &= row
+
+        final_grid_chart = (
+            subgroups_grid_chart.configure_axis(
                 labelFontSize=15 + 2,
                 titleFontSize=15 + 4,
                 labelFontWeight='normal',
                 titleFontWeight='normal',
             ).configure_title(
                 fontSize=15 + 2
+            ).configure_legend(
+                titleFontSize=17 + 2,
+                labelFontSize=15 + 2,
+                symbolStrokeWidth=10,
             ).properties(
                 title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
-                width=250,
-                height=250,
             )
         )
 
-        return final_chart
+        return final_grid_chart
