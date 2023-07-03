@@ -14,6 +14,13 @@ def get_simple_preprocessor(data_loader):
 
 
 def remove_correlation(init_base_flow_dataset, alpha):
+    """
+    Based on this tutorial: https://fairlearn.org/v0.8/auto_examples/plot_correlationremover_before_after.html
+
+    :param init_base_flow_dataset:
+    :param alpha:
+    :return:
+    """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
 
     sensitive_features_for_cr = ['cat__SEX_1', 'cat__SEX_2']

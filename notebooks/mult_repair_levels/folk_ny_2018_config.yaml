@@ -1,8 +1,6 @@
 dataset_name: Folktables_NY_2018_Employment
 bootstrap_fraction: 0.8
-n_estimators: 10
-#n_estimators: 50
+n_estimators: 200
 computation_mode: error_analysis
-num_runs: 2
-runs_seed_lst: [100, 200]
-sensitive_attributes_dct: {'SEX': '1', 'RAC1P': '1', 'SEX & RAC1P': None}
+num_runs: 1
+sensitive_attributes_dct: {'SEX': '0', 'RAC1P': '0', 'SEX & RAC1P': None}

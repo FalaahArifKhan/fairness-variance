@@ -84,7 +84,10 @@ class ExperimentsComposer:
                         {model_name: model_subgroup_metrics_df},
                         self.sensitive_attributes_dct
                     )
+                    model_group_metrics_df = metrics_composer.compose_metrics()
+                    model_group_metrics_df['Experiment_Iteration'] = exp_iter
+                    model_group_metrics_df['Intervention_Param'] = percentage
                     structured_exp_avg_group_metrics_dct.setdefault(model_name, {})\
-                        .setdefault(exp_iter, {})[percentage] = metrics_composer.compose_metrics()
+                        .setdefault(exp_iter, {})[percentage] = model_group_metrics_df
 
         return structured_exp_avg_group_metrics_dct
