@@ -2,10 +2,11 @@ numpy
 matplotlib
 pandas
 altair
+virny==0.2.0
 scikit-learn==1.2.0
 tqdm==4.64.1
 sklearn-utils
 seaborn
 folktables
-xgboost==1.7.2
-munch==2.5.0
+fairlearn==0.8.0
+lightgbm==3.3.5
