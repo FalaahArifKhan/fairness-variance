@@ -3,4 +3,5 @@ bootstrap_fraction: 0.8
 n_estimators: 200
 computation_mode: error_analysis
 num_runs: 1
-sensitive_attributes_dct: {'SEX': '0', 'RAC1P': '0', 'SEX & RAC1P': None}
+runs_seed_lst: [100]
+sensitive_attributes_dct: {'SEX': '2', 'RAC1P': ['2', '3', '4', '5', '6', '7', '8', '9'], 'SEX & RAC1P': None}

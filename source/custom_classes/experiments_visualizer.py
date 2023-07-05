@@ -119,8 +119,7 @@ class ExperimentsVisualizer:
 
         self.melted_all_group_metrics_per_model_dct = melted_all_group_metrics_per_model_dct
 
-    def create_subgroup_metrics_line_band_plot(self, model_name: str, subgroup_metrics: list):
-        subgroup = 'overall'
+    def create_subgroup_metrics_line_band_plot(self, model_name: str, subgroup_metrics: list, subgroup: str = 'overall'):
         subgroup_metrics_df = self.melted_all_subgroup_metrics_per_model_dct[model_name]
 
         # Create a grid framing

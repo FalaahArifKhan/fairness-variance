@@ -18,7 +18,7 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
                                                  column_transformer: ColumnTransformer, models_params_for_tuning,
                                                  metrics_computation_config, custom_table_fields_dct,
                                                  with_tuning: bool = False, save_results_dir_path: str = None,
-                                                 tuned_params_df_path: str = None, num_folds_for_tuning: int = 3,
+                                                 tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
                                                  verbose: bool = False):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
@@ -39,10 +39,10 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
         print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
         print("Top indexes of an y_test in a base flow dataset: ", base_flow_dataset.y_test.index[:20])
 
-    for intervention_param in tqdm(fair_intervention_params_lst,
-                                   total=len(metrics_computation_config.runs_seed_lst),
-                                   desc="Multiple alphas",
-                                   colour="#40E0D0"):
+    for intervention_idx, intervention_param in tqdm(enumerate(fair_intervention_params_lst),
+                                                     total=len(fair_intervention_params_lst),
+                                                     desc="Multiple alphas",
+                                                     colour="#40E0D0"):
         custom_table_fields_dct['intervention_param'] = intervention_param
 
         # Fair preprocessing
@@ -62,7 +62,8 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
             tuned_params_df.to_csv(tuned_df_path, sep=",", columns=tuned_params_df.columns, float_format="%.4f", index=False)
             logger.info("Models are tuned and saved to a file")
         else:
-            models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_path)
+            print('Path for tuned params: ', tuned_params_df_paths[intervention_idx])
+            models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_paths[intervention_idx])
             print(f'{list(models_config.keys())[0]}: ', models_config[list(models_config.keys())[0]].get_params())
             logger.info("Models config is loaded from the input file")
 
