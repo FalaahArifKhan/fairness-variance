@@ -1,4 +1,5 @@
 *_venv
+*.env
 .idea
 .DS_Store
 .ipynb_checkpoints
@@ -12,8 +13,6 @@
 
 doc/build/*
 doc/_build/*
-
-.idea
 
 .idea/*.xml
 .idea/*.iml
