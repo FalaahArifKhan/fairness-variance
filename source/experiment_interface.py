@@ -43,6 +43,7 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
                                                      total=len(fair_intervention_params_lst),
                                                      desc="Multiple alphas",
                                                      colour="#40E0D0"):
+        print('intervention_param: ', intervention_param)
         custom_table_fields_dct['intervention_param'] = intervention_param
 
         # Fair preprocessing

@@ -1,3 +1,4 @@
+*.out
 *_venv
 *.env
 .idea
