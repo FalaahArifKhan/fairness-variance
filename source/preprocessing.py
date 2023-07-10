@@ -64,25 +64,31 @@ def remove_correlation_for_mult_test_sets(init_base_flow_dataset, alpha, extra_t
 
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
-
     sensitive_features_for_cr = ['cat__SEX_1', 'cat__SEX_2']
-    other_features_train_val = [col for col in base_flow_dataset.X_train_val.columns if col not in sensitive_features_for_cr]
-    other_features_test = [col for col in base_flow_dataset.X_test.columns if col not in sensitive_features_for_cr]
+
+    # Align feature columns in all test sets
+    feature_columns_set = set(base_flow_dataset.X_train_val.columns) & set(base_flow_dataset.X_test.columns)
+    for test_set in extra_test_sets:
+        feature_columns_set &= set(test_set[0].columns)
+
+    feature_columns_set.remove('cat__SEX_1')
+    feature_columns_set.remove('cat__SEX_2')
+    other_feature_columns = list(feature_columns_set)
 
     # Rearrange columns for consistency
-    base_flow_dataset.X_train_val = base_flow_dataset.X_train_val[other_features_train_val + sensitive_features_for_cr]
-    base_flow_dataset.X_test = base_flow_dataset.X_test[other_features_test + sensitive_features_for_cr]
+    base_flow_dataset.X_train_val = base_flow_dataset.X_train_val[other_feature_columns + sensitive_features_for_cr]
+    base_flow_dataset.X_test = base_flow_dataset.X_test[other_feature_columns + sensitive_features_for_cr]
 
     cr = CorrelationRemover(sensitive_feature_ids=sensitive_features_for_cr, alpha=alpha)
     # Fit and transform for the X_train_val set
     X_train_val_preprocessed = cr.fit_transform(base_flow_dataset.X_train_val)
-    X_train_val_preprocessed = pd.DataFrame(X_train_val_preprocessed, columns=other_features_train_val, index=base_flow_dataset.X_train_val.index)
+    X_train_val_preprocessed = pd.DataFrame(X_train_val_preprocessed, columns=other_feature_columns, index=base_flow_dataset.X_train_val.index)
     X_train_val_preprocessed["cat__SEX_1"] = base_flow_dataset.X_train_val["cat__SEX_1"]
     X_train_val_preprocessed["cat__SEX_2"] = base_flow_dataset.X_train_val["cat__SEX_2"]
 
     # Fit and transform for the X_test set
     X_test_preprocessed = cr.transform(base_flow_dataset.X_test)
-    X_test_preprocessed = pd.DataFrame(X_test_preprocessed, columns=other_features_test, index=base_flow_dataset.X_test.index)
+    X_test_preprocessed = pd.DataFrame(X_test_preprocessed, columns=other_feature_columns, index=base_flow_dataset.X_test.index)
     X_test_preprocessed["cat__SEX_1"] = base_flow_dataset.X_test["cat__SEX_1"]
     X_test_preprocessed["cat__SEX_2"] = base_flow_dataset.X_test["cat__SEX_2"]
     base_flow_dataset.X_train_val = X_train_val_preprocessed
@@ -91,11 +97,10 @@ def remove_correlation_for_mult_test_sets(init_base_flow_dataset, alpha, extra_t
     # Remove correlation in extra test sets
     preprocessed_extra_test_sets = []
     for X_test, y_test in extra_test_sets:
-        test_features = [col for col in X_test.columns if col not in sensitive_features_for_cr]
-        X_test = X_test[test_features + sensitive_features_for_cr]
+        X_test = X_test[other_feature_columns + sensitive_features_for_cr]
 
         cur_X_test_preprocessed = cr.transform(X_test)
-        cur_X_test_preprocessed = pd.DataFrame(cur_X_test_preprocessed, columns=test_features, index=X_test.index)
+        cur_X_test_preprocessed = pd.DataFrame(cur_X_test_preprocessed, columns=other_feature_columns, index=X_test.index)
         cur_X_test_preprocessed["cat__SEX_1"] = X_test["cat__SEX_1"]
         cur_X_test_preprocessed["cat__SEX_2"] = X_test["cat__SEX_2"]
 
