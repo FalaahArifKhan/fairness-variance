@@ -10,15 +10,14 @@ from xgboost import XGBClassifier
 
 def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
     return {
-        # 'LogisticRegression': {
-        #     'model': LogisticRegression(random_state=models_tuning_seed),
-        #     'params': {
-        #         'penalty': ['l1', 'l2'],
-        #         'C' : [0.001, 0.01, 0.1, 1],
-        #         'solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
-        #         'max_iter': range(50, 201, 50),
-        #     }
-        # },
+        'LogisticRegression': {
+            'model': LogisticRegression(random_state=models_tuning_seed, max_iter=1000),
+            'params': {
+                'penalty': ['l1', 'l2'],
+                'C' : [0.001, 0.01, 0.1, 1],
+                'solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
+            }
+        },
         'RandomForestClassifier': {
             'model': RandomForestClassifier(random_state=models_tuning_seed),
             'params': {
@@ -29,16 +28,16 @@ def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
                 'bootstrap': [True, False]
             }
         },
-        # 'LGBMClassifier': {
-        #     'model': LGBMClassifier(random_state=models_tuning_seed),
-        #     'params': {
-        #         'max_depth' : [i for i in range(3,12)],
-        #         'num_leaves' : [int(x) for x in np.linspace(start = 20, stop = 3000, num = 10)],
-        #         'min_data_in_leaf' : [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
-        #     }
-        # },
+        'LGBMClassifier': {
+            'model': LGBMClassifier(random_state=models_tuning_seed),
+            'params': {
+                'max_depth' : [i for i in range(3,12)],
+                'num_leaves' : [int(x) for x in np.linspace(start = 20, stop = 3000, num = 10)],
+                'min_data_in_leaf' : [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
+            }
+        },
         # 'MLPClassifier': {
-        #     'model': MLPClassifier(random_state=models_tuning_seed),
+        #     'model': MLPClassifier(random_state=models_tuning_seed, max_iter=1000),
         #     'params': {
         #         'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
         #         'activation': ['logistic', 'tanh', 'relu'],
