@@ -65,19 +65,26 @@ def remove_correlation_for_mult_test_sets(init_base_flow_dataset, alpha, extra_t
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
     sensitive_features_for_cr = ['cat__SEX_1', 'cat__SEX_2']
-
-    # Align feature columns in all test sets
-    feature_columns_set = set(base_flow_dataset.X_train_val.columns) & set(base_flow_dataset.X_test.columns)
-    for test_set in extra_test_sets:
-        feature_columns_set &= set(test_set[0].columns)
-
-    feature_columns_set.remove('cat__SEX_1')
-    feature_columns_set.remove('cat__SEX_2')
-    other_feature_columns = list(feature_columns_set)
+    other_feature_columns = [col for col in base_flow_dataset.X_train_val.columns if col not in sensitive_features_for_cr]
 
     # Rearrange columns for consistency
     base_flow_dataset.X_train_val = base_flow_dataset.X_train_val[other_feature_columns + sensitive_features_for_cr]
+
+    # Align columns in the in-domain test set with the train set
+    for col in other_feature_columns:
+        if col not in base_flow_dataset.X_test.columns:
+            base_flow_dataset.X_test[col] = 0.0
     base_flow_dataset.X_test = base_flow_dataset.X_test[other_feature_columns + sensitive_features_for_cr]
+
+    # Align columns in the out-of-domain test sets with the train set
+    for i in range(len(extra_test_sets)):
+        cur_X_test, cur_y_test = extra_test_sets[i]
+        for col in other_feature_columns:
+            if col not in cur_X_test.columns:
+                cur_X_test[col] = 0.0
+
+        cur_X_test = cur_X_test[other_feature_columns + sensitive_features_for_cr]
+        extra_test_sets[i] = (cur_X_test, cur_y_test)
 
     cr = CorrelationRemover(sensitive_feature_ids=sensitive_features_for_cr, alpha=alpha)
     # Fit and transform for the X_train_val set
@@ -97,8 +104,6 @@ def remove_correlation_for_mult_test_sets(init_base_flow_dataset, alpha, extra_t
     # Remove correlation in extra test sets
     preprocessed_extra_test_sets = []
     for X_test, y_test in extra_test_sets:
-        X_test = X_test[other_feature_columns + sensitive_features_for_cr]
-
         cur_X_test_preprocessed = cr.transform(X_test)
         cur_X_test_preprocessed = pd.DataFrame(cur_X_test_preprocessed, columns=other_feature_columns, index=X_test.index)
         cur_X_test_preprocessed["cat__SEX_1"] = X_test["cat__SEX_1"]
