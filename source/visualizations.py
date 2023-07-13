@@ -73,43 +73,8 @@ def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
     return melted_all_subgroup_metrics_per_model_dct, melted_all_group_metrics_per_model_dct
 
 
-def create_subgroup_base_and_fair_models_box_plot(all_subgroup_metrics_per_model_dct: dict, subgroup_metric_name: str,
-                                                  legend_location: str = 'upper left'):
-    sns.set_style("darkgrid")
-
-    # Create one metrics df with all model_dfs
-    all_models_metrics_df = pd.DataFrame()
-    for model_name in all_subgroup_metrics_per_model_dct.keys():
-        model_metrics_df = all_subgroup_metrics_per_model_dct[model_name]
-        all_models_metrics_df = pd.concat([all_models_metrics_df, model_metrics_df])
-
-    all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
-
-    to_plot = all_models_metrics_df[
-        (all_models_metrics_df['Metric'] == subgroup_metric_name) &
-        (all_models_metrics_df['Subgroup'] == 'overall') &
-        (all_models_metrics_df['Test_Set_Index'] == 0)
-        ]
-
-    plt.figure(figsize=(12, 6))
-    ax = sns.boxplot(x=to_plot['Model_Name'],
-                     y=to_plot['Metric_Value'],
-                     hue=to_plot['Intervention_Param'])
-
-    plt.legend(loc=legend_location,
-               ncol=2,
-               fancybox=True,
-               shadow=True,
-               fontsize=13)
-    plt.xlabel("Model name", fontsize=16)
-    plt.ylabel("Metric value", fontsize=16)
-    ax.tick_params(labelsize=14)
-    fig = ax.get_figure()
-    fig.tight_layout()
-
-
-def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: dict, group_metric_name: str, group: str,
-                                               legend_location: str = 'upper left'):
+def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: dict, metric_name: str, group: str = 'overall',
+                                               legend_location: str = 'upper left', test_set_index: int = 0):
     sns.set_style("darkgrid")
 
     # Create one metrics df with all model_dfs
@@ -120,10 +85,11 @@ def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: 
 
     all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
 
+    group_col_name = 'Subgroup' if group == 'overall' else 'Group'
     to_plot = all_models_metrics_df[
-        (all_models_metrics_df['Metric'] == group_metric_name) &
-        (all_models_metrics_df['Group'] == group) &
-        (all_models_metrics_df['Test_Set_Index'] == 0)
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name] == group) &
+        (all_models_metrics_df['Test_Set_Index'] == test_set_index)
     ]
 
     plt.figure(figsize=(12, 6))
