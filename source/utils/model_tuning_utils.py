@@ -39,7 +39,7 @@ def validate_model(model, x, y, params, n_folds, samples_per_fold):
                                refit="F1_Score",
                                n_jobs=-1,
                                cv=folds_iterator(n_folds, samples_per_fold, x.shape[0]),
-                               verbose=10)
+                               verbose=0)
     grid_search.fit(x, y.values.ravel())
     best_index = grid_search.best_index_
 

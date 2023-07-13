@@ -136,6 +136,7 @@ def run_exp_iter_with_mult_set_and_preprocessing_intervention(data_loader, exper
             print('Path for tuned params: ', tuned_params_df_paths[intervention_idx])
             models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_paths[intervention_idx])
             print(f'{list(models_config.keys())[0]}: ', models_config[list(models_config.keys())[0]].get_params())
+            print(f'{list(models_config.keys())[1]}: ', models_config[list(models_config.keys())[1]].get_params())
             logger.info("Models config is loaded from the input file")
 
         # Compute metrics for tuned models
