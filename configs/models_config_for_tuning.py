@@ -37,9 +37,8 @@ def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
             }
         },
         # 'MLPClassifier': {
-        #     'model': MLPClassifier(random_state=models_tuning_seed, max_iter=1000),
+        #     'model': MLPClassifier(hidden_layer_sizes=(100,100,), random_state=models_tuning_seed, max_iter=1000),
         #     'params': {
-        #         'hidden_layer_sizes':[(100,), (100,100,), (100,50,100,)],
         #         'activation': ['logistic', 'tanh', 'relu'],
         #         'solver': ['lbfgs', 'sgd', 'adam'],
         #         'learning_rate': ['constant', 'invscaling', 'adaptive']
