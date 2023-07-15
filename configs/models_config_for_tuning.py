@@ -10,6 +10,14 @@ from xgboost import XGBClassifier
 
 def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
     return {
+        'LGBMClassifier': {
+            'model': LGBMClassifier(random_state=models_tuning_seed),
+            'params': {
+                'max_depth' : [i for i in range(3,12)],
+                'num_leaves' : [int(x) for x in np.linspace(start = 20, stop = 3000, num = 10)],
+                'min_data_in_leaf' : [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
+            }
+        },
         'LogisticRegression': {
             'model': LogisticRegression(random_state=models_tuning_seed, max_iter=1000),
             'params': {
@@ -28,14 +36,6 @@ def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
                 'bootstrap': [True, False]
             }
         },
-        'LGBMClassifier': {
-            'model': LGBMClassifier(random_state=models_tuning_seed),
-            'params': {
-                'max_depth' : [i for i in range(3,12)],
-                'num_leaves' : [int(x) for x in np.linspace(start = 20, stop = 3000, num = 10)],
-                'min_data_in_leaf' : [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
-            }
-        },
         # 'MLPClassifier': {
         #     'model': MLPClassifier(hidden_layer_sizes=(100,100,), random_state=models_tuning_seed, max_iter=1000),
         #     'params': {
@@ -44,6 +44,19 @@ def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
         #         'learning_rate': ['constant', 'invscaling', 'adaptive']
         #     }
         # }
+    }
+
+
+def get_folktables_employment_models_params_for_tuning2(models_tuning_seed):
+    return {
+        'MLPClassifier': {
+            'model': MLPClassifier(hidden_layer_sizes=(100,100,), random_state=models_tuning_seed, max_iter=1000),
+            'params': {
+                'activation': ['logistic', 'tanh', 'relu'],
+                'solver': ['lbfgs', 'sgd', 'adam'],
+                'learning_rate': ['constant', 'invscaling', 'adaptive']
+            }
+        }
     }
 
 

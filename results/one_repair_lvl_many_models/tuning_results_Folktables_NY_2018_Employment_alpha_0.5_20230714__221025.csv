@@ -1,0 +1,4 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_NY_2018_Employment,LGBMClassifier,0.7817,0.7913,"{'max_depth': 11, 'min_data_in_leaf': 100, 'num_leaves': 351}"
+Folktables_NY_2018_Employment,LogisticRegression,0.7389,0.7518,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
+Folktables_NY_2018_Employment,RandomForestClassifier,0.7764,0.7865,"{'bootstrap': True, 'max_depth': 30, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 1000}"
