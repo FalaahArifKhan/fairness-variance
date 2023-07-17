@@ -75,8 +75,8 @@ def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
     return melted_all_subgroup_metrics_per_model_dct, melted_all_group_metrics_per_model_dct
 
 
-def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: dict, metric_name: str, group: str = 'overall',
-                                               legend_location: str = 'upper left', test_set_index: int = 0):
+def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: dict, metric_names: list, group: str = 'overall',
+                                               ylim: tuple = None, test_set_index: int = 0, vals_to_replace: dict = None):
     sns.set_style("darkgrid")
 
     # Create one metrics df with all model_dfs
@@ -86,36 +86,87 @@ def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: 
         all_models_metrics_df = pd.concat([all_models_metrics_df, model_metrics_df])
 
     all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
 
     group_col_name = 'Subgroup' if group == 'overall' else 'Group'
     to_plot = all_models_metrics_df[
-        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df['Metric'].isin(metric_names)) &
         (all_models_metrics_df[group_col_name] == group) &
         (all_models_metrics_df['Test_Set_Index'] == test_set_index)
     ]
 
     plt.figure(figsize=(12, 6))
-    ax = sns.boxplot(x=to_plot['Model_Name'],
-                     y=to_plot['Metric_Value'],
-                     hue=to_plot['Intervention_Param'])
+    g = sns.catplot(kind = "box",
+                    data=to_plot,
+                    x='Model_Name',
+                    y='Metric_Value',
+                    hue='Intervention_Param',
+                    col='Metric',
+                    col_order=metric_names,
+                    legend=False)
+    # Extra configs for the FacetGrid
+    font_increase = 4 if len(metric_names) >= 3 else 0
+    g.set_xlabels("")
+    g.set_ylabels("Metric Value", fontsize=16 + font_increase)
+    g.set_titles(size=14 + font_increase)
+    g.tick_params(labelsize=14 + font_increase)
+    g.set(ylim=ylim)
+    g.despine(left=True)
+    g.add_legend(title='Alpha',
+                 ncol=1,
+                 fancybox=True,
+                 shadow=True,
+                 fontsize=13 + font_increase)
+    plt.setp(g._legend.get_title(), fontsize=14 + font_increase)
 
-    plt.legend(loc=legend_location,
-               title='Alpha',
-               title_fontsize=14,
-               ncol=2,
-               fancybox=True,
-               shadow=True,
-               fontsize=13)
-    plt.xlabel("Model name", fontsize=16)
-    plt.ylabel("Metric value", fontsize=16)
-    ax.tick_params(labelsize=14)
-    fig = ax.get_figure()
-    fig.tight_layout()
+
+def create_group_models_box_plot_per_test_set(all_group_metrics_per_model_dct: dict, metric_name: str, group: str = 'overall',
+                                              ylim: tuple = None, vals_to_replace: dict = None):
+    sns.set_style("darkgrid")
+
+    # Create one metrics df with all model_dfs
+    all_models_metrics_df = pd.DataFrame()
+    for model_name in all_group_metrics_per_model_dct.keys():
+        model_metrics_df = all_group_metrics_per_model_dct[model_name]
+        all_models_metrics_df = pd.concat([all_models_metrics_df, model_metrics_df])
+
+    all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
+
+    group_col_name = 'Subgroup' if group == 'overall' else 'Group'
+    to_plot = all_models_metrics_df[
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name] == group)
+        ]
+
+    plt.figure(figsize=(12, 6))
+    g = sns.catplot(kind = "box",
+                    data=to_plot,
+                    x='Model_Name',
+                    y='Metric_Value',
+                    hue='Intervention_Param',
+                    col='Test_Set_Index',
+                    legend=False)
+    # Extra configs for the FacetGrid
+    font_increase = 6
+    g.set_xlabels("")
+    g.set_ylabels("Metric Value", fontsize=16 + font_increase)
+    g.set_titles(size=14 + font_increase)
+    g.tick_params(labelsize=14 + font_increase)
+    g.set(ylim=ylim)
+    g.despine(left=True)
+    g.add_legend(title='Alpha',
+                 ncol=1,
+                 fancybox=True,
+                 shadow=True,
+                 fontsize=13 + font_increase)
+    plt.setp(g._legend.get_title(), fontsize=14 + font_increase)
 
 
 def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
-                        fairness_metric_name: str, stability_metric_name: str,
-                        alpha: float, test_set_index: int = 0):
+                        fairness_metric_name: str, stability_metric_name: str, test_set_index: int = 0):
     # Create one metrics df with all model_dfs
     all_models_metrics_df = pd.DataFrame()
     for model_name in all_group_metrics_per_model_dct.keys():
@@ -125,7 +176,6 @@ def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
     all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
     all_models_metrics_df = all_models_metrics_df[
         (all_models_metrics_df['Group'] == group) &
-        (all_models_metrics_df['Intervention_Param'] == alpha) &
         (all_models_metrics_df['Test_Set_Index'] == test_set_index)
     ]
 
@@ -144,8 +194,8 @@ def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
     chart = alt.Chart(to_plot).mark_point(size=60).encode(
         x=stability_metric_name,
         y=fairness_metric_name,
-        color='Model_Name',
-        shape='Experiment_Iteration',
+        color=alt.Color(field='Intervention_Param', type='nominal'),
+        shape='Model_Name',
         size=alt.value(80),
     )
 
