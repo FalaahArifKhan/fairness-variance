@@ -30,27 +30,32 @@ def remove_correlation(init_base_flow_dataset, alpha):
 
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
-
-    sensitive_features_for_cr = ['cat__SEX_1', 'cat__SEX_2']
-    other_features_train_val = [col for col in base_flow_dataset.X_train_val.columns if col not in sensitive_features_for_cr]
-    other_features_test = [col for col in base_flow_dataset.X_test.columns if col not in sensitive_features_for_cr]
+    # sensitive_features_for_cr = ['cat__SEX_1', 'cat__SEX_2']
+    sensitive_features_for_cr = ['cat__RAC1P_1', 'cat__RAC1P_2', 'cat__RAC1P_3', 'cat__RAC1P_5',
+                                 'cat__RAC1P_6', 'cat__RAC1P_7', 'cat__RAC1P_8', 'cat__RAC1P_9']
+    other_feature_columns = [col for col in base_flow_dataset.X_train_val.columns if col not in sensitive_features_for_cr]
 
     # Rearrange columns for consistency
-    base_flow_dataset.X_train_val = base_flow_dataset.X_train_val[other_features_train_val + sensitive_features_for_cr]
-    base_flow_dataset.X_test = base_flow_dataset.X_test[other_features_test + sensitive_features_for_cr]
+    base_flow_dataset.X_train_val = base_flow_dataset.X_train_val[other_feature_columns + sensitive_features_for_cr]
+
+    # Align columns in the in-domain test set with the train set
+    for col in other_feature_columns:
+        if col not in base_flow_dataset.X_test.columns:
+            base_flow_dataset.X_test[col] = 0.0
+    base_flow_dataset.X_test = base_flow_dataset.X_test[other_feature_columns + sensitive_features_for_cr]
 
     cr = CorrelationRemover(sensitive_feature_ids=sensitive_features_for_cr, alpha=alpha)
     # Fit and transform for the X_train_val set
     X_train_val_preprocessed = cr.fit_transform(base_flow_dataset.X_train_val)
-    X_train_val_preprocessed = pd.DataFrame(X_train_val_preprocessed, columns=other_features_train_val, index=base_flow_dataset.X_train_val.index)
-    X_train_val_preprocessed["cat__SEX_1"] = base_flow_dataset.X_train_val["cat__SEX_1"]
-    X_train_val_preprocessed["cat__SEX_2"] = base_flow_dataset.X_train_val["cat__SEX_2"]
+    X_train_val_preprocessed = pd.DataFrame(X_train_val_preprocessed, columns=other_feature_columns, index=base_flow_dataset.X_train_val.index)
+    for col in sensitive_features_for_cr:
+        X_train_val_preprocessed[col] = base_flow_dataset.X_train_val[col]
 
     # Fit and transform for the X_test set
     X_test_preprocessed = cr.transform(base_flow_dataset.X_test)
-    X_test_preprocessed = pd.DataFrame(X_test_preprocessed, columns=other_features_test, index=base_flow_dataset.X_test.index)
-    X_test_preprocessed["cat__SEX_1"] = base_flow_dataset.X_test["cat__SEX_1"]
-    X_test_preprocessed["cat__SEX_2"] = base_flow_dataset.X_test["cat__SEX_2"]
+    X_test_preprocessed = pd.DataFrame(X_test_preprocessed, columns=other_feature_columns, index=base_flow_dataset.X_test.index)
+    for col in sensitive_features_for_cr:
+        X_test_preprocessed[col] = base_flow_dataset.X_test[col]
 
     base_flow_dataset.X_train_val = X_train_val_preprocessed
     base_flow_dataset.X_test = X_test_preprocessed
