@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from fairlearn.preprocessing import CorrelationRemover
+from aif360.datasets import BinaryLabelDataset
+from aif360.algorithms.preprocessing import DisparateImpactRemover
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
 
@@ -22,6 +24,44 @@ def create_extra_test_sets(extra_data_loaders: list, column_transformer, test_se
         extra_test_sets.append((exp_base_flow_dataset.X_test, exp_base_flow_dataset.y_test))
 
     return extra_test_sets
+
+
+def remove_disparate_impact(init_base_flow_dataset, alpha):
+    """
+    Based on this documentation:
+     https://aif360.readthedocs.io/en/latest/modules/generated/aif360.algorithms.preprocessing.DisparateImpactRemover.html
+
+    """
+    base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
+    sensitive_attribute = 'RACE'
+    train_df = base_flow_dataset.X_train_val
+    train_df[base_flow_dataset.target] = base_flow_dataset.y_train_val
+    test_df = base_flow_dataset.X_test
+    test_df[base_flow_dataset.target] = base_flow_dataset.y_test
+
+    train_binary_dataset = BinaryLabelDataset(df=train_df,
+                                              label_names=[base_flow_dataset.target],
+                                              protected_attribute_names=[sensitive_attribute],
+                                              favorable_label=1,
+                                              unfavorable_label=0)
+    test_binary_dataset = BinaryLabelDataset(df=test_df,
+                                             label_names=[base_flow_dataset.target],
+                                             protected_attribute_names=[sensitive_attribute],
+                                             favorable_label=1,
+                                             unfavorable_label=0)
+
+    di = DisparateImpactRemover(repair_level=alpha, sensitive_attribute=sensitive_attribute)
+    train_repaired_df, _ = di.fit_transform(train_binary_dataset).convert_to_dataframe()
+    test_repaired_df , _ = di.fit_transform(test_binary_dataset).convert_to_dataframe()
+    train_repaired_df.index = train_repaired_df.index.astype(dtype='int64')
+    test_repaired_df.index = test_repaired_df.index.astype(dtype='int64')
+
+    base_flow_dataset.X_train_val = train_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
+    base_flow_dataset.y_train_val = train_repaired_df[base_flow_dataset.target]
+    base_flow_dataset.X_test = test_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
+    base_flow_dataset.y_test = test_repaired_df[base_flow_dataset.target]
+
+    return base_flow_dataset
 
 
 def remove_correlation(init_base_flow_dataset, alpha):
