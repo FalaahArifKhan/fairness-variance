@@ -1,0 +1,3 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_GA_2018_Income,LogisticRegression,0.7825,0.8064,{'penalty': 'l2'}
+Folktables_GA_2018_Income,RandomForestClassifier,0.7683,0.7967,{'n_estimators': 100}
