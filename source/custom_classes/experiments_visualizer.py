@@ -215,8 +215,8 @@ class ExperimentsVisualizer:
                 titleLimit=300,
             ).properties(
                 title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
-                width=350,
-                height=350
+                width=300,
+                height=300
             )
         )
 
