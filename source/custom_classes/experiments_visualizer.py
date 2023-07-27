@@ -176,6 +176,52 @@ class ExperimentsVisualizer:
 
         return final_grid_chart
 
+    def create_line_bands_per_group_metric_plot(self, model_name: str, group_metric: str, group: str, metric_type: str):
+        """
+        :param metric_type: 'group' or 'subgroup'
+
+        """
+        if metric_type == 'subgroup':
+            group_metrics_df = self.melted_all_subgroup_metrics_per_model_dct[model_name]
+            group_metrics_df['Group'] = group_metrics_df['Subgroup']
+        else:
+            group_metrics_df = self.melted_all_group_metrics_per_model_dct[model_name]
+
+        groups = [group + suffix for suffix in ['_priv_correct', '_dis_correct', '_priv_incorrect', '_dis_incorrect']]
+        subplot_metrics_df = group_metrics_df[
+            (group_metrics_df.Metric == group_metric) &
+            (group_metrics_df.Group.isin(groups))
+        ]
+
+        line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
+            x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+            y=alt.Y('mean(Metric_Value)', type='quantitative', title=group_metric, scale=alt.Scale(zero=False)),
+            color='Group:N',
+        )
+
+        final_grid_chart = (
+            line_chart.configure_axis(
+                labelFontSize=15 + 2,
+                titleFontSize=15 + 4,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
+            ).configure_title(
+                fontSize=15 + 2
+            ).configure_legend(
+                titleFontSize=17 + 2,
+                labelFontSize=15 + 2,
+                symbolStrokeWidth=10,
+                labelLimit=300,
+                titleLimit=300,
+            ).properties(
+                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
+                width=350,
+                height=350
+            )
+        )
+
+        return final_grid_chart
+
     def create_group_metrics_line_band_plot(self, group: str, model_name: str, group_metrics: list):
         group_metrics_df = self.melted_all_group_metrics_per_model_dct[model_name]
 
