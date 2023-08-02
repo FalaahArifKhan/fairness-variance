@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_CA_2018_Public_Coverage,MLPClassifier,0.6698,0.7160,"{'activation': 'tanh', 'learning_rate': 'adaptive', 'solver': 'sgd'}"

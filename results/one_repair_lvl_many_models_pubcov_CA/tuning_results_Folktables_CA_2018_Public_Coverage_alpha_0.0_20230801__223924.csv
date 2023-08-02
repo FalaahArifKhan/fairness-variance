@@ -1,0 +1,4 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_CA_2018_Public_Coverage,LGBMClassifier,0.6782,0.7189,"{'max_depth': 9, 'min_data_in_leaf': 300, 'num_leaves': 351}"
+Folktables_CA_2018_Public_Coverage,LogisticRegression,0.6521,0.7038,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
+Folktables_CA_2018_Public_Coverage,RandomForestClassifier,0.6646,0.7136,"{'bootstrap': True, 'max_depth': 30, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 100}"
