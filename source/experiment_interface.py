@@ -13,7 +13,7 @@ from virny.preprocessing.basic_preprocessing import preprocess_dataset
 from source.utils.model_tuning_utils import tune_ML_models
 from source.utils.custom_logger import get_logger
 from source.preprocessing import remove_correlation, remove_correlation_for_mult_test_sets, \
-    remove_disparate_impact, get_simple_preprocessor, preprocess_mult_data_loaders_for_disp_imp, \
+    remove_disparate_impact, get_preprocessor_for_diabetes, preprocess_mult_data_loaders_for_disp_imp, \
     remove_disparate_impact_with_mult_sets
 
 
@@ -103,17 +103,23 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
 
     # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
-    data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
-    data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
-    data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
-    data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
+    # data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
+    # data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+    # data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
+    # data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
+
+    data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('gender', 'race')]
+    data_loader.X_data['race_binary'] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'Caucasian' else 0)
+    data_loader.full_df = data_loader.full_df.drop(['gender', 'race'], axis=1)
+    data_loader.X_data = data_loader.X_data.drop(['gender', 'race'], axis=1)
 
     # Preprocess the dataset using the defined preprocessor
-    column_transformer = get_simple_preprocessor(data_loader)
+    # column_transformer = get_simple_preprocessor(data_loader)
+    column_transformer = get_preprocessor_for_diabetes(data_loader)
     base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
     base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-    base_flow_dataset.X_train_val['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'RACE']
-    base_flow_dataset.X_test['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'RACE']
+    base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
+    base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
     if verbose:
         logger.info("The dataset is preprocessed")
         print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])

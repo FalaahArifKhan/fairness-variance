@@ -1,8 +1,10 @@
 import copy
+import numpy as np
 import pandas as pd
 
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.impute import SimpleImputer
 from fairlearn.preprocessing import CorrelationRemover
 from aif360.datasets import BinaryLabelDataset
 from aif360.algorithms.preprocessing import DisparateImpactRemover
@@ -12,6 +14,14 @@ from virny.preprocessing.basic_preprocessing import preprocess_dataset
 def get_simple_preprocessor(data_loader):
     return ColumnTransformer(transformers=[
         ('cat', OneHotEncoder(categories='auto', handle_unknown='ignore', sparse=False), data_loader.categorical_columns),
+        ('num', StandardScaler(), data_loader.numerical_columns),
+    ])
+
+
+def get_preprocessor_for_diabetes(data_loader):
+    return ColumnTransformer(transformers=[
+        ('cat', OneHotEncoder(categories='auto', handle_unknown='ignore', sparse=False), data_loader.categorical_columns),
+        ('enc', SimpleImputer(missing_values=np.nan, strategy='most_frequent'), ['diag_1', 'diag_2', 'diag_3']),  # there are no nulls in these columns, use it as a simple 1:1 mapper to output
         ('num', StandardScaler(), data_loader.numerical_columns),
     ])
 
@@ -37,7 +47,8 @@ def preprocess_mult_data_loaders_for_disp_imp(data_loaders: list, test_set_fract
         cur_data_loader.X_data = cur_data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
         # Preprocess the dataset using the defined preprocessor
-        column_transformer = get_simple_preprocessor(cur_data_loader)
+        # column_transformer = get_simple_preprocessor(cur_data_loader)
+        column_transformer = get_preprocessor_for_diabetes(cur_data_loader)
         cur_base_flow_dataset = preprocess_dataset(cur_data_loader, column_transformer, test_set_fraction, experiment_seed)
         cur_base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
         cur_base_flow_dataset.X_train_val['RACE'] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_train_val.index, 'RACE']
@@ -56,7 +67,8 @@ def remove_disparate_impact(init_base_flow_dataset, alpha):
 
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
-    sensitive_attribute = 'RACE'
+    # sensitive_attribute = 'RACE'
+    sensitive_attribute = 'race_binary'
     train_df = base_flow_dataset.X_train_val
     train_df[base_flow_dataset.target] = base_flow_dataset.y_train_val
     test_df = base_flow_dataset.X_test
