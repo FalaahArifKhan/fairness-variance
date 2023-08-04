@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Diabetes,RandomForestClassifier,0.4713,0.7631,{'n_estimators': 100}
