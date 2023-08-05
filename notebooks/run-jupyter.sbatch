@@ -3,7 +3,7 @@
 #SBATCH --job-name=jupyter
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=72GB
+#SBATCH --mem=120GB
 #SBATCH --time=48:00:00
 
 module purge
