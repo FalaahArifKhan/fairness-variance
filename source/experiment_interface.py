@@ -104,7 +104,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
     # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
 
-    dataset_name = 'RicciDataset'
+    dataset_name = 'LawSchoolDataset'
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
         data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
@@ -125,8 +125,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         data_loader.X_data = data_loader.X_data.drop(['gender', 'race'], axis=1)
 
         # Preprocess the dataset using the defined preprocessor
-        # column_transformer = get_preprocessor_for_diabetes(data_loader)
-        column_transformer = get_simple_preprocessor(data_loader)
+        column_transformer = get_preprocessor_for_diabetes(data_loader)
         base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
         base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
         base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
