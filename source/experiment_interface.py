@@ -197,7 +197,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
                                                      models_config=models_config,
                                                      custom_tbl_fields_dct=custom_table_fields_dct,
                                                      db_writer_func=db_writer_func,
-                                                     verbose=3)
+                                                     verbose=0)
 
     logger.info("Experiment run was successful!")
 
