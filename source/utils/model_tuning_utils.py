@@ -93,8 +93,7 @@ def tune_ML_models(models_params_for_tuning: dict, base_flow_dataset: BaseFlowDa
      models_config is a dict with model tuned params for the metrics computation stage
     """
     if samples_per_fold is None:
-        samples_per_fold = len(base_flow_dataset.y_test) // 3
-#         samples_per_fold = len(base_flow_dataset.y_test)
+        samples_per_fold = len(base_flow_dataset.y_test)
 
     models_config = dict()
     tuned_params_df = pd.DataFrame(columns=('Dataset_Name', 'Model_Name', 'F1_Score', 'Accuracy_Score', 'Model_Best_Params'))
