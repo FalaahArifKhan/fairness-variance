@@ -14,7 +14,7 @@ from source.utils.model_tuning_utils import tune_ML_models
 from source.utils.custom_logger import get_logger
 from source.preprocessing import remove_correlation, remove_correlation_for_mult_test_sets, \
     remove_disparate_impact, get_preprocessor_for_diabetes, preprocess_mult_data_loaders_for_disp_imp, \
-    remove_disparate_impact_with_mult_sets
+    remove_disparate_impact_with_mult_sets, get_simple_preprocessor
 
 
 def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, test_set_fraction,
@@ -186,7 +186,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
                                                      models_config=models_config,
                                                      custom_tbl_fields_dct=custom_table_fields_dct,
                                                      db_writer_func=db_writer_func,
-                                                     verbose=0)
+                                                     verbose=3)
 
     logger.info("Experiment run was successful!")
 
