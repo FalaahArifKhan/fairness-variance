@@ -1,0 +1,5 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Ricci,LGBMClassifier,0.3697,0.5897,"{'max_depth': 3, 'min_data_in_leaf': 100, 'num_leaves': 20}"
+Ricci,LogisticRegression,0.9475,0.9487,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
+Ricci,RandomForestClassifier,0.9475,0.9487,"{'bootstrap': True, 'max_depth': 10, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 100}"
+Ricci,MLPClassifier,0.9475,0.9487,"{'activation': 'logistic', 'learning_rate': 'constant', 'solver': 'adam'}"

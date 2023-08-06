@@ -88,7 +88,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
                                        metrics_computation_config, custom_table_fields_dct,
                                        with_tuning: bool = False, save_results_dir_path: str = None,
                                        tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
-                                       verbose: bool = False):
+                                       verbose: bool = False, dataset_name: str = 'ACSIncomeDataset'):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
     custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
@@ -104,7 +104,6 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
     # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
 
-    dataset_name = 'RicciDataset'
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
         data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
@@ -198,7 +197,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
                                                      models_config=models_config,
                                                      custom_tbl_fields_dct=custom_table_fields_dct,
                                                      db_writer_func=db_writer_func,
-                                                     verbose=0)
+                                                     verbose=3)
 
     logger.info("Experiment run was successful!")
 
