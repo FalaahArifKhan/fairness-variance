@@ -60,6 +60,62 @@ def preprocess_mult_data_loaders_for_disp_imp(data_loaders: list, test_set_fract
     return init_base_flow_dataset, extra_base_flow_datasets
 
 
+def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_group_metrics_per_model_dct: dict,
+                               metrics_value_range_dct: dict, group: str):
+    # Merge subgroup and group metrics for each model and align their columns
+    all_metrics_for_all_models_df = pd.DataFrame()
+    for model_name in all_subgroup_metrics_per_model_dct.keys():
+        group_metrics_per_model_df = all_group_metrics_per_model_dct[model_name][
+            (all_group_metrics_per_model_dct[model_name]['Group'] == group) &
+            (all_group_metrics_per_model_dct[model_name]['Test_Set_Index'] == 0)
+            ]
+        subgroup_metrics_per_model_df = all_subgroup_metrics_per_model_dct[model_name][
+            (all_subgroup_metrics_per_model_dct[model_name]['Subgroup'] == 'overall') &
+            (all_subgroup_metrics_per_model_dct[model_name]['Test_Set_Index'] == 0)
+            ]
+        subgroup_metrics_per_model_df['Group'] = subgroup_metrics_per_model_df['Subgroup']
+        aligned_subgroup_metrics_per_model_df = subgroup_metrics_per_model_df[group_metrics_per_model_df.columns]
+
+        combined_metrics_per_model_df = pd.concat([group_metrics_per_model_df, aligned_subgroup_metrics_per_model_df]).reset_index(drop=True)
+        all_metrics_for_all_models_df = pd.concat([all_metrics_for_all_models_df, combined_metrics_per_model_df])
+
+    all_metrics_for_all_models_df = all_metrics_for_all_models_df.reset_index(drop=True)
+    all_metrics_for_all_models_df = all_metrics_for_all_models_df.drop(['Group', 'Test_Set_Index'], axis=1)
+
+    # Create new columns based on values in Metric and Metric_Value columns
+    pivoted_model_metrics_df = all_metrics_for_all_models_df.pivot(columns='Metric', values='Metric_Value',
+                                                                   index=[col for col in all_metrics_for_all_models_df.columns
+                                                                          if col not in ('Metric', 'Metric_Value')]).reset_index()
+
+    # Create a pandas condition for filtering based on the input value ranges
+    models_in_range_dct = dict()
+    for metric_group, value_range in metrics_value_range_dct.items():
+        pd_condition = None
+        if '&' not in metric_group:
+            min_range_val, max_range_val = value_range
+            if max_range_val < min_range_val:
+                raise ValueError('The second element in the input range must be greater than the first element, '
+                                 'so to be in the following format -- (min_range_val, max_range_val)')
+            metric = metric_group
+            pd_condition = (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
+        else:
+            metrics = metric_group.split('&')
+            for idx, metric in enumerate(metrics):
+                min_range_val, max_range_val = metrics_value_range_dct[metric]
+                if max_range_val < min_range_val:
+                    raise ValueError('The second element in the input range must be greater than the first element, '
+                                     'so to be in the following format -- (min_range_val, max_range_val)')
+                if idx == 0:
+                    pd_condition = (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
+                else:
+                    pd_condition &= (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
+
+        num_satisfied_models = pivoted_model_metrics_df[pd_condition].shape[0]
+        models_in_range_dct[metric_group] = num_satisfied_models
+
+    return models_in_range_dct
+
+
 def remove_disparate_impact(init_base_flow_dataset, alpha):
     """
     Based on this documentation:

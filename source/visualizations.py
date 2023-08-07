@@ -4,6 +4,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from IPython.display import display
 
+from source.preprocessing import create_models_in_range_dct
+
 
 def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
     # Create melted_exp_subgroup_metrics_dct
@@ -219,3 +221,75 @@ def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
     )
 
     return final_chart
+
+
+def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict, all_group_metrics_per_model_dct: dict,
+                                        metrics_value_range_dct: dict, group: str):
+    # Compute the number of models that satisfy the conditions
+    models_in_range_dct = create_models_in_range_dct(all_subgroup_metrics_per_model_dct, all_group_metrics_per_model_dct,
+                                                     metrics_value_range_dct, group)
+    # Replace metric groups on their aliases
+    metric_name_to_alias_dct = {
+        # C1
+        'TPR': 'C1',
+        'TNR': 'C1',
+        'FNR': 'C1',
+        'FPR': 'C1',
+        'PPV': 'C1',
+        'Accuracy': 'C1',
+        'F1': 'C1',
+        # C2
+        'Equalized_Odds_TPR': 'C2',
+        'Equalized_Odds_FPR': 'C2',
+        'Equalized_Odds_FNR': 'C2',
+        'Disparate_Impact': 'C2',
+        'Statistical_Parity_Difference': 'C2',
+        # C3
+        'Std': 'C3',
+        'IQR': 'C3',
+        'Jitter': 'C3',
+        'Label_Stability': 'C3',
+        # C4
+        'IQR_Parity': 'C4',
+        'Label_Stability_Ratio': 'C4',
+        'Std_Parity': 'C4',
+        'Std_Ratio': 'C4',
+        'Jitter_Parity': 'C4',
+    }
+    models_in_range_with_aliases_dct = dict()
+    for metric_group, num_models in models_in_range_dct.items():
+        if '&' not in metric_group:
+            alias = metric_name_to_alias_dct[metric_group]
+            models_in_range_with_aliases_dct[alias] = num_models
+        else:
+            metrics = metric_group.split('&')
+            combined_alias = None
+            for idx, metric in enumerate(metrics):
+                if idx == 0:
+                    combined_alias = metric_name_to_alias_dct[metric]
+                else:
+                    combined_alias += ' & ' + metric_name_to_alias_dct[metric]
+
+            models_in_range_with_aliases_dct[combined_alias] = num_models
+
+    # Create a dataframe with number of models and positions for each label on X axis
+    data_df = pd.DataFrame.from_dict({'Metric Group': list(models_in_range_with_aliases_dct.keys()),
+                                      'Number of Models': list(models_in_range_with_aliases_dct.values())})
+    label_positions_df = pd.DataFrame.from_dict({'Metric Group': ['C1', 'C2', 'C3', 'C4', 'C1 & C2', 'C1 & C3', 'C1 & C4', 'C1 & C2 & C3 & C4'],
+                                                 'Position': [0, 1, 2, 3, 4, 5, 6, 7]})
+    df_for_bar_plot = pd.merge(data_df, label_positions_df, on='Metric Group', how='left')
+
+    bar_plot = alt.Chart(df_for_bar_plot).mark_bar().encode(
+        x=alt.X("Metric Group", type="nominal", axis=alt.Axis(labelAngle=-30),
+                sort=alt.Sort(field='Position', order='ascending')),
+        y=alt.Y("Number of Models", type="quantitative")
+    ).configure_axis(
+        labelFontSize=15 + 2,
+        titleFontSize=15 + 4,
+        labelFontWeight='normal',
+        titleFontWeight='normal',
+    ).configure_title(
+        fontSize=15 + 2
+    ).properties(width=650, height=450)
+
+    return bar_plot
