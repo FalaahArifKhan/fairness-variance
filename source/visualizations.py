@@ -276,14 +276,9 @@ def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict
         lambda row: f'{row["Alias"]} = {row["Metric_Group"]}' if '&' not in row["Alias"] else row["Alias"], axis=1
     )
 
-    # Create a dataframe with number of models and positions for each label on X axis
-    label_positions_df = pd.DataFrame.from_dict({'Metric_Group': ['C1', 'C2', 'C3', 'C4', 'C1 & C2', 'C1 & C3', 'C1 & C4', 'C1 & C2 & C3 & C4'],
-                                                 'Position': [0, 1, 2, 3, 4, 5, 6, 7]})
-    df_for_bar_plot = pd.merge(models_in_range_df, label_positions_df, on='Metric_Group', how='left')
-
-    bar_plot = alt.Chart(df_for_bar_plot).mark_bar().encode(
+    bar_plot = alt.Chart(models_in_range_df).mark_bar().encode(
         x=alt.X("Title", type="nominal", title='Metric Group', axis=alt.Axis(labelAngle=-30),
-                sort=alt.Sort(field='Position', order='ascending')),
+                sort=alt.Sort(order='ascending')),
         y=alt.Y("Number_of_Models", title="Number of Models", type="quantitative"),
         color=alt.Color('Model_Name', legend=alt.Legend(title='Model Name'))
     ).configure_axis(
