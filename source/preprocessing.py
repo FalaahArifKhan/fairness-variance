@@ -88,8 +88,8 @@ def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_gro
                                                                           if col not in ('Metric', 'Metric_Value')]).reset_index()
 
     # Create a pandas condition for filtering based on the input value ranges
-    models_in_range_dct = dict()
-    for metric_group, value_range in metrics_value_range_dct.items():
+    models_in_range_df = pd.DataFrame()
+    for idx, (metric_group, value_range) in enumerate(metrics_value_range_dct.items()):
         pd_condition = None
         if '&' not in metric_group:
             min_range_val, max_range_val = value_range
@@ -110,10 +110,17 @@ def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_gro
                 else:
                     pd_condition &= (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
 
-        num_satisfied_models = pivoted_model_metrics_df[pd_condition].shape[0]
-        models_in_range_dct[metric_group] = num_satisfied_models
+        num_satisfied_models_df = pivoted_model_metrics_df[pd_condition]['Model_Name'].value_counts().reset_index()
+        num_satisfied_models_df.rename(columns = {'Model_Name': 'Number_of_Models'}, inplace = True)
+        num_satisfied_models_df.rename(columns = {'index': 'Model_Name'}, inplace = True)
+        num_satisfied_models_df['Metric_Group'] = metric_group
+        if idx == 0:
+            models_in_range_df = num_satisfied_models_df
+        else:
+            # Concatenate based on rows
+            models_in_range_df = pd.concat([models_in_range_df, num_satisfied_models_df], ignore_index=True, sort=False)
 
-    return models_in_range_dct
+    return models_in_range_df
 
 
 def remove_disparate_impact(init_base_flow_dataset, alpha):

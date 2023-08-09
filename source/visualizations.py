@@ -226,7 +226,7 @@ def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
 def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict, all_group_metrics_per_model_dct: dict,
                                         metrics_value_range_dct: dict, group: str):
     # Compute the number of models that satisfy the conditions
-    models_in_range_dct = create_models_in_range_dct(all_subgroup_metrics_per_model_dct, all_group_metrics_per_model_dct,
+    models_in_range_df = create_models_in_range_dct(all_subgroup_metrics_per_model_dct, all_group_metrics_per_model_dct,
                                                      metrics_value_range_dct, group)
     # Replace metric groups on their aliases
     metric_name_to_alias_dct = {
@@ -256,40 +256,50 @@ def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict
         'Std_Ratio': 'C4',
         'Jitter_Parity': 'C4',
     }
-    models_in_range_with_aliases_dct = dict()
-    for metric_group, num_models in models_in_range_dct.items():
+
+    def get_column_alias(metric_group):
         if '&' not in metric_group:
             alias = metric_name_to_alias_dct[metric_group]
-            models_in_range_with_aliases_dct[alias] = num_models
         else:
             metrics = metric_group.split('&')
-            combined_alias = None
+            alias = None
             for idx, metric in enumerate(metrics):
                 if idx == 0:
-                    combined_alias = metric_name_to_alias_dct[metric]
+                    alias = metric_name_to_alias_dct[metric]
                 else:
-                    combined_alias += ' & ' + metric_name_to_alias_dct[metric]
+                    alias += ' & ' + metric_name_to_alias_dct[metric]
 
-            models_in_range_with_aliases_dct[combined_alias] = num_models
+        return alias
+
+    models_in_range_df['Alias'] = models_in_range_df['Metric_Group'].apply(get_column_alias)
+    models_in_range_df['Title'] = models_in_range_df.apply(
+        lambda row: f'{row["Alias"]} = {row["Metric_Group"]}' if '&' not in row["Alias"] else row["Alias"], axis=1
+    )
 
     # Create a dataframe with number of models and positions for each label on X axis
-    data_df = pd.DataFrame.from_dict({'Metric Group': list(models_in_range_with_aliases_dct.keys()),
-                                      'Number of Models': list(models_in_range_with_aliases_dct.values())})
-    label_positions_df = pd.DataFrame.from_dict({'Metric Group': ['C1', 'C2', 'C3', 'C4', 'C1 & C2', 'C1 & C3', 'C1 & C4', 'C1 & C2 & C3 & C4'],
+    label_positions_df = pd.DataFrame.from_dict({'Metric_Group': ['C1', 'C2', 'C3', 'C4', 'C1 & C2', 'C1 & C3', 'C1 & C4', 'C1 & C2 & C3 & C4'],
                                                  'Position': [0, 1, 2, 3, 4, 5, 6, 7]})
-    df_for_bar_plot = pd.merge(data_df, label_positions_df, on='Metric Group', how='left')
+    df_for_bar_plot = pd.merge(models_in_range_df, label_positions_df, on='Metric_Group', how='left')
 
     bar_plot = alt.Chart(df_for_bar_plot).mark_bar().encode(
-        x=alt.X("Metric Group", type="nominal", axis=alt.Axis(labelAngle=-30),
+        x=alt.X("Title", type="nominal", title='Metric Group', axis=alt.Axis(labelAngle=-30),
                 sort=alt.Sort(field='Position', order='ascending')),
-        y=alt.Y("Number of Models", type="quantitative")
+        y=alt.Y("Number_of_Models", title="Number of Models", type="quantitative"),
+        color=alt.Color('Model_Name', legend=alt.Legend(title='Model Name'))
     ).configure_axis(
         labelFontSize=15 + 2,
         titleFontSize=15 + 4,
         labelFontWeight='normal',
         titleFontWeight='normal',
+        labelLimit=300,
     ).configure_title(
         fontSize=15 + 2
+    ).configure_legend(
+        titleFontSize=17 + 2,
+        labelFontSize=15 + 2,
+        symbolStrokeWidth=4,
+        labelLimit=200,
+        titleLimit=220,
     ).properties(width=650, height=450)
 
     return bar_plot
