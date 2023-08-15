@@ -272,29 +272,33 @@ def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict
         return alias
 
     models_in_range_df['Alias'] = models_in_range_df['Metric_Group'].apply(get_column_alias)
-    models_in_range_df['Title'] = models_in_range_df.apply(
-        lambda row: f'{row["Alias"]} = {row["Metric_Group"]}' if '&' not in row["Alias"] else row["Alias"], axis=1
-    )
+    models_in_range_df['Title'] = models_in_range_df['Alias']
+    # models_in_range_df['Title'] = models_in_range_df.apply(
+    #     lambda row: f'{row["Alias"]} = {row["Metric_Group"]}' if '&' not in row["Alias"] else row["Alias"], axis=1
+    # )
 
+    base_font_size = 25
     bar_plot = alt.Chart(models_in_range_df).mark_bar().encode(
         x=alt.X("Title", type="nominal", title='Metric Group', axis=alt.Axis(labelAngle=-30),
                 sort=alt.Sort(order='ascending')),
         y=alt.Y("Number_of_Models", title="Number of Models", type="quantitative"),
         color=alt.Color('Model_Name', legend=alt.Legend(title='Model Name'))
     ).configure_axis(
-        labelFontSize=15 + 2,
-        titleFontSize=15 + 4,
+        labelFontSize=base_font_size + 2,
+        titleFontSize=base_font_size + 4,
         labelFontWeight='normal',
         titleFontWeight='normal',
         labelLimit=300,
     ).configure_title(
-        fontSize=15 + 2
+        fontSize=base_font_size + 2
     ).configure_legend(
-        titleFontSize=17 + 2,
-        labelFontSize=15 + 2,
+        titleFontSize=base_font_size + 2,
+        labelFontSize=base_font_size,
         symbolStrokeWidth=4,
-        labelLimit=200,
+        labelLimit=300,
         titleLimit=220,
+        orient='none',
+        legendX=345, legendY=10,
     ).properties(width=650, height=450)
 
     return bar_plot
