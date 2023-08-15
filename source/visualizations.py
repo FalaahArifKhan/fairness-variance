@@ -79,7 +79,7 @@ def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
 
 def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: dict, metric_names: list, group: str = 'overall',
                                                ylim: tuple = None, test_set_index: int = 0, vals_to_replace: dict = None):
-    sns.set_style("darkgrid")
+    sns.set_style("whitegrid")
 
     # Create one metrics df with all model_dfs
     all_models_metrics_df = pd.DataFrame()
@@ -108,7 +108,7 @@ def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: 
                     col_order=metric_names,
                     legend=False)
     # Extra configs for the FacetGrid
-    font_increase = 4 if len(metric_names) >= 3 else 0
+    font_increase = 4 if len(metric_names) >= 3 else 6
     g.set_xlabels("")
     g.set_ylabels("Metric Value", fontsize=16 + font_increase)
     g.set_titles(size=14 + font_increase)

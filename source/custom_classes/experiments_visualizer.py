@@ -217,9 +217,9 @@ class ExperimentsVisualizer:
                 titleLimit=300,
                 # columns=1,
                 columns=2,
-                # orient='top',
-                orient='none',
-                legendX=-90, legendY=-100,
+                orient='top',
+                # orient='none',
+                # legendX=-90, legendY=-100,
                 direction='horizontal',
                 titleAnchor='middle'
             ).properties(
