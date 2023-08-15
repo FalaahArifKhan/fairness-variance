@@ -157,20 +157,21 @@ class ExperimentsVisualizer:
 
             subgroups_grid_chart &= row
 
+        base_font_size = 20
         final_grid_chart = (
             subgroups_grid_chart.configure_axis(
-                labelFontSize=15 + 2,
-                titleFontSize=15 + 4,
+                labelFontSize=base_font_size + 2,
+                titleFontSize=base_font_size + 4,
                 labelFontWeight='normal',
                 titleFontWeight='normal',
             ).configure_title(
-                fontSize=15 + 2
+                fontSize=base_font_size + 2
             ).configure_legend(
-                titleFontSize=17 + 2,
-                labelFontSize=15 + 2,
+                titleFontSize=base_font_size + 4,
+                labelFontSize=base_font_size + 2,
                 symbolStrokeWidth=10,
             ).properties(
-                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
+                title=alt.TitleParams(f'{model_name} Model', fontSize=base_font_size + 5, anchor='middle', dy=-10),
             )
         )
 
@@ -199,22 +200,29 @@ class ExperimentsVisualizer:
             color='Group:N',
         )
 
+        base_font_size = 20
         final_grid_chart = (
             line_chart.configure_axis(
-                labelFontSize=15 + 2,
-                titleFontSize=15 + 4,
+                labelFontSize=base_font_size + 4,
+                titleFontSize=base_font_size + 6,
                 labelFontWeight='normal',
                 titleFontWeight='normal',
             ).configure_title(
-                fontSize=15 + 2
+                fontSize=base_font_size + 2
             ).configure_legend(
-                titleFontSize=17 + 2,
-                labelFontSize=15 + 2,
+                titleFontSize=base_font_size + 4,
+                labelFontSize=base_font_size + 2,
                 symbolStrokeWidth=10,
                 labelLimit=300,
                 titleLimit=300,
+                # columns=1,
+                columns=2,
+                # orient='top',
+                orient='none',
+                legendX=-90, legendY=-100,
+                direction='horizontal',
+                titleAnchor='middle'
             ).properties(
-                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
                 width=300,
                 height=300
             )
@@ -260,20 +268,21 @@ class ExperimentsVisualizer:
 
             groups_grid_chart &= row
 
+        base_font_size = 25
         final_grid_chart = (
             groups_grid_chart.configure_axis(
-                labelFontSize=15 + 2,
-                titleFontSize=15 + 4,
+                labelFontSize=base_font_size + 2,
+                titleFontSize=base_font_size + 4,
                 labelFontWeight='normal',
                 titleFontWeight='normal',
             ).configure_title(
-                fontSize=15 + 2
+                fontSize=base_font_size + 2
             ).configure_legend(
-                titleFontSize=17 + 2,
-                labelFontSize=15 + 2,
+                titleFontSize=base_font_size + 4,
+                labelFontSize=base_font_size + 2,
                 symbolStrokeWidth=10,
             ).properties(
-                title=alt.TitleParams(f'{model_name} Model', fontSize=16 + 4, anchor='middle', dy=-10),
+                title=alt.TitleParams(f'{model_name} Model', fontSize=base_font_size + 5, anchor='middle', dy=-10),
             )
         )
 
