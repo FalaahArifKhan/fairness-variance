@@ -125,7 +125,7 @@ def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: 
 
 def create_group_models_box_plot_per_test_set(all_group_metrics_per_model_dct: dict, metric_name: str, group: str = 'overall',
                                               ylim: tuple = None, vals_to_replace: dict = None):
-    sns.set_style("darkgrid")
+    sns.set_style("whitegrid")
 
     # Create one metrics df with all model_dfs
     all_models_metrics_df = pd.DataFrame()
@@ -152,9 +152,9 @@ def create_group_models_box_plot_per_test_set(all_group_metrics_per_model_dct: d
                     col='Test_Set_Index',
                     legend=False)
     # Extra configs for the FacetGrid
-    font_increase = 6
+    font_increase = 8
     g.set_xlabels("")
-    g.set_ylabels("Metric Value", fontsize=16 + font_increase)
+    g.set_ylabels(metric_name, fontsize=16 + font_increase)
     g.set_titles(size=14 + font_increase)
     g.tick_params(labelsize=14 + font_increase)
     g.set(ylim=ylim)
