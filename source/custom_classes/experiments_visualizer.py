@@ -2,6 +2,8 @@ import altair as alt
 import pandas as pd
 import seaborn as sns
 
+from altair.utils.schemapi import Undefined
+
 
 class ExperimentsVisualizer:
     def __init__(self, exp_subgroup_metrics_dct: dict, exp_group_metrics_dct: dict,
@@ -119,7 +121,8 @@ class ExperimentsVisualizer:
 
         self.melted_all_group_metrics_per_model_dct = melted_all_group_metrics_per_model_dct
 
-    def create_subgroup_metrics_line_band_plot(self, model_name: str, subgroup_metrics: list, subgroup: str = 'overall'):
+    def create_subgroup_metrics_line_band_plot(self, model_name: str, subgroup_metrics: list, subgroup: str = 'overall',
+                                               ylim: list = Undefined):
         subgroup_metrics_df = self.melted_all_subgroup_metrics_per_model_dct[model_name]
 
         # Create a grid framing
@@ -141,12 +144,12 @@ class ExperimentsVisualizer:
 
                 line = alt.Chart(subplot_metrics_df).mark_line().encode(
                     x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-                    y=alt.Y('mean(Metric_Value)', type='quantitative', title=subgroup_metrics[metric_idx], scale=alt.Scale(zero=False)),
+                    y=alt.Y('mean(Metric_Value)', type='quantitative', title=subgroup_metrics[metric_idx], scale=alt.Scale(zero=False, domain=ylim)),
                 )
 
                 band = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
                     x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-                    y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx], scale=alt.Scale(zero=False))
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=subgroup_metrics[metric_idx], scale=alt.Scale(zero=False, domain=ylim))
                 )
 
                 base = (band + line).properties(
@@ -230,7 +233,8 @@ class ExperimentsVisualizer:
 
         return final_grid_chart
 
-    def create_group_metrics_line_band_plot(self, group: str, model_name: str, group_metrics: list):
+    def create_group_metrics_line_band_plot(self, group: str, model_name: str, group_metrics: list,
+                                            ylim: list = Undefined):
         group_metrics_df = self.melted_all_group_metrics_per_model_dct[model_name]
 
         # Create a grid framing
@@ -252,12 +256,12 @@ class ExperimentsVisualizer:
 
                 line = alt.Chart(subplot_metrics_df).mark_line().encode(
                     x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-                    y=alt.Y('mean(Metric_Value)', type='quantitative', title=group_metrics[metric_idx], scale=alt.Scale(zero=False)),
+                    y=alt.Y('mean(Metric_Value)', type='quantitative', title=group_metrics[metric_idx], scale=alt.Scale(zero=False, domain=ylim)),
                 )
 
                 band = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
                     x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-                    y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[metric_idx], scale=alt.Scale(zero=False))
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=group_metrics[metric_idx], scale=alt.Scale(zero=False, domain=ylim))
                 )
 
                 base = (band + line).properties(
