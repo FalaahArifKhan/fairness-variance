@@ -29,6 +29,19 @@ def create_ext_subgroup_and_group_metrics_dicts_for_datasets(datasets_db_config:
     return datasets_exp_metrics_dct
 
 
+def create_metrics_df_for_diff_dataset_groups(group_metrics_df, metric_name, dataset_groups_dct, dataset_names):
+    subplot_metrics_df = pd.DataFrame()
+    for dataset_name in dataset_names:
+        dataset_metrics_df = group_metrics_df[
+            (group_metrics_df.Metric == metric_name) &
+            (group_metrics_df.Group == dataset_groups_dct[dataset_name]) &
+            (group_metrics_df.Dataset_Name == dataset_name)
+            ]
+        subplot_metrics_df = pd.concat([subplot_metrics_df, dataset_metrics_df])
+
+    return subplot_metrics_df
+
+
 def create_melted_subgroup_and_group_dicts(exp_subgroup_metrics_dct, exp_group_metrics_dct):
     # Create melted_exp_subgroup_metrics_dct
     melted_exp_subgroup_metrics_dct = dict()

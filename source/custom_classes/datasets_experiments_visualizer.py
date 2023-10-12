@@ -4,7 +4,7 @@ import seaborn as sns
 
 from altair.utils.schemapi import Undefined
 
-from source.utils.data_vis_utils import create_melted_subgroup_and_group_dicts
+from source.utils.data_vis_utils import create_melted_subgroup_and_group_dicts, create_metrics_df_for_diff_dataset_groups
 
 
 class DatasetsExperimentsVisualizer:
@@ -89,19 +89,17 @@ class DatasetsExperimentsVisualizer:
         self.melted_all_datasets_subgroup_metrics_per_model_dct = melted_all_datasets_subgroup_metrics_per_model_dct
         self.melted_all_datasets_group_metrics_per_model_dct = melted_all_datasets_group_metrics_per_model_dct
 
-    def create_overall_metric_line_bands_per_dataset_plot(self, model_name: str, metric_name: str,
-                                                          dataset_names: list = None, ylim=Undefined, with_band=True):
-        group = 'overall'
-        if dataset_names is None:
-            dataset_names = self.dataset_names
+    def create_group_metric_line_bands_per_dataset_plot(self, model_name: str, metric_type: str, metric_name: str,
+                                                        dataset_groups_dct: dict, ylim=Undefined, with_band=True):
+        if metric_type == 'subgroup':
+            group_metrics_df = self.melted_all_datasets_subgroup_metrics_per_model_dct[model_name]
+            group_metrics_df['Group'] = group_metrics_df['Subgroup']
+        else:
+            group_metrics_df = self.melted_all_datasets_group_metrics_per_model_dct[model_name]
 
-        group_metrics_df = self.melted_all_datasets_subgroup_metrics_per_model_dct[model_name]
-        subplot_metrics_df = group_metrics_df[
-            (group_metrics_df.Metric == metric_name) &
-            (group_metrics_df.Subgroup == group) &
-            (group_metrics_df.Dataset_Name.isin(dataset_names))
-            ]
-
+        dataset_names = list(dataset_groups_dct.keys())
+        subplot_metrics_df = create_metrics_df_for_diff_dataset_groups(group_metrics_df, metric_name,
+                                                                       dataset_groups_dct, dataset_names)
         line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
             x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
             y=alt.Y('mean(Metric_Value)', type='quantitative', title='', scale=alt.Scale(zero=False, domain=ylim)),
