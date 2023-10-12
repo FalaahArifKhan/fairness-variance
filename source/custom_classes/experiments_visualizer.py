@@ -180,6 +180,64 @@ class ExperimentsVisualizer:
 
         return final_grid_chart
 
+    def create_line_bands_per_group_metric_lst_plot(self, model_name: str, group_metrics: list,
+                                                    group: str, metric_type: str, ylim=Undefined, with_band=True):
+        if metric_type == 'subgroup':
+            group_metrics_df = self.melted_all_subgroup_metrics_per_model_dct[model_name]
+            group_metrics_df['Group'] = group_metrics_df['Subgroup']
+        else:
+            group_metrics_df = self.melted_all_group_metrics_per_model_dct[model_name]
+
+        subplot_metrics_df = group_metrics_df[
+            (group_metrics_df.Metric.isin(group_metrics)) &
+            (group_metrics_df.Group == group)
+            ]
+
+        line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
+            x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+            y=alt.Y('mean(Metric_Value)', type='quantitative', title='', scale=alt.Scale(zero=False, domain=ylim)),
+            color='Metric:N',
+        )
+        if with_band:
+            band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
+                x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+                y=alt.Y(field='Metric_Value', type='quantitative', title='', scale=alt.Scale(zero=False, domain=ylim)),
+                color='Metric:N',
+            )
+            base_chart = (band_chart + line_chart)
+        else:
+            base_chart = line_chart
+
+        base_font_size = 20
+        final_grid_chart = (
+            base_chart.configure_axis(
+                labelFontSize=base_font_size + 4,
+                titleFontSize=base_font_size + 6,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
+            ).configure_title(
+                fontSize=base_font_size + 2
+            ).configure_legend(
+                titleFontSize=base_font_size + 4,
+                labelFontSize=base_font_size + 2,
+                symbolStrokeWidth=10,
+                labelLimit=300,
+                titleLimit=300,
+                # columns=1,
+                columns=2,
+                orient='top',
+                # orient='none',
+                # legendX=-90, legendY=-100,
+                direction='horizontal',
+                titleAnchor='middle'
+            ).properties(
+                width=300,
+                height=300
+            )
+        )
+
+        return final_grid_chart
+
     def create_line_bands_per_group_metric_plot(self, model_name: str, group_metric: str, group: str, metric_type: str):
         """
         :param metric_type: 'group' or 'subgroup'
