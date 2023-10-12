@@ -141,3 +141,88 @@ class DatasetsExperimentsVisualizer:
         )
 
         return final_grid_chart
+
+    def create_correct_incorrect_groups_grid(self, model_name: str, metric_type: str, metric_name: str,
+                                             dataset_groups_dct: dict, ylim: list = Undefined):
+        if metric_type == 'subgroup':
+            group_metrics_df = self.melted_all_datasets_subgroup_metrics_per_model_dct[model_name]
+            group_metrics_df['Group'] = group_metrics_df['Subgroup']
+        else:
+            group_metrics_df = self.melted_all_datasets_group_metrics_per_model_dct[model_name]
+
+        dataset_names = list(dataset_groups_dct.keys())
+        subgroup_metrics_df = pd.DataFrame()
+        for dataset_name in dataset_names:
+            dataset_group = dataset_groups_dct[dataset_name]
+            dataset_groups = [dataset_group + suffix for suffix in ['_priv_correct', '_dis_correct',
+                                                                    '_priv_incorrect', '_dis_incorrect']]
+            dataset_metrics_df = group_metrics_df[
+                (group_metrics_df.Metric == metric_name) &
+                (group_metrics_df.Group.isin(dataset_groups)) &
+                (group_metrics_df.Dataset_Name == dataset_name)
+                ]
+            splitted_column = dataset_metrics_df.Group.str.split('_')
+            dataset_metrics_df['Trimmed_Group'] = splitted_column.str[-2] + '_' + splitted_column.str[-1]
+            subgroup_metrics_df = pd.concat([subgroup_metrics_df, dataset_metrics_df])
+
+        # Create a grid framing
+        row_len = 2
+        div_val, mod_val = divmod(len(dataset_names), row_len)
+        grid_framing = [row_len] * div_val + [mod_val] if mod_val != 0 else [row_len] * div_val
+
+        groups_grid_chart = alt.vconcat()
+        dataset_idx = -1
+        for num_subplots in grid_framing:
+            row = alt.hconcat()
+            for i in range(num_subplots):
+                dataset_idx += 1
+                subplot_metrics_df = subgroup_metrics_df[
+                    (subgroup_metrics_df.Metric == metric_name) &
+                    (subgroup_metrics_df.Dataset_Name == dataset_names[dataset_idx])
+                    ]
+
+                line = alt.Chart(subplot_metrics_df).mark_line().encode(
+                    x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+                    y=alt.Y('mean(Metric_Value)', type='quantitative', title=dataset_names[dataset_idx],
+                            scale=alt.Scale(zero=False, domain=ylim)),
+                    color=alt.Color('Trimmed_Group:N', legend=alt.Legend(title='Group'))
+                )
+                band = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
+                    x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
+                    y=alt.Y(field='Metric_Value', type='quantitative', title=dataset_names[dataset_idx],
+                            scale=alt.Scale(zero=False, domain=ylim)),
+                    color=alt.Color('Trimmed_Group:N', legend=alt.Legend(title='Group'))
+                )
+                base = (band + line).properties(
+                    width=280, height=280
+                )
+
+                row |= base
+
+            groups_grid_chart &= row
+
+        base_font_size = 20
+        final_grid_chart = (
+            groups_grid_chart.configure_axis(
+                labelFontSize=base_font_size + 2,
+                titleFontSize=base_font_size + 4,
+                labelFontWeight='normal',
+                titleFontWeight='normal',
+            ).configure_title(
+                fontSize=base_font_size + 2
+            ).configure_legend(
+                titleFontSize=base_font_size + 4,
+                labelFontSize=base_font_size + 2,
+                symbolStrokeWidth=10,
+                labelLimit=300,
+                titleLimit=400,
+                columns=4,
+                orient='top',
+                direction='horizontal',
+                titleAnchor='middle'
+            ).properties(
+                title=alt.TitleParams(f'{model_name} Model', fontSize=base_font_size + 5, anchor='middle', dy=-10),
+            )
+        )
+
+        return final_grid_chart
