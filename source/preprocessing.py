@@ -47,8 +47,7 @@ def preprocess_mult_data_loaders_for_disp_imp(data_loaders: list, test_set_fract
         cur_data_loader.X_data = cur_data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
         # Preprocess the dataset using the defined preprocessor
-        # column_transformer = get_simple_preprocessor(cur_data_loader)
-        column_transformer = get_preprocessor_for_diabetes(cur_data_loader)
+        column_transformer = get_simple_preprocessor(cur_data_loader)
         cur_base_flow_dataset = preprocess_dataset(cur_data_loader, column_transformer, test_set_fraction, experiment_seed)
         cur_base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
         cur_base_flow_dataset.X_train_val['RACE'] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_train_val.index, 'RACE']

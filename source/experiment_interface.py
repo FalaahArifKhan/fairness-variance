@@ -243,7 +243,7 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
             date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")
             os.makedirs(save_results_dir_path, exist_ok=True)
             tuned_df_path = os.path.join(save_results_dir_path,
-                                         f'tuning_results_{metrics_computation_config.dataset_name}_alpha_{intervention_param}_{date_time_str}.csv')
+                                         f'tuning_results_{metrics_computation_config.dataset_name}_alpha_{intervention_param}_{custom_table_fields_dct["experiment_iteration"].lower()}_{date_time_str}.csv')
             tuned_params_df.to_csv(tuned_df_path, sep=",", columns=tuned_params_df.columns, float_format="%.4f", index=False)
             logger.info("Models are tuned and saved to a file")
         else:
