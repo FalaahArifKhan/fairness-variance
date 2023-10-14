@@ -212,7 +212,8 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
     print('\n', flush=True)
 
     init_base_flow_dataset, extra_base_flow_datasets = \
-        preprocess_mult_data_loaders_for_disp_imp(data_loaders=[data_loader] + extra_data_loaders,
+        preprocess_mult_data_loaders_for_disp_imp(main_data_loader=data_loader,
+                                                  extra_data_loaders=extra_data_loaders,
                                                   test_set_fraction=test_set_fraction,
                                                   experiment_seed=experiment_seed)
     if verbose:
@@ -231,6 +232,7 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
         cur_base_flow_dataset, cur_extra_test_sets =\
             remove_disparate_impact_with_mult_sets(init_base_flow_dataset, alpha=intervention_param,
                                                    init_extra_base_flow_datasets=extra_base_flow_datasets)
+        print('cur_extra_test_sets[0].shape -- ', cur_extra_test_sets[0][0].shape)
 
         # Tune model parameters if needed
         if with_tuning:
