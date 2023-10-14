@@ -14,7 +14,7 @@ from source.utils.model_tuning_utils import tune_ML_models
 from source.utils.custom_logger import get_logger
 from source.preprocessing import remove_correlation, remove_correlation_for_mult_test_sets, \
     remove_disparate_impact, get_preprocessor_for_diabetes, preprocess_mult_data_loaders_for_disp_imp, \
-    remove_disparate_impact_with_mult_sets, get_simple_preprocessor
+    remove_disparate_impact_with_mult_sets, get_simple_preprocessor, lfr
 
 
 def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, test_set_fraction,
@@ -32,9 +32,6 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
     logger.info(f"Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
-
-    # Set seeds for metrics computation
-    metrics_computation_config.runs_seed_lst = [experiment_seed + i for i in range(1, metrics_computation_config.num_runs + 1)]
 
     # Preprocess the dataset using the defined preprocessor
     base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
@@ -98,9 +95,6 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
-    # Set seeds for metrics computation
-    metrics_computation_config.runs_seed_lst = [experiment_seed + i for i in range(1, metrics_computation_config.num_runs + 1)]
-
     # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
 
@@ -156,6 +150,23 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
         base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
 
+    elif dataset_name == 'StudentPerformance':
+        # TODO add age as sensitive attribute
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if
+                                           col not in ('sex')]
+        data_loader.X_data['sex_binary'] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
+
+        # Preprocess the dataset using the defined preprocessor
+        column_transformer = get_simple_preprocessor(data_loader)
+        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1,
+                                                                           errors='ignore')
+        base_flow_dataset.X_train_val['sex_binary'] = data_loader.X_data.loc[
+            base_flow_dataset.X_train_val.index, 'sex_binary']
+        base_flow_dataset.X_test['sex_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'sex_binary']
+
     if verbose:
         logger.info("The dataset is preprocessed")
         print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
@@ -169,7 +180,8 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         custom_table_fields_dct['intervention_param'] = intervention_param
 
         # Fair preprocessing
-        cur_base_flow_dataset = remove_disparate_impact(base_flow_dataset, alpha=intervention_param)
+        # cur_base_flow_dataset = remove_disparate_impact(base_flow_dataset, alpha=intervention_param)
+        cur_base_flow_dataset = lfr(base_flow_dataset)
 
         # Tune model parameters if needed
         if with_tuning:
@@ -216,9 +228,6 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
     logger.info(f"Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
-
-    # Set seeds for metrics computation
-    metrics_computation_config.runs_seed_lst = [experiment_seed + i for i in range(1, metrics_computation_config.num_runs + 1)]
 
     init_base_flow_dataset, extra_base_flow_datasets = \
         preprocess_mult_data_loaders_for_disp_imp(data_loaders=[data_loader] + extra_data_loaders,
@@ -289,9 +298,6 @@ def run_exp_iter_with_mult_set_and_preprocessing_intervention(data_loader, exper
     logger.info(f"Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
-
-    # Legacy, ignore for now
-    metrics_computation_config.runs_seed_lst = [experiment_seed]
 
     # Preprocess the dataset using the defined preprocessor
     base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
