@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-StudentPerformance,RandomForestClassifier,1.0000,1.0000,{'n_estimators': 100}

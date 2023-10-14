@@ -7,7 +7,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer
 from fairlearn.preprocessing import CorrelationRemover
 from aif360.datasets import BinaryLabelDataset
-from aif360.algorithms.preprocessing import DisparateImpactRemover, LFR
+from aif360.algorithms.preprocessing import DisparateImpactRemover
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
 
@@ -121,43 +121,6 @@ def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_gro
             models_in_range_df = pd.concat([models_in_range_df, num_satisfied_models_df], ignore_index=True, sort=False)
 
     return models_in_range_df
-
-
-def lfr(init_base_flow_dataset):
-    base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
-    sensitive_attribute = 'sex_binary'
-    train_df = base_flow_dataset.X_train_val
-    train_df[base_flow_dataset.target] = base_flow_dataset.y_train_val
-    test_df = base_flow_dataset.X_test
-    test_df[base_flow_dataset.target] = base_flow_dataset.y_test
-
-    privileged_group = [{'sex_binary': 1}]
-    unprivileged_group = [{'sex_binary': 0}]
-
-    lfr = LFR(unprivileged_group, privileged_group)
-
-    train_binary_dataset = BinaryLabelDataset(df=train_df,
-                                              label_names=[base_flow_dataset.target],
-                                              protected_attribute_names=[sensitive_attribute],
-                                              favorable_label=1,
-                                              unfavorable_label=0)
-    test_binary_dataset = BinaryLabelDataset(df=test_df,
-                                             label_names=[base_flow_dataset.target],
-                                             protected_attribute_names=[sensitive_attribute],
-                                             favorable_label=1,
-                                             unfavorable_label=0)
-
-    train_repaired_df, _ = lfr.fit_transform(train_binary_dataset).convert_to_dataframe()
-    test_repaired_df, _ = lfr.fit_transform(test_binary_dataset).convert_to_dataframe()
-    train_repaired_df.index = train_repaired_df.index.astype(dtype='int64')
-    test_repaired_df.index = test_repaired_df.index.astype(dtype='int64')
-
-    base_flow_dataset.X_train_val = train_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
-    base_flow_dataset.y_train_val = train_repaired_df[base_flow_dataset.target]
-    base_flow_dataset.X_test = test_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
-    base_flow_dataset.y_test = test_repaired_df[base_flow_dataset.target]
-
-    return base_flow_dataset
 
 
 def remove_disparate_impact(init_base_flow_dataset, alpha):
