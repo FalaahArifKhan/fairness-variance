@@ -201,6 +201,7 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
                                                      metrics_computation_config, custom_table_fields_dct,
                                                      with_tuning: bool = False, save_results_dir_path: str = None,
                                                      tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
+                                                     samples_per_fold: int = None, train_set_subsample_size: int = None,
                                                      verbose: bool = False):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
@@ -215,7 +216,8 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
         preprocess_mult_data_loaders_for_disp_imp(main_data_loader=data_loader,
                                                   extra_data_loaders=extra_data_loaders,
                                                   test_set_fraction=test_set_fraction,
-                                                  experiment_seed=experiment_seed)
+                                                  experiment_seed=experiment_seed,
+                                                  train_set_subsample_size=train_set_subsample_size)
     if verbose:
         logger.info("The dataset is preprocessed")
         print("Top indexes of an X_test in a base flow dataset: ", init_base_flow_dataset.X_test.index[:20])
@@ -239,7 +241,8 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
             # Tune models and create a models config for metrics computation
             tuned_params_df, models_config = tune_ML_models(models_params_for_tuning, cur_base_flow_dataset,
                                                             metrics_computation_config.dataset_name,
-                                                            n_folds=num_folds_for_tuning)
+                                                            n_folds=num_folds_for_tuning,
+                                                            samples_per_fold=samples_per_fold)
 
             # Create models_config from the saved tuned_params_df for higher reliability
             date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")

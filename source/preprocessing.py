@@ -14,6 +14,8 @@ from virny.datasets.data_loaders import BaseDataLoader
 from virny.custom_classes.base_dataset import BaseFlowDataset
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
+from IPython.display import display
+
 
 def get_simple_preprocessor(data_loader):
     return ColumnTransformer(transformers=[
@@ -41,7 +43,8 @@ def create_extra_test_sets(extra_data_loaders: list, column_transformer, test_se
 
 
 def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_transformer: ColumnTransformer,
-                                            test_set_fraction: float, dataset_split_seed: int):
+                                            test_set_fraction: float, dataset_split_seed: int,
+                                            train_set_subsample_size: int = None):
     if test_set_fraction < 0.0 or test_set_fraction > 1.0:
         raise ValueError("test_set_fraction must be a float in the [0.0-1.0] range")
 
@@ -49,11 +52,25 @@ def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_
     X_train_val, X_test, y_train_val, y_test = train_test_split(data_loader.X_data, data_loader.y_data,
                                                                 test_size=test_set_fraction,
                                                                 random_state=dataset_split_seed)
+    # Subsample X_train_val, y_train_val, and data_loader.full_df to train_set_subsample_size if defined
+    full_df = data_loader.full_df
+    if train_set_subsample_size is not None:
+        X_train_val = X_train_val.sample(train_set_subsample_size, random_state=dataset_split_seed)
+        y_train_val = y_train_val.sample(train_set_subsample_size, random_state=dataset_split_seed)
+        full_df = full_df.iloc[list(X_train_val.index) + list(X_test.index)]
+        print('X_train_val.shape -- ', X_train_val.shape)
+        print('X_test.shape -- ', X_test.shape)
+        print('full_df.shape -- ', full_df.shape)
+        print('X_train_val display:')
+        display(X_train_val.head(10))
+        print('full_df display:')
+        display(full_df.head(10))
+
     column_transformer = column_transformer.set_output(transform="pandas")  # Set transformer output to a pandas df
     X_train_features = column_transformer.fit_transform(X_train_val)
     X_test_features = column_transformer.transform(X_test)
 
-    base_flow_dataset = BaseFlowDataset(init_features_df=data_loader.full_df.drop(data_loader.target, axis=1, errors='ignore'),
+    base_flow_dataset = BaseFlowDataset(init_features_df=full_df.drop(data_loader.target, axis=1, errors='ignore'),
                                         X_train_val=X_train_features,
                                         X_test=X_test_features,
                                         y_train_val=y_train_val,
@@ -64,8 +81,8 @@ def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_
     return base_flow_dataset, column_transformer
 
 
-def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loaders: list,
-                                              test_set_fraction: float, experiment_seed: int):
+def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loaders: list, test_set_fraction: float,
+                                              experiment_seed: int, train_set_subsample_size: int):
     data_loaders = [main_data_loader] + extra_data_loaders
     init_data_loaders = [copy.deepcopy(dl) for dl in data_loaders]
 
@@ -83,16 +100,27 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
     # Preprocess the main dataset using the defined preprocessor
     column_transformer = get_simple_preprocessor(main_transformed_data_loader)
     main_base_flow_dataset, trained_column_transformer = (
-        preprocess_dataset_with_col_transformer(main_transformed_data_loader, column_transformer,
-                                                test_set_fraction, experiment_seed))
-    main_base_flow_dataset.init_features_df = init_data_loaders[0].full_df.drop(init_data_loaders[0].target, axis=1, errors='ignore')
+        preprocess_dataset_with_col_transformer(data_loader=main_transformed_data_loader,
+                                                column_transformer=column_transformer,
+                                                test_set_fraction=test_set_fraction,
+                                                dataset_split_seed=experiment_seed,
+                                                train_set_subsample_size=train_set_subsample_size))
+    # Subsample main_base_flow_dataset.init_features_df if train_set_subsample_size is defined
+    if train_set_subsample_size is not None:
+        subsampled_full_df = init_data_loaders[0].full_df.iloc[list(main_base_flow_dataset.X_train_val.index) +
+                                                               list(main_base_flow_dataset.X_test.index)]
+        main_base_flow_dataset.init_features_df = subsampled_full_df.drop(init_data_loaders[0].target, axis=1, errors='ignore')
+    else:
+        main_base_flow_dataset.init_features_df = init_data_loaders[0].full_df.drop(init_data_loaders[0].target, axis=1, errors='ignore')
+
+    print('main_base_flow_dataset.init_features_df.shape -- ', main_base_flow_dataset.init_features_df.shape)
     main_base_flow_dataset.X_train_val['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_train_val.index, 'RACE']
     main_base_flow_dataset.X_test['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_test.index, 'RACE']
 
     # Preprocess extra data loaders using the column transformer trained on the main data loader
     extra_base_flow_datasets = []
     for idx, cur_data_loader in enumerate(extra_transformed_data_loaders):
-        init_data_loader = init_data_loaders[idx + 1] # Skip the main init data loader
+        cur_init_data_loader = init_data_loaders[idx + 1] # Skip the main init data loader
         # Preprocess the current extra dataset using the trained preprocessor
         X_data_features = trained_column_transformer.transform(cur_data_loader.X_data)
         cur_base_flow_dataset = BaseFlowDataset(init_features_df=cur_data_loader.full_df.drop(cur_data_loader.target, axis=1, errors='ignore'),
@@ -104,7 +132,7 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
                                                 numerical_columns=cur_data_loader.numerical_columns,
                                                 categorical_columns=cur_data_loader.categorical_columns)
 
-        cur_base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+        cur_base_flow_dataset.init_features_df = cur_init_data_loader.full_df.drop(cur_init_data_loader.target, axis=1, errors='ignore')
         cur_base_flow_dataset.X_test['RACE'] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_test.index, 'RACE']
         extra_base_flow_datasets.append(cur_base_flow_dataset)
 
@@ -286,7 +314,7 @@ def remove_disparate_impact_with_mult_sets(init_base_flow_dataset, alpha, init_e
 
         extra_X_test = test_repaired_df.drop([aligned_ds.target, sensitive_attribute], axis=1)
         extra_y_test = test_repaired_df[aligned_ds.target]
-        extra_test_sets.append((extra_X_test, extra_y_test))
+        extra_test_sets.append((extra_X_test, extra_y_test, aligned_ds.init_features_df))
 
     return main_base_flow_dataset, extra_test_sets
 
