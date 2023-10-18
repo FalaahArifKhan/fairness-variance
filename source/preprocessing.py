@@ -14,8 +14,6 @@ from virny.datasets.data_loaders import BaseDataLoader
 from virny.custom_classes.base_dataset import BaseFlowDataset
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
-from IPython.display import display
-
 
 def get_simple_preprocessor(data_loader):
     return ColumnTransformer(transformers=[
@@ -61,10 +59,6 @@ def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_
         print('X_train_val.shape -- ', X_train_val.shape)
         print('X_test.shape -- ', X_test.shape)
         print('full_df.shape -- ', full_df.shape)
-        print('X_train_val display:')
-        display(X_train_val.head(10))
-        print('full_df display:')
-        display(full_df.head(10))
 
     column_transformer = column_transformer.set_output(transform="pandas")  # Set transformer output to a pandas df
     X_train_features = column_transformer.fit_transform(X_train_val)
