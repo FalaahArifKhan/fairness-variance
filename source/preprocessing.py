@@ -56,10 +56,8 @@ def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_
         X_train_val = X_train_val.sample(train_set_subsample_size, random_state=dataset_split_seed)
         y_train_val = y_train_val.sample(train_set_subsample_size, random_state=dataset_split_seed)
         full_df = full_df.iloc[list(X_train_val.index) + list(X_test.index)]
-        print('X_train_val.shape -- ', X_train_val.shape)
-        print('X_test.shape -- ', X_test.shape)
-        print('full_df.shape -- ', full_df.shape)
 
+    print('In-domain full_df.shape -- ', full_df.shape)
     column_transformer = column_transformer.set_output(transform="pandas")  # Set transformer output to a pandas df
     X_train_features = column_transformer.fit_transform(X_train_val)
     X_test_features = column_transformer.transform(X_test)
@@ -107,27 +105,37 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
     else:
         main_base_flow_dataset.init_features_df = init_data_loaders[0].full_df.drop(init_data_loaders[0].target, axis=1, errors='ignore')
 
-    print('main_base_flow_dataset.init_features_df.shape -- ', main_base_flow_dataset.init_features_df.shape)
     main_base_flow_dataset.X_train_val['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_train_val.index, 'RACE']
     main_base_flow_dataset.X_test['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_test.index, 'RACE']
+    print('In-domain init_features_df.shape -- ', main_base_flow_dataset.init_features_df.shape)
+    print('In-domain X_train_val.shape -- ', main_base_flow_dataset.X_train_val.shape)
+    print('In-domain X_test.shape -- ', main_base_flow_dataset.X_test.shape)
 
     # Preprocess extra data loaders using the column transformer trained on the main data loader
     extra_base_flow_datasets = []
     for idx, cur_data_loader in enumerate(extra_transformed_data_loaders):
         cur_init_data_loader = init_data_loaders[idx + 1] # Skip the main init data loader
+        cur_X_train_val, cur_X_test, cur_y_train_val, cur_y_test =\
+            train_test_split(cur_data_loader.X_data, cur_data_loader.y_data,
+                             test_size=test_set_fraction,
+                             random_state=experiment_seed)
         # Preprocess the current extra dataset using the trained preprocessor
-        X_data_features = trained_column_transformer.transform(cur_data_loader.X_data)
+        cur_X_test_features = trained_column_transformer.transform(cur_X_test)
         cur_base_flow_dataset = BaseFlowDataset(init_features_df=cur_data_loader.full_df.drop(cur_data_loader.target, axis=1, errors='ignore'),
                                                 X_train_val=pd.DataFrame(), # As an empty df
-                                                X_test=X_data_features,
+                                                X_test=cur_X_test_features,
                                                 y_train_val=pd.DataFrame(), # As an empty df
-                                                y_test=cur_data_loader.y_data,
+                                                y_test=cur_y_test,
                                                 target=cur_data_loader.target,
                                                 numerical_columns=cur_data_loader.numerical_columns,
                                                 categorical_columns=cur_data_loader.categorical_columns)
 
         cur_base_flow_dataset.init_features_df = cur_init_data_loader.full_df.drop(cur_init_data_loader.target, axis=1, errors='ignore')
         cur_base_flow_dataset.X_test['RACE'] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_test.index, 'RACE']
+        print(f'Out-of-domain {idx + 1} init_features_df.shape -- ', cur_base_flow_dataset.init_features_df.shape)
+        print(f'Out-of-domain {idx + 1} X_train_val.shape -- ', cur_base_flow_dataset.X_train_val.shape)
+        print(f'Out-of-domain {idx + 1} X_test.shape -- ', cur_base_flow_dataset.X_test.shape)
+
         extra_base_flow_datasets.append(cur_base_flow_dataset)
 
     return main_base_flow_dataset, extra_base_flow_datasets

@@ -212,16 +212,14 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
+    logger.info("Start dataset preprocessing")
     init_base_flow_dataset, extra_base_flow_datasets = \
         preprocess_mult_data_loaders_for_disp_imp(main_data_loader=data_loader,
                                                   extra_data_loaders=extra_data_loaders,
                                                   test_set_fraction=test_set_fraction,
                                                   experiment_seed=experiment_seed,
                                                   train_set_subsample_size=train_set_subsample_size)
-    if verbose:
-        logger.info("The dataset is preprocessed")
-        print("Top indexes of an X_test in a base flow dataset: ", init_base_flow_dataset.X_test.index[:20])
-        print("Top indexes of an y_test in a base flow dataset: ", init_base_flow_dataset.y_test.index[:20])
+    logger.info("The dataset is preprocessed")
 
     for intervention_idx, intervention_param in tqdm(enumerate(fair_intervention_params_lst),
                                                      total=len(fair_intervention_params_lst),
@@ -231,10 +229,20 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
         custom_table_fields_dct['intervention_param'] = intervention_param
 
         # Fair preprocessing
+        logger.info("Start fairness intervention")
         cur_base_flow_dataset, cur_extra_test_sets =\
-            remove_disparate_impact_with_mult_sets(init_base_flow_dataset, alpha=intervention_param,
+            remove_disparate_impact_with_mult_sets(init_base_flow_dataset,
+                                                   alpha=intervention_param,
                                                    init_extra_base_flow_datasets=extra_base_flow_datasets)
-        print('cur_extra_test_sets[0].shape -- ', cur_extra_test_sets[0][0].shape)
+        logger.info("Fairness intervention is completed")
+        if verbose:
+            print('Shape of in-domain X_test', cur_base_flow_dataset.X_test.shape, flush=True)
+            print("Top indexes of an X_test in an in-domain base flow dataset: ", cur_base_flow_dataset.X_test.index[:20], flush=True)
+            print("Top indexes of an y_test in an in-domain base flow dataset: ", cur_base_flow_dataset.y_test.index[:20], flush=True)
+            print('\n\n', flush=True)
+            print('Shape of out-of-domain X_test', cur_extra_test_sets[0][0].shape, flush=True)
+            print("Top indexes of an X_test in an out-of-domain base flow dataset: ", cur_extra_test_sets[0][0].index[:20], flush=True)
+            print("Top indexes of an y_test in an out-of-domain base flow dataset: ", cur_extra_test_sets[0][1].index[:20], flush=True)
 
         # Tune model parameters if needed
         if with_tuning:

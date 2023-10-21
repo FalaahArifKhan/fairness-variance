@@ -100,14 +100,14 @@ def tune_ML_models(models_params_for_tuning: dict, base_flow_dataset: BaseFlowDa
     # Find the most optimal hyperparameters based on accuracy and F1-score for each model in models_config
     for model_idx, (model_name, model_params) in enumerate(models_params_for_tuning.items()):
         try:
-            print(f"{datetime.now().strftime('%Y/%m/%d, %H:%M:%S')}: Tuning {model_name}...")
+            print(f"{datetime.now().strftime('%Y/%m/%d, %H:%M:%S')}: Tuning {model_name}...", flush=True)
             cur_model, cur_f1_score, cur_accuracy, cur_params = validate_model(deepcopy(model_params['model']),
                                                                                base_flow_dataset.X_train_val,
                                                                                base_flow_dataset.y_train_val,
                                                                                model_params['params'],
                                                                                n_folds, samples_per_fold)
             print(f'{datetime.now().strftime("%Y/%m/%d, %H:%M:%S")}: Tuning for {model_name} is finished '
-                  f'[F1 score = {cur_f1_score}, Accuracy = {cur_accuracy}]\n')
+                  f'[F1 score = {cur_f1_score}, Accuracy = {cur_accuracy}]\n', flush=True)
 
         except Exception as err:
             print(f"ERROR with {model_name}: ", err)
