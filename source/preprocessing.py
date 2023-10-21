@@ -108,8 +108,8 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
     main_base_flow_dataset.X_train_val['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_train_val.index, 'RACE']
     main_base_flow_dataset.X_test['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_test.index, 'RACE']
     print('In-domain init_features_df.shape -- ', main_base_flow_dataset.init_features_df.shape)
-    print('In-domain X_train_val.shape -- ', main_base_flow_dataset.X_train_val.shape)
-    print('In-domain X_test.shape -- ', main_base_flow_dataset.X_test.shape)
+    print('In-domain number of rows in X_train_val -- ', main_base_flow_dataset.X_train_val.shape[0])
+    print('In-domain number of rows in X_test -- ', main_base_flow_dataset.X_test.shape[0])
 
     # Preprocess extra data loaders using the column transformer trained on the main data loader
     extra_base_flow_datasets = []
@@ -133,8 +133,8 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
         cur_base_flow_dataset.init_features_df = cur_init_data_loader.full_df.drop(cur_init_data_loader.target, axis=1, errors='ignore')
         cur_base_flow_dataset.X_test['RACE'] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_test.index, 'RACE']
         print(f'Out-of-domain {idx + 1} init_features_df.shape -- ', cur_base_flow_dataset.init_features_df.shape)
-        print(f'Out-of-domain {idx + 1} X_train_val.shape -- ', cur_base_flow_dataset.X_train_val.shape)
-        print(f'Out-of-domain {idx + 1} X_test.shape -- ', cur_base_flow_dataset.X_test.shape)
+        print(f'Out-of-domain {idx + 1} number of rows in X_train_val -- ', cur_base_flow_dataset.X_train_val.shape[0])
+        print(f'Out-of-domain {idx + 1} number of rows in X_test -- ', cur_base_flow_dataset.X_test.shape[0])
 
         extra_base_flow_datasets.append(cur_base_flow_dataset)
 
