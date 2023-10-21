@@ -4,6 +4,7 @@ from pprint import pprint
 from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
+from IPython.display import display
 
 from virny.user_interfaces.metrics_computation_interfaces import compute_metrics_multiple_runs_with_db_writer, \
     compute_metrics_multiple_runs_with_multiple_test_sets
@@ -239,10 +240,12 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
             print('Shape of in-domain X_test', cur_base_flow_dataset.X_test.shape, flush=True)
             print("Top indexes of an X_test in an in-domain base flow dataset: ", cur_base_flow_dataset.X_test.index[:20], flush=True)
             print("Top indexes of an y_test in an in-domain base flow dataset: ", cur_base_flow_dataset.y_test.index[:20], flush=True)
+            display(cur_base_flow_dataset.X_test.head())
             print('\n\n', flush=True)
             print('Shape of out-of-domain X_test', cur_extra_test_sets[0][0].shape, flush=True)
             print("Top indexes of an X_test in an out-of-domain base flow dataset: ", cur_extra_test_sets[0][0].index[:20], flush=True)
             print("Top indexes of an y_test in an out-of-domain base flow dataset: ", cur_extra_test_sets[0][1].index[:20], flush=True)
+            display(cur_extra_test_sets[0][0].head())
 
         # Tune model parameters if needed
         if with_tuning:
