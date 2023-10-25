@@ -202,7 +202,7 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
                                                      metrics_computation_config, custom_table_fields_dct,
                                                      with_tuning: bool = False, save_results_dir_path: str = None,
                                                      tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
-                                                     samples_per_fold: int = None, train_set_subsample_size: int = None,
+                                                     train_set_subsample_size: int = None,
                                                      verbose: bool = False):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
@@ -252,8 +252,7 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
             # Tune models and create a models config for metrics computation
             tuned_params_df, models_config = tune_ML_models(models_params_for_tuning, cur_base_flow_dataset,
                                                             metrics_computation_config.dataset_name,
-                                                            n_folds=num_folds_for_tuning,
-                                                            samples_per_fold=samples_per_fold)
+                                                            n_folds=num_folds_for_tuning)
 
             # Create models_config from the saved tuned_params_df for higher reliability
             date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")
