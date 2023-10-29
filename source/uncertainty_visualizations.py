@@ -7,7 +7,7 @@ from virny.utils.custom_initializers import create_models_metrics_dct_from_datab
 from source.utils.db_functions import connect_to_mongodb
 from source.utils.db_functions import read_model_metric_dfs_from_db
 from source.custom_classes.experiments_composer import ExperimentsComposer
-from source.utils.data_vis_utils import create_melted_subgroup_and_group_dicts
+from source.visualizations import preprocess_metrics
 
 
 def create_exp_metrics_dicts_for_mult_train_set_sizes(datasets_db_config: dict, experiment_names: list,
@@ -26,11 +26,11 @@ def create_exp_metrics_dicts_for_mult_train_set_sizes(datasets_db_config: dict, 
 
             # Compose disparity metrics for the defined dataset
             exp_composer = ExperimentsComposer(models_metrics_dct, sensitive_attrs)
-            exp_subgroup_metrics_dct = exp_composer.create_exp_subgroup_metrics_dct()
-            exp_group_metrics_dct = exp_composer.compose_group_metrics(exp_subgroup_metrics_dct)
+            exp_subgroup_metrics_dct = exp_composer.create_exp_subgroup_metrics_dct_for_mult_test_sets()
+            exp_group_metrics_dct = exp_composer.compose_group_metrics_for_mult_test_sets(exp_subgroup_metrics_dct)
 
             melted_all_subgroup_metrics_per_model_dct, melted_all_group_metrics_per_model_dct = (
-                create_melted_subgroup_and_group_dicts(exp_subgroup_metrics_dct, exp_group_metrics_dct))
+                preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct))
 
             # Concat metrics for all models into a common df
             subgroup_metrics_for_train_set_df = pd.DataFrame()
@@ -49,6 +49,7 @@ def create_exp_metrics_dicts_for_mult_train_set_sizes(datasets_db_config: dict, 
 
             print(f'Extracted metrics for {exp_name} and {train_set_size} train set size')
 
+        print('\n')
         metrics_per_exp_dct[exp_name] = {
             'subgroup_metrics': subgroup_metrics_per_train_set_df,
             'group_metrics': group_metrics_per_train_set_df,

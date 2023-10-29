@@ -73,7 +73,6 @@ def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
                     ])
         melted_all_group_metrics_per_model_dct[model_name] = all_group_metrics_per_model_df
 
-
     return melted_all_subgroup_metrics_per_model_dct, melted_all_group_metrics_per_model_dct
 
 
