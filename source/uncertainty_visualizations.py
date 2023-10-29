@@ -104,7 +104,7 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: pd.DataFrame, model_nam
         color='Extended_Model_Name:N',
     )
     if with_band:
-        band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
+        band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
             x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Extended_Model_Name:N',
