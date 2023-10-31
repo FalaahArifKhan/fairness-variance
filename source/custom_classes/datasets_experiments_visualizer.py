@@ -102,13 +102,13 @@ class DatasetsExperimentsVisualizer:
                                                                        dataset_groups_dct, dataset_names)
         line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
             x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-            y=alt.Y('mean(Metric_Value)', type='quantitative', title='', scale=alt.Scale(zero=False, domain=ylim)),
+            y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Dataset_Name:N',
         )
         if with_band:
             band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent='ci').encode(
                 x=alt.X(field='Intervention_Param', type='quantitative', title='Alpha'),
-                y=alt.Y(field='Metric_Value', type='quantitative', title='', scale=alt.Scale(zero=False, domain=ylim)),
+                y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
                 color='Dataset_Name:N',
             )
             base_chart = (band_chart + line_chart)
