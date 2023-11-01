@@ -60,7 +60,7 @@ def create_exp_metrics_dicts_for_mult_train_set_sizes(datasets_db_config: dict, 
     return metrics_per_exp_dct
 
 
-def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: pd.DataFrame, model_name: str, group_name: str,
+def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, group_name: str,
                                         metric_type: str, metric_name: str, title: str, base_font_size: int,
                                         ylim=Undefined, with_band=True):
     if metric_type == 'subgroup':
@@ -81,7 +81,7 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: pd.DataFrame, model_nam
                                                           if col not in ('Metric', 'Metric_Value')]).reset_index()
         subplot_metrics_df = subplot_metrics_df.rename_axis(None, axis=1)
         subplot_metrics_df['Epistemic_Uncertainty'] = subplot_metrics_df['Overall_Uncertainty'] - subplot_metrics_df['Aleatoric_Uncertainty']
-        subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Epistemic_Uncertainty'] # Added with alignment for the downstream code
+        subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Epistemic_Uncertainty'] # Added to align with the downstream code
     else:
         subplot_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
                                                 (metrics_per_exp_df['Metric'] == metric_name) &
@@ -121,7 +121,7 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: pd.DataFrame, model_nam
     return base_chart
 
 
-def create_group_metric_line_bands_per_dataset_plot(metrics_per_exp_dct: pd.DataFrame, experiment_names: list,
+def create_group_metric_line_bands_per_dataset_plot(metrics_per_exp_dct: dict, experiment_names: list,
                                                     model_name: str, group_name: str, metric_type: str, metric_name: str,
                                                     ylim=Undefined, with_band=True):
     base_font_size = 20
@@ -172,6 +172,123 @@ def create_group_metric_line_bands_per_dataset_plot(metrics_per_exp_dct: pd.Data
             orient='top',
             direction='horizontal',
             titleAnchor='middle'
+        )
+    )
+
+    return final_grid_chart
+
+
+def get_line_bands_per_correct_incorrect_group(metrics_per_exp_df: pd.DataFrame, model_name: str, group_name: str,
+                                               metric_name: str, intervention_param: float, test_set_index: int,
+                                               title: str, base_font_size: int, ylim=Undefined, with_band=True):
+    groups = [group_name + suffix for suffix in ['_priv_correct', '_dis_correct', '_priv_incorrect', '_dis_incorrect']]
+
+    # Create epistemic uncertainty based on aleatoric and overall uncertainty
+    if metric_name == 'Epistemic_Uncertainty':
+        temp_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
+                                             (metrics_per_exp_df['Metric'].isin(['Aleatoric_Uncertainty', 'Overall_Uncertainty'])) &
+                                             (metrics_per_exp_df['Group'].isin(groups)) &
+                                             (metrics_per_exp_df['Intervention_Param'] == intervention_param) &
+                                             (metrics_per_exp_df['Test_Set_Index'] == test_set_index)]
+
+        # Create columns based on values in the Subgroup column
+        subplot_metrics_df = temp_metrics_df.pivot(columns='Metric', values='Metric_Value',
+                                                   index=[col for col in temp_metrics_df.columns
+                                                          if col not in ('Metric', 'Metric_Value')]).reset_index()
+        subplot_metrics_df = subplot_metrics_df.rename_axis(None, axis=1)
+        subplot_metrics_df['Epistemic_Uncertainty'] = subplot_metrics_df['Overall_Uncertainty'] - subplot_metrics_df['Aleatoric_Uncertainty']
+        subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Epistemic_Uncertainty'] # Added to align with the downstream code
+    else:
+        subplot_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
+                                                (metrics_per_exp_df['Metric'] == metric_name) &
+                                                (metrics_per_exp_df['Group'].isin(groups)) &
+                                                (metrics_per_exp_df['Intervention_Param'] == intervention_param) &
+                                                (metrics_per_exp_df['Test_Set_Index'] == test_set_index)]
+
+    line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
+        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+        y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
+        color='Group:N',
+    )
+    if with_band:
+        band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
+            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+            y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
+            color='Group:N',
+        )
+        base_chart = (band_chart + line_chart)
+    else:
+        base_chart = line_chart
+
+    base_chart = base_chart.properties(
+        width=275, height=275,
+        title=alt.TitleParams(text=title, fontSize=base_font_size + 4),
+    )
+
+    return base_chart
+
+
+def create_line_bands_per_correct_incorrect_group(exp_metrics_dct: dict, model_name: str, group_name: str,
+                                                  metric_type: str, metric_name: str, ylim=Undefined, with_band=True):
+    if metric_type == 'subgroup':
+        metrics_per_exp_df = exp_metrics_dct['subgroup_metrics']
+        metrics_per_exp_df['Group'] = metrics_per_exp_df['Subgroup']
+    else:
+        metrics_per_exp_df = exp_metrics_dct['group_metrics']
+
+    extended_model_name_to_params = {
+        'In-domain Unfair Model': {'Intervention_Param': 0.0, 'Test_Set_Index': 0},
+        'In-domain Fair Model': {'Intervention_Param': 0.7, 'Test_Set_Index': 0},
+        'Out-of-domain Unfair Model': {'Intervention_Param': 0.0, 'Test_Set_Index': 1},
+        'Out-of-domain Fair Model': {'Intervention_Param': 0.7, 'Test_Set_Index': 1},
+    }
+    extended_model_names = list(extended_model_name_to_params.keys())
+
+    base_font_size = 20
+    num_rows, num_cols = 2, 2
+    subgroups_grid_chart = alt.vconcat()
+    extended_model_name_idx = -1
+    for _ in range(num_rows):
+        row = alt.hconcat()
+        for i in range(num_cols):
+            extended_model_name_idx += 1
+            cur_extended_model_name = extended_model_names[extended_model_name_idx]
+
+            base_chart = get_line_bands_per_correct_incorrect_group(
+                metrics_per_exp_df=metrics_per_exp_df,
+                model_name=model_name,
+                group_name=group_name,
+                metric_name=metric_name,
+                intervention_param=extended_model_name_to_params[cur_extended_model_name]['Intervention_Param'],
+                test_set_index=extended_model_name_to_params[cur_extended_model_name]['Test_Set_Index'],
+                title=cur_extended_model_name,
+                base_font_size=base_font_size,
+                ylim=ylim,
+                with_band=with_band
+            )
+
+            row |= base_chart
+
+        subgroups_grid_chart &= row
+
+    final_grid_chart = (
+        subgroups_grid_chart.configure_axis(
+            labelFontSize=base_font_size + 4,
+            titleFontSize=base_font_size + 6,
+            labelFontWeight='normal',
+            titleFontWeight='normal',
+        ).configure_title(
+            fontSize=base_font_size + 2
+        ).configure_legend(
+            titleFontSize=base_font_size + 4,
+            labelFontSize=base_font_size + 2,
+            symbolStrokeWidth=10,
+            labelLimit=400,
+            titleLimit=300,
+            # columns=2,
+            # orient='top',
+            # direction='horizontal',
+            # titleAnchor='middle'
         )
     )
 
