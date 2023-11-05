@@ -98,6 +98,8 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
     subplot_metrics_df['Extended_Model_Name'].loc[(subplot_metrics_df['Intervention_Param'] == 0.7) &
                                                   (subplot_metrics_df['Test_Set_Index'] == 1)] = 'Out-of-domain Fair Model'
 
+    # train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
+    # print('train_set_sizes -- ', train_set_sizes)
     line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
         x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
