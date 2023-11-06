@@ -98,16 +98,18 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
     subplot_metrics_df['Extended_Model_Name'].loc[(subplot_metrics_df['Intervention_Param'] == 0.7) &
                                                   (subplot_metrics_df['Test_Set_Index'] == 1)] = 'Out-of-domain Fair Model'
 
-    # train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
-    # print('train_set_sizes -- ', train_set_sizes)
+    train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
+    min_train_set_size = str(min(train_set_sizes))
     line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
-        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         color='Extended_Model_Name:N',
     )
     if with_band:
         band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
-            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                    scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Extended_Model_Name:N',
         )
@@ -207,14 +209,18 @@ def get_line_bands_per_correct_incorrect_group(metrics_per_exp_df: pd.DataFrame,
                                                 (metrics_per_exp_df['Intervention_Param'] == intervention_param) &
                                                 (metrics_per_exp_df['Test_Set_Index'] == test_set_index)]
 
+    train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
+    min_train_set_size = str(min(train_set_sizes))
     line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
-        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         color='Group:N',
     )
     if with_band:
         band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
-            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                    scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Group:N',
         )
