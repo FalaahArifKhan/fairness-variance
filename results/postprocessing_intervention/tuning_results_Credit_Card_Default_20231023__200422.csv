@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Credit_Card_Default,RandomForestClassifier,0.6910,0.8207,"{'max_depth': 50, 'min_samples_split': 5, 'n_estimators': 200}"
