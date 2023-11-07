@@ -212,7 +212,8 @@ def remove_disparate_impact(init_base_flow_dataset, alpha):
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
     # sensitive_attribute = 'RACE'
-    sensitive_attribute = 'race_binary'
+    # sensitive_attribute = 'race_binary'
+    sensitive_attribute = 'sex_binary'
     train_df = base_flow_dataset.X_train_val
     train_df[base_flow_dataset.target] = base_flow_dataset.y_train_val
     test_df = base_flow_dataset.X_test

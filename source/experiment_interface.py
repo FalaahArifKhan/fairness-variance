@@ -153,6 +153,20 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
         base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
 
+    elif dataset_name == "CreditCardDefaultDataset":
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('sex')]
+        data_loader.X_data['sex_binary'] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'male' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
+
+        # Preprocess the dataset using the defined preprocessor
+        column_transformer = get_simple_preprocessor(data_loader)
+        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+        base_flow_dataset.X_train_val['sex_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'sex_binary']
+        base_flow_dataset.X_test['sex_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'sex_binary']
+
+
     if verbose:
         logger.info("The dataset is preprocessed")
         print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
@@ -194,7 +208,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
                                                      models_config=models_config,
                                                      custom_tbl_fields_dct=custom_table_fields_dct,
                                                      db_writer_func=db_writer_func,
-                                                     verbose=0)
+                                                     verbose=2)
 
     logger.info("Experiment run was successful!")
 
@@ -425,7 +439,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
                                                  db_writer_func=db_writer_func,
                                                  postprocessor=postprocessor,
                                                  postprocessing_sensitive_attribute="sex_binary",
-                                                 verbose=0)
+                                                 verbose=2)
     
     # Compute metrics without postprocessing
     base_flow_dataset_without_postprocessing = copy.deepcopy(base_flow_dataset)
