@@ -59,6 +59,18 @@ def get_model_params_for_mult_repair_levels(models_tuning_seed):
             }
         },
     }
+    
+    
+def get_dummy_model_params(models_tuning_seed):
+    return {
+        'RandomForestClassifier': {
+            'model': RandomForestClassifier(random_state=models_tuning_seed),
+            'params': {
+                'n_estimators': [100, 200],
+                'max_depth': [10, 20],
+            }
+        },
+    }
 
 
 def get_model_params_for_postprocessing(models_tuning_seed):
