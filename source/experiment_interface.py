@@ -394,6 +394,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
 
         privileged_groups = [{'sex_binary': 1}]
         unprivileged_groups = [{'sex_binary': 0}]
+        postprocessing_sensitive_attribute = 'sex_binary'
         
     elif dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
@@ -410,6 +411,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
         
         privileged_groups = [{'SEX': 1}]
         unprivileged_groups = [{'SEX': 0}]
+        postprocessing_sensitive_attribute = "SEX"
     else:
         raise ValueError('The dataset is not supported for this experiment')
     
