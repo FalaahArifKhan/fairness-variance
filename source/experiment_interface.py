@@ -456,7 +456,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
                                                  custom_tbl_fields_dct=custom_table_fields_dct,
                                                  db_writer_func=db_writer_func,
                                                  postprocessor=postprocessor,
-                                                 postprocessing_sensitive_attribute="sex_binary",
+                                                 postprocessing_sensitive_attribute=postprocessing_sensitive_attribute,
                                                  verbose=2)
     
     # Compute metrics without postprocessing
