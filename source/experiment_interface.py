@@ -399,6 +399,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
     elif dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
         data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.X_data['SEX'] = data_loader.X_data['SEX'].apply(lambda x: 1 if x == '1' else 0)
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
@@ -408,6 +409,8 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
         base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
         base_flow_dataset.X_train_val['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'RACE']
         base_flow_dataset.X_test['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'RACE']
+        base_flow_dataset.X_train_val['SEX'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'SEX']
+        base_flow_dataset.X_test['SEX'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'SEX']
         
         privileged_groups = [{'SEX': 1}]
         unprivileged_groups = [{'SEX': 0}]
