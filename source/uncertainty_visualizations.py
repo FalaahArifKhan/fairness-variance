@@ -102,14 +102,14 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
     min_train_set_size = str(min(train_set_sizes))
     line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
         x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
-                scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
+                scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"(datum.value == 5000) || (datum.value == 10000) ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         color='Extended_Model_Name:N',
     )
     if with_band:
         band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
             x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
-                    scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
+                    scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"(datum.value == 5000) || (datum.value == 10000) ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Extended_Model_Name:N',
         )
