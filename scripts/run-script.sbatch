@@ -10,4 +10,4 @@
 module purge
 source $SCRATCH/fairness-variance/.venv/bin/activate
 
-python ./postprocessing_intervention_income_GA/Folk_GA_2018_Batch1.py
+python ./scripts/postprocessing_intervention_income_GA/Folk_GA_2018_Batch1.py
