@@ -1,7 +1,7 @@
 import os
 import copy
 from pprint import pprint
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 from IPython.display import display
@@ -399,7 +399,8 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
     elif dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
         data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
-        data_loader.X_data['SEX'] = data_loader.X_data['SEX'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.X_data['SEX_BINARY'] = data_loader.X_data['SEX'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.X_data['RACE&SEX_BINARY'] = data_loader.X_data['RACE'] & data_loader.X_data['SEX_BINARY']
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
@@ -409,12 +410,20 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
         base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
         base_flow_dataset.X_train_val['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'RACE']
         base_flow_dataset.X_test['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'RACE']
-        base_flow_dataset.X_train_val['SEX'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'SEX']
-        base_flow_dataset.X_test['SEX'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'SEX']
+        base_flow_dataset.X_train_val['SEX_BINARY'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'SEX_BINARY']
+        base_flow_dataset.X_test['SEX_BINARY'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'SEX_BINARY']
+        base_flow_dataset.X_train_val['RACE&SEX_BINARY'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'RACE&SEX_BINARY']
+        base_flow_dataset.X_test['RACE&SEX_BINARY'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'RACE&SEX_BINARY']
         
-        privileged_groups = [{'SEX': 1}]
-        unprivileged_groups = [{'SEX': 0}]
-        postprocessing_sensitive_attribute = "SEX"
+        # privileged_groups = [{'SEX_BINARY': 1}]
+        # unprivileged_groups = [{'SEX_BINARY': 0}]
+        # postprocessing_sensitive_attribute = "SEX_BINARY"
+        privileged_groups = [{'RACE': 1}]
+        unprivileged_groups = [{'RACE': 0}]
+        postprocessing_sensitive_attribute = "RACE"
+        # privileged_groups = [{'RACE&SEX_BINARY': 1}]
+        # unprivileged_groups = [{'RACE&SEX_BINARY': 0}]
+        # postprocessing_sensitive_attribute = "RACE&SEX_BINARY"
     else:
         raise ValueError('The dataset is not supported for this experiment')
     
@@ -452,7 +461,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
     base_flow_dataset_with_postprocessing = copy.deepcopy(base_flow_dataset)
     custom_table_fields_dct['intervention_param'] = 1.0
     logger.info("Start computing metrics with postprocessing")
-    print("Model computation config without postprocessing: ", metrics_computation_config)
+    print("Model computation config with postprocessing: ", metrics_computation_config)
     compute_metrics_multiple_runs_with_db_writer(dataset=base_flow_dataset_with_postprocessing,
                                                  config=metrics_computation_config,
                                                  models_config=models_config,
@@ -476,5 +485,5 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
                                                  models_config=models_config,
                                                  custom_tbl_fields_dct=custom_table_fields_dct,
                                                  db_writer_func=db_writer_func,
-                                                verbose=0)
+                                                 verbose=2)
     logger.info("Experiment run was successful!")
