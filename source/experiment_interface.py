@@ -424,6 +424,23 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
         # privileged_groups = [{'RACE&SEX_BINARY': 1}]
         # unprivileged_groups = [{'RACE&SEX_BINARY': 0}]
         # postprocessing_sensitive_attribute = "RACE&SEX_BINARY"
+        
+    elif dataset_name == 'LawSchoolDataset':
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
+        data_loader.X_data['race_binary'] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
+
+        # Preprocess the dataset using the defined preprocessor
+        column_transformer = get_simple_preprocessor(data_loader)
+        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+        base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
+        base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
+        
+        privileged_groups = [{'race_binary': 1}]
+        unprivileged_groups = [{'race_binary': 0}]
+        postprocessing_sensitive_attribute = "race_binary"
     else:
         raise ValueError('The dataset is not supported for this experiment')
     
