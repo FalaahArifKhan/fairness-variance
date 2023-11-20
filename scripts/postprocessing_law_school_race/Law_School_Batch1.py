@@ -48,7 +48,8 @@ os.getenv("DB_NAME")
 client, collection_obj, db_writer_func = connect_to_mongodb(DB_COLLECTION_NAME)
 
 custom_table_fields_dct = {
-     'session_uuid': str(uuid.uuid4()),
+     #'session_uuid': str(uuid.uuid4()),
+     'session_uuid': 'b1a1a591-575f-414f-af32-1bddca2a0687'
 }
 print('Current session uuid: ', custom_table_fields_dct['session_uuid'], flush=True)
 
@@ -63,7 +64,7 @@ exp_iter_num = 1
 experiment_seed = EXPERIMENT_SEEDS[exp_iter_num - 1]
 custom_table_fields_dct['experiment_iteration'] = f'Exp_iter_{exp_iter_num}'
 exp_iter_data_loader = copy.deepcopy(data_loader)
-models_params_for_tuning = get_dummy_model_params(experiment_seed)
+models_params_for_tuning = get_model_params_for_mult_repair_levels(experiment_seed)
 
 print("Model params for tuning:\n", models_params_for_tuning, flush=True)
 #tuned_params_df_paths = [os.path.join(SAVE_RESULTS_DIR_PATH, p) for p in os.listdir(SAVE_RESULTS_DIR_PATH) if "tuning" in p]

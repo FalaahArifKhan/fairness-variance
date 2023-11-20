@@ -1,6 +1,6 @@
 dataset_name: Law_School
 bootstrap_fraction: 0.8
-n_estimators: 2
+n_estimators: 200
 computation_mode: postprocessing_intervention
 num_runs: 1
 runs_seed_lst: [100]

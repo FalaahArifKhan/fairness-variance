@@ -49,7 +49,7 @@ client, collection_obj, db_writer_func = connect_to_mongodb(DB_COLLECTION_NAME)
 
 custom_table_fields_dct = {
      #'session_uuid': str(uuid.uuid4()),
-     'session_uuid': str(uuid.uuid4()),
+     'session_uuid': 'b1a1a591-575f-414f-af32-1bddca2a0687'
 }
 print('Current session uuid: ', custom_table_fields_dct['session_uuid'], flush=True)
 

@@ -4,10 +4,10 @@
 #SBATCH --cpus-per-task=32
 #SBATCH --mem=80GB
 #SBATCH --time=48:00:00
-#SBATCH --job-name=postprocessing-folk-ga-2018-race
-#SBATCH --output=postprocessing-folk-ga-2018-race.out
+#SBATCH --job-name=postprocessing_law_school_race_batch1
+#SBATCH --output=postprocessing_law_school_race_batch1.out
 
 module purge
 source $SCRATCH/fairness-variance/.venv/bin/activate
 
-python ./scripts/postprocessing_intervention_income_GA_race/Folk_GA_2018_Batch1.py
+python ./scripts/postprocessing_law_school_race/Law_School_Batch1.py
