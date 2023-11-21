@@ -1,10 +1,9 @@
 import os
+import sys
+from pathlib import Path
 
 # Define a correct root path
-cur_folder_name = os.getcwd().split('/')[-1]
-if cur_folder_name != "fairness-variance":
-    os.chdir("../..")
-
+sys.path.append(str(Path(f"{__file__}").parent.parent.parent))
 print('Current location: ', os.getcwd())
 
 # Import dependencies
@@ -12,6 +11,7 @@ import ast
 import copy
 import argparse
 import warnings
+from datetime import datetime
 from dotenv import load_dotenv
 from IPython.display import display
 
@@ -29,12 +29,12 @@ EXPERIMENT_NAME = 'out_of_domain_uncertainty_rich_income_LFR'
 DB_COLLECTION_NAME = 'out_of_domain_uncertainty'
 TRAIN_SET_SUBSAMPLE_SIZE = 5_000
 CUSTOM_TABLE_FIELDS_DCT = {
-    'session_uuid': '', # str(uuid.uuid4())
+    'session_uuid': '0c3ad11b-5085-478a-b3ae-f5fdecbfca77',  # str(uuid.uuid4())
 }
 
 # Define input variables
 ROOT_DIR = os.getcwd()
-SAVE_RESULTS_DIR_PATH = os.path.join(ROOT_DIR, 'results', EXPERIMENT_NAME)
+SAVE_RESULTS_DIR_PATH = os.path.join(ROOT_DIR, 'results', EXPERIMENT_NAME, os.path.basename(__file__))
 config_yaml_path = os.path.join(ROOT_DIR, 'notebooks', EXPERIMENT_NAME, 'rich_income_2018_config.yaml')
 METRICS_COMPUTATION_CONFIG = create_config_obj(config_yaml_path=config_yaml_path)
 CLIENT, COLLECTION_OBJ, DB_WRITER_FUNC = connect_to_mongodb(DB_COLLECTION_NAME)
@@ -46,7 +46,7 @@ def preconfigurate_experiment(env_file_path='./configs/secrets.env'):
 
     # Load env variables
     load_dotenv(env_file_path)
-    print('DB_NAME:', os.getenv("DB_NAME"))
+    print('\n\nDB_NAME:', os.getenv("DB_NAME"))
 
 
 def parse_input_args():
@@ -63,12 +63,12 @@ def parse_input_args():
     tuned_params_filenames = ast.literal_eval(args.tuned_params_filenames)
 
     print(
-        f"Experiment name: {EXPERIMENT_NAME}"
-        f"Current session uuid: {CUSTOM_TABLE_FIELDS_DCT['session_uuid']}"
-        f"Experiment run numbers: {run_nums}"
-        f"Fairness intervention params: {fairness_intervention_params}"
-        f"Train set size: {TRAIN_SET_SUBSAMPLE_SIZE}"
-        f"Tuned params filenames: {tuned_params_filenames}"
+        f"Experiment name: {EXPERIMENT_NAME}\n"
+        f"Current session uuid: {CUSTOM_TABLE_FIELDS_DCT['session_uuid']}\n"
+        f"Experiment run numbers: {run_nums}\n"
+        f"Fairness intervention params: {fairness_intervention_params}\n"
+        f"Train set size: {TRAIN_SET_SUBSAMPLE_SIZE}\n"
+        f"Tuned params filenames: {tuned_params_filenames}\n"
     )
 
     return run_nums, fairness_intervention_params, tuned_params_filenames
@@ -90,7 +90,7 @@ def run_experiment(exp_run_num, fairness_intervention_params, tuned_params_filen
         print('Enable hyper-params tuning')
     else:
         with_tuning = False
-        tuned_params_df_paths = [os.path.join(ROOT_DIR, 'results', EXPERIMENT_NAME, tuned_params_filename)
+        tuned_params_df_paths = [os.path.join(ROOT_DIR, 'results', EXPERIMENT_NAME, os.path.basename(__file__), tuned_params_filename)
                                  for tuned_params_filename in tuned_params_filenames]
 
     run_exp_iter_with_disparate_impact_and_mult_sets(data_loader=exp_iter_data_loader,
@@ -110,6 +110,7 @@ def run_experiment(exp_run_num, fairness_intervention_params, tuned_params_filen
 
 
 if __name__ == '__main__':
+    start_time = datetime.now()
     preconfigurate_experiment()
     run_nums, fairness_intervention_params, tuned_params_filenames = parse_input_args()
 
@@ -135,5 +136,9 @@ if __name__ == '__main__':
                        tuned_params_filenames=tuned_params_filenames,
                        data_loader_rich=data_loader_rich,
                        extra_data_loaders=extra_data_loaders)
+        print('\n\n\n', flush=True)
+
+    end_time = datetime.now()
+    print(f'The script is successfully executed. Run time: {end_time - start_time}')
 
     CLIENT.close()
