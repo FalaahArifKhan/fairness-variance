@@ -209,7 +209,7 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
     custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
 
     logger = get_logger()
-    logger.info(f"Start an experiment iteration for the following custom params:")
+    logger.info("Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
