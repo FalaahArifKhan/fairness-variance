@@ -25,11 +25,11 @@ from source.experiment_interface import run_exp_iter_with_disparate_impact_and_m
 
 
 # Define configurable variables
-EXPERIMENT_NAME = 'out_of_domain_uncertainty_rich_income_LFR'
+EXPERIMENT_NAME = 'out_of_domain_uncertainty_rich_income_LR'
 DB_COLLECTION_NAME = 'out_of_domain_uncertainty'
-TRAIN_SET_SUBSAMPLE_SIZE = 5_000
+TRAIN_SET_SUBSAMPLE_SIZE = 90_000
 CUSTOM_TABLE_FIELDS_DCT = {
-    'session_uuid': '0c3ad11b-5085-478a-b3ae-f5fdecbfca77',  # str(uuid.uuid4())
+    'session_uuid': '5accabed-a1c0-45fb-aa8e-60ad36853ead',  # str(uuid.uuid4())
 }
 
 # Define input variables
