@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_2018_Income,LogisticRegression,0.8106,0.8107,"{'C': 1, 'penalty': 'l2', 'solver': 'newton-cg'}"
