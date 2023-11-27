@@ -82,6 +82,19 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
         subplot_metrics_df = subplot_metrics_df.rename_axis(None, axis=1)
         subplot_metrics_df['Epistemic_Uncertainty'] = subplot_metrics_df['Overall_Uncertainty'] - subplot_metrics_df['Aleatoric_Uncertainty']
         subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Epistemic_Uncertainty'] # Added to align with the downstream code
+    # Find any other uncertainty except Epistemic and Aleatoric uncertainties
+    elif metric_name == 'Other_Uncertainty':
+        temp_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
+                                             (metrics_per_exp_df['Metric'].isin(['Aleatoric_Uncertainty', 'Overall_Uncertainty', 'Std'])) &
+                                             (metrics_per_exp_df['Group'] == group_name)]
+
+        # Create columns based on values in the Subgroup column
+        subplot_metrics_df = temp_metrics_df.pivot(columns='Metric', values='Metric_Value',
+                                                   index=[col for col in temp_metrics_df.columns
+                                                          if col not in ('Metric', 'Metric_Value')]).reset_index()
+        subplot_metrics_df = subplot_metrics_df.rename_axis(None, axis=1)
+        subplot_metrics_df['Other_Uncertainty'] = subplot_metrics_df['Overall_Uncertainty'] - (subplot_metrics_df['Aleatoric_Uncertainty'] + subplot_metrics_df['Std'] ** 2)
+        subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Other_Uncertainty'] # Added to align with the downstream code
     else:
         subplot_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
                                                 (metrics_per_exp_df['Metric'] == metric_name) &
