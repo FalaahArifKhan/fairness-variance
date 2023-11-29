@@ -82,6 +82,19 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
         subplot_metrics_df = subplot_metrics_df.rename_axis(None, axis=1)
         subplot_metrics_df['Epistemic_Uncertainty'] = subplot_metrics_df['Overall_Uncertainty'] - subplot_metrics_df['Aleatoric_Uncertainty']
         subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Epistemic_Uncertainty'] # Added to align with the downstream code
+    # Find any other uncertainty except Epistemic and Aleatoric uncertainties
+    elif metric_name == 'Other_Uncertainty':
+        temp_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
+                                             (metrics_per_exp_df['Metric'].isin(['Aleatoric_Uncertainty', 'Overall_Uncertainty', 'Std'])) &
+                                             (metrics_per_exp_df['Group'] == group_name)]
+
+        # Create columns based on values in the Subgroup column
+        subplot_metrics_df = temp_metrics_df.pivot(columns='Metric', values='Metric_Value',
+                                                   index=[col for col in temp_metrics_df.columns
+                                                          if col not in ('Metric', 'Metric_Value')]).reset_index()
+        subplot_metrics_df = subplot_metrics_df.rename_axis(None, axis=1)
+        subplot_metrics_df['Other_Uncertainty'] = subplot_metrics_df['Overall_Uncertainty'] - (subplot_metrics_df['Aleatoric_Uncertainty'] + subplot_metrics_df['Std'] ** 2)
+        subplot_metrics_df['Metric_Value'] = subplot_metrics_df['Other_Uncertainty'] # Added to align with the downstream code
     else:
         subplot_metrics_df = metrics_per_exp_df[(metrics_per_exp_df['Model_Name'] == model_name) &
                                                 (metrics_per_exp_df['Metric'] == metric_name) &
@@ -98,16 +111,18 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
     subplot_metrics_df['Extended_Model_Name'].loc[(subplot_metrics_df['Intervention_Param'] == 0.7) &
                                                   (subplot_metrics_df['Test_Set_Index'] == 1)] = 'Out-of-domain Fair Model'
 
-    # train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
-    # print('train_set_sizes -- ', train_set_sizes)
+    train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
+    min_train_set_size = str(min(train_set_sizes))
     line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
-        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"(datum.value == 5000) || (datum.value == 10000) ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         color='Extended_Model_Name:N',
     )
     if with_band:
         band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
-            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                    scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"(datum.value == 5000) || (datum.value == 10000) ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Extended_Model_Name:N',
         )
@@ -207,14 +222,18 @@ def get_line_bands_per_correct_incorrect_group(metrics_per_exp_df: pd.DataFrame,
                                                 (metrics_per_exp_df['Intervention_Param'] == intervention_param) &
                                                 (metrics_per_exp_df['Test_Set_Index'] == test_set_index)]
 
+    train_set_sizes = metrics_per_exp_df['Train_Set_Size'].unique().tolist()
+    min_train_set_size = str(min(train_set_sizes))
     line_chart = alt.Chart(subplot_metrics_df).mark_line().encode(
-        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+        x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         color='Group:N',
     )
     if with_band:
         band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
-            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size'),
+            x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
+                    scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"datum.value == 10000 ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
             color='Group:N',
         )

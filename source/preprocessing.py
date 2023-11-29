@@ -53,9 +53,13 @@ def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_
     # Subsample X_train_val, y_train_val, and data_loader.full_df to train_set_subsample_size if defined
     full_df = data_loader.full_df
     if train_set_subsample_size is not None:
+        # extra_shift = 42
         X_train_val = X_train_val.sample(train_set_subsample_size, random_state=dataset_split_seed)
         y_train_val = y_train_val.sample(train_set_subsample_size, random_state=dataset_split_seed)
         full_df = full_df.iloc[list(X_train_val.index) + list(X_test.index)]
+        print("Top indexes of X_train_val: ", X_train_val.index[:20], flush=True)
+        print("Top indexes of y_train_val: ", y_train_val.index[:20], flush=True)
+        print('\n\n', flush=True)
 
     print('In-domain full_df.shape -- ', full_df.shape)
     column_transformer = column_transformer.set_output(transform="pandas")  # Set transformer output to a pandas df
