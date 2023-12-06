@@ -30,7 +30,7 @@ EXPERIMENT_NAME = 'bootstrap_sizes_experiment_income_GA'
 DB_COLLECTION_NAME = 'bootstrap_sizes_experiment'
 CUSTOM_TABLE_FIELDS_DCT = {
     #'session_uuid': str(uuid.uuid4())
-    'session_uuid': 'test'
+    'session_uuid': None
 }
 
 # Define input variables
@@ -59,12 +59,21 @@ def parse_input_args():
                        help="a list of fairness intervention params", default='[]')
     parser.add_argument("--tuned_params_filenames", type=str,
                        help="a list of filenames with tuned model hyper-parameters", default='[]')
+    parser.add_argument("--uuid", type=str, help="set uuid for experiment", required=False, default="")
     args = parser.parse_args()
 
     run_nums = ast.literal_eval(args.run_nums)
     bootstrap_fraction = args.bootstrap_fraction
+    input_uuid = args.uuid
     fairness_intervention_params = ast.literal_eval(args.fairness_intervention_params)
     tuned_params_filenames = ast.literal_eval(args.tuned_params_filenames)
+
+    if input_uuid:
+        print("Setting experiment uuid to passed ", input_uuid, flush=True)
+        CUSTOM_TABLE_FIELDS_DCT['session_uuid'] = input_uuid
+    else:
+        CUSTOM_TABLE_FIELDS_DCT['session_uuid'] = str(uuid.uuid4())
+        print("Setting experiment uuid to generated ", CUSTOM_TABLE_FIELDS_DCT['session_uuid'], flush=True)
 
     print(
         f"Experiment name: {EXPERIMENT_NAME}\n"
