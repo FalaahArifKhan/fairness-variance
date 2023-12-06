@@ -496,6 +496,7 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
     postprocessor_params = np.array(postprocessor.saved_params)
     params_means = np.mean(postprocessor_params, axis=0)
     params_stds = np.std(postprocessor_params, axis=0)
+    print("Postprocessor params", postprocessor_params)
     print("Postprocessor means: ", params_means)
     print("Postprocessor stds: ", params_stds)
     
