@@ -29,7 +29,8 @@ from source.experiment_interface import run_exp_iter_with_eqq_odds_postprocessin
 EXPERIMENT_NAME = 'bootstrap_sizes_experiment_income_GA'
 DB_COLLECTION_NAME = 'bootstrap_sizes_experiment'
 CUSTOM_TABLE_FIELDS_DCT = {
-    'session_uuid': str(uuid.uuid4())
+    #'session_uuid': str(uuid.uuid4())
+    'session_uuid': 'test'
 }
 
 # Define input variables

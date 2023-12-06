@@ -6,7 +6,10 @@ from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 from IPython.display import display
 
+import numpy as np
+
 from aif360.algorithms.postprocessing import EqOddsPostprocessing
+from source.custom_eq_odds_postprocessing import CustomEqOddsPostprocessing
 
 from virny.user_interfaces.metrics_computation_interfaces import compute_metrics_multiple_runs_with_db_writer, \
     compute_metrics_multiple_runs_with_multiple_test_sets
@@ -470,10 +473,13 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
         print(f'{list(models_config.keys())[0]}: ', models_config[list(models_config.keys())[0]].get_params())
         logger.info("Models config is loaded from the input file")
 
-    postprocessor = EqOddsPostprocessing(privileged_groups=privileged_groups,
-                                         unprivileged_groups=unprivileged_groups,
-                                         seed=experiment_seed) # set 100 and different splits of 
-
+    # postprocessor = EqOddsPostprocessing(privileged_groups=privileged_groups,
+    #                                      unprivileged_groups=unprivileged_groups,
+    #                                      )#seed=experiment_seed) # set 100 and different splits of
+    
+    postprocessor = CustomEqOddsPostprocessing(privileged_groups=privileged_groups,
+                                         unprivileged_groups=unprivileged_groups)
+    print("---Postprocessor saved params ", postprocessor.saved_params)
     # Compute metrrics with postprocessing
     base_flow_dataset_with_postprocessing = copy.deepcopy(base_flow_dataset)
     custom_table_fields_dct['intervention_param'] = 1.0
@@ -487,6 +493,11 @@ def run_exp_iter_with_eqq_odds_postprocessing(data_loader, experiment_seed, test
                                                  postprocessor=postprocessor,
                                                  postprocessing_sensitive_attribute=postprocessing_sensitive_attribute,
                                                  verbose=2)
+    postprocessor_params = np.array(postprocessor.saved_params)
+    params_means = np.mean(postprocessor_params, axis=0)
+    params_stds = np.std(postprocessor_params, axis=0)
+    print("Postprocessor means: ", params_means)
+    print("Postprocessor stds: ", params_stds)
     
     # Compute metrics without postprocessing
     base_flow_dataset_without_postprocessing = copy.deepcopy(base_flow_dataset)
