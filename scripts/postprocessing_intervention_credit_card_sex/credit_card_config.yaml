@@ -1,0 +1,7 @@
+dataset_name: Credit_Card_Default_Dataset
+bootstrap_fraction: 0.8
+n_estimators: 200
+computation_mode: postprocessing_intervention
+num_runs: 1
+runs_seed_lst: [100]
+sensitive_attributes_dct: {'sex': 'female'}

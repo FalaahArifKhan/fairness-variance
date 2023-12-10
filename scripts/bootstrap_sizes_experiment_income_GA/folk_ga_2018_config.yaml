@@ -1,6 +1,6 @@
 dataset_name: Folktables_GA_2018_Income
 bootstrap_fraction: 0.8
-n_estimators: 5
+n_estimators: 200
 computation_mode: postprocessing_intervention
 num_runs: 1
 runs_seed_lst: [100]
