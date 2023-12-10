@@ -37,7 +37,7 @@ CUSTOM_TABLE_FIELDS_DCT = {
 ROOT_DIR = os.getcwd()
 SAVE_RESULTS_DIR_PATH = os.path.join(ROOT_DIR, 'scripts', 'results', EXPERIMENT_NAME)
 os.makedirs(SAVE_RESULTS_DIR_PATH, exist_ok=True)
-config_yaml_path = os.path.join(ROOT_DIR, 'scripts', EXPERIMENT_NAME, 'folk_ga_2018_config.yaml')
+config_yaml_path = os.path.join(ROOT_DIR, 'scripts', EXPERIMENT_NAME, 'credit_card_config.yaml')
 METRICS_COMPUTATION_CONFIG = create_config_obj(config_yaml_path=config_yaml_path)
 CLIENT, COLLECTION_OBJ, DB_WRITER_FUNC = connect_to_mongodb(DB_COLLECTION_NAME)
 
