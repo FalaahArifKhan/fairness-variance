@@ -6,8 +6,8 @@ from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 from IPython.display import display
 
-from virny.user_interfaces.metrics_computation_interfaces import compute_metrics_multiple_runs_with_db_writer, \
-    compute_metrics_multiple_runs_with_multiple_test_sets
+from virny.user_interfaces.multiple_models_with_db_writer_api import compute_metrics_with_db_writer
+from virny.user_interfaces.multiple_models_with_multiple_test_sets_api import compute_metrics_with_multiple_test_sets
 from virny.utils.custom_initializers import create_models_config_from_tuned_params_df
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
@@ -71,12 +71,13 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
             logger.info("Models config is loaded from the input file")
 
         # Compute metrics for tuned models
-        compute_metrics_multiple_runs_with_db_writer(dataset=cur_base_flow_dataset,
-                                                     config=metrics_computation_config,
-                                                     models_config=models_config,
-                                                     custom_tbl_fields_dct=custom_table_fields_dct,
-                                                     db_writer_func=db_writer_func,
-                                                     verbose=0)
+        compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
+                                       config=metrics_computation_config,
+                                       models_config=models_config,
+                                       custom_tbl_fields_dct=custom_table_fields_dct,
+                                       db_writer_func=db_writer_func,
+                                       notebook_logs_stdout=True,
+                                       verbose=0)
 
     logger.info("Experiment run was successful!")
 
@@ -92,14 +93,15 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
     custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
 
     logger = get_logger()
-    logger.info(f"Start an experiment iteration for the following custom params:")
+    logger.info("Start an experiment iteration for the following custom params:")
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
     # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
-
+    sensitive_attr_for_intervention = None
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
+        sensitive_attr_for_intervention = 'RACE'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
         data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
@@ -113,6 +115,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         base_flow_dataset.X_test['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'RACE']
 
     elif dataset_name == 'DiabetesDataset':
+        sensitive_attr_for_intervention = 'race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('gender', 'race')]
         data_loader.X_data['race_binary'] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'Caucasian' else 0)
         data_loader.full_df = data_loader.full_df.drop(['gender', 'race'], axis=1)
@@ -126,6 +129,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
 
     elif dataset_name == 'RicciDataset':
+        sensitive_attr_for_intervention = 'race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('Race')]
         data_loader.X_data['race_binary'] = data_loader.X_data['Race'].apply(lambda x: 1 if x == 'White' else 0)
         data_loader.full_df = data_loader.full_df.drop(['Race'], axis=1)
@@ -139,6 +143,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
 
     elif dataset_name == 'LawSchoolDataset':
+        sensitive_attr_for_intervention = 'race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
         data_loader.X_data['race_binary'] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
         data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
@@ -150,6 +155,20 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
         base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
         base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
+
+    elif dataset_name == 'StudentPerformancePortugueseDataset':
+        sensitive_attr_for_intervention = 'sex_binary'
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col != 'sex']
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
+
+        # Preprocess the dataset using the defined preprocessor
+        column_transformer = get_simple_preprocessor(data_loader)
+        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+        base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+        base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
 
     if verbose:
         logger.info("The dataset is preprocessed")
@@ -164,7 +183,9 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         custom_table_fields_dct['intervention_param'] = intervention_param
 
         # Fair preprocessing
-        cur_base_flow_dataset = remove_disparate_impact(base_flow_dataset, alpha=intervention_param)
+        cur_base_flow_dataset = remove_disparate_impact(base_flow_dataset,
+                                                        alpha=intervention_param,
+                                                        sensitive_attribute=sensitive_attr_for_intervention)
 
         # Tune model parameters if needed
         if with_tuning:
@@ -187,12 +208,13 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
             logger.info("Models config is loaded from the input file")
 
         # Compute metrics for tuned models
-        compute_metrics_multiple_runs_with_db_writer(dataset=cur_base_flow_dataset,
-                                                     config=metrics_computation_config,
-                                                     models_config=models_config,
-                                                     custom_tbl_fields_dct=custom_table_fields_dct,
-                                                     db_writer_func=db_writer_func,
-                                                     verbose=0)
+        compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
+                                       config=metrics_computation_config,
+                                       models_config=models_config,
+                                       custom_tbl_fields_dct=custom_table_fields_dct,
+                                       db_writer_func=db_writer_func,
+                                       notebook_logs_stdout=True,
+                                       verbose=0)
 
     logger.info("Experiment run was successful!")
 
@@ -268,13 +290,14 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
             logger.info("Models config is loaded from the input file")
 
         # Compute metrics for tuned models
-        compute_metrics_multiple_runs_with_multiple_test_sets(dataset=cur_base_flow_dataset,
-                                                              extra_test_sets_lst=cur_extra_test_sets,
-                                                              config=metrics_computation_config,
-                                                              models_config=models_config,
-                                                              custom_tbl_fields_dct=custom_table_fields_dct,
-                                                              db_writer_func=db_writer_func,
-                                                              verbose=0)
+        compute_metrics_with_multiple_test_sets(dataset=cur_base_flow_dataset,
+                                                extra_test_sets_lst=cur_extra_test_sets,
+                                                config=metrics_computation_config,
+                                                models_config=models_config,
+                                                custom_tbl_fields_dct=custom_table_fields_dct,
+                                                db_writer_func=db_writer_func,
+                                                notebook_logs_stdout=True,
+                                                verbose=0)
 
     logger.info("Experiment run was successful!")
 
@@ -336,12 +359,13 @@ def run_exp_iter_with_mult_set_and_preprocessing_intervention(data_loader, exper
             logger.info("Models config is loaded from the input file")
 
         # Compute metrics for tuned models
-        compute_metrics_multiple_runs_with_multiple_test_sets(dataset=cur_base_flow_dataset,
-                                                              extra_test_sets_lst=preprocessed_extra_test_sets,
-                                                              config=metrics_computation_config,
-                                                              models_config=models_config,
-                                                              custom_tbl_fields_dct=custom_table_fields_dct,
-                                                              db_writer_func=db_writer_func,
-                                                              verbose=0)
+        compute_metrics_with_multiple_test_sets(dataset=cur_base_flow_dataset,
+                                                extra_test_sets_lst=preprocessed_extra_test_sets,
+                                                config=metrics_computation_config,
+                                                models_config=models_config,
+                                                custom_tbl_fields_dct=custom_table_fields_dct,
+                                                db_writer_func=db_writer_func,
+                                                notebook_logs_stdout=True,
+                                                verbose=0)
 
     logger.info("Experiment run was successful!")

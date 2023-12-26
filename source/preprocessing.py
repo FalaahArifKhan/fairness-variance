@@ -208,15 +208,13 @@ def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_gro
     return models_in_range_df
 
 
-def remove_disparate_impact(init_base_flow_dataset, alpha):
+def remove_disparate_impact(init_base_flow_dataset, alpha, sensitive_attribute):
     """
     Based on this documentation:
      https://aif360.readthedocs.io/en/latest/modules/generated/aif360.algorithms.preprocessing.DisparateImpactRemover.html
 
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
-    # sensitive_attribute = 'RACE'
-    sensitive_attribute = 'race_binary'
     train_df = base_flow_dataset.X_train_val
     train_df[base_flow_dataset.target] = base_flow_dataset.y_train_val
     test_df = base_flow_dataset.X_test

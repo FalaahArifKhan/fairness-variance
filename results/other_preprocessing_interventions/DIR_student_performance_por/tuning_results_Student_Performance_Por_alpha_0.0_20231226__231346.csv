@@ -1,0 +1,3 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Student_Performance_Por,LogisticRegression,0.8666,0.9342,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
+Student_Performance_Por,RandomForestClassifier,0.8712,0.9424,"{'bootstrap': False, 'max_depth': 10, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 100}"
