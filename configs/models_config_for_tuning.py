@@ -1,21 +1,22 @@
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
-# from lightgbm import LGBMClassifier
+from lightgbm import LGBMClassifier
 
 
 def get_folktables_employment_models_params_for_tuning(models_tuning_seed):
     return {
-        # 'LGBMClassifier': {
-        #     'model': LGBMClassifier(random_state=models_tuning_seed),
-        #     'params': {
-        #         'max_depth' : [i for i in range(3,12)],
-        #         'num_leaves' : [int(x) for x in np.linspace(start = 20, stop = 3000, num = 10)],
-        #         'min_data_in_leaf' : [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
-        #     }
-        # },
+        'LGBMClassifier': {
+            'model': LGBMClassifier(random_state=models_tuning_seed),
+            'params': {
+                'max_depth' : [i for i in range(3,12)],
+                'num_leaves' : [int(x) for x in np.linspace(start = 20, stop = 3000, num = 10)],
+                'min_data_in_leaf' : [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
+            }
+        },
         'LogisticRegression': {
             'model': LogisticRegression(random_state=models_tuning_seed, max_iter=1000),
             'params': {

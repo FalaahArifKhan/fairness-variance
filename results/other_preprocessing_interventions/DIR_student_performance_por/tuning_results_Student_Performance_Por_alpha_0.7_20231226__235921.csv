@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Student_Performance_Por,MLPClassifier,0.8234,0.9136,"{'activation': 'tanh', 'learning_rate': 'adaptive', 'solver': 'sgd'}"
