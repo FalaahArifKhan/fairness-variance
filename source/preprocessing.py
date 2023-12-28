@@ -7,7 +7,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from fairlearn.preprocessing import CorrelationRemover
-from aif360.datasets import BinaryLabelDataset
+from aif360.datasets import BinaryLabelDataset, StandardDataset
 from aif360.algorithms.preprocessing import DisparateImpactRemover, OptimPreproc
 from aif360.algorithms.preprocessing.optim_preproc_helpers.opt_tools import OptTools
 
@@ -309,16 +309,18 @@ def optimized_preprocessing(init_data_loader, opt_preproc_options, sensitive_att
     test_df = X_test
     test_df[data_loader.target] = y_test
 
-    train_binary_dataset = BinaryLabelDataset(df=train_df,
-                                              label_names=[data_loader.target],
-                                              protected_attribute_names=[sensitive_attribute],
-                                              favorable_label=1,
-                                              unfavorable_label=0)
-    test_binary_dataset = BinaryLabelDataset(df=test_df,
-                                             label_names=[data_loader.target],
-                                             protected_attribute_names=[sensitive_attribute],
-                                             favorable_label=1,
-                                             unfavorable_label=0)
+    train_binary_dataset = StandardDataset(df=train_df,
+                                           label_name=data_loader.target,
+                                           favorable_classes=[1],
+                                           protected_attribute_names=[sensitive_attribute],
+                                           privileged_classes=[[1]],
+                                           categorical_features=data_loader.categorical_columns)
+    test_binary_dataset = StandardDataset(df=test_df,
+                                          label_name=data_loader.target,
+                                          favorable_classes=[1],
+                                          protected_attribute_names=[sensitive_attribute],
+                                          privileged_classes=[[1]],
+                                          categorical_features=data_loader.categorical_columns)
 
     print('before initialization', flush=True)
     OP = OptimPreproc(OptTools, opt_preproc_options, verbose=True)
