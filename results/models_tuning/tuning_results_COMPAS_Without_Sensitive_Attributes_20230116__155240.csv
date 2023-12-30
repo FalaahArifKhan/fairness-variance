@@ -1,6 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-COMPAS_Without_Sensitive_Attributes,LogisticRegression,0.6785,0.6837,"{'max_iter': 50, 'penalty': 'l2', 'solver': 'newton-cg'}"
-COMPAS_Without_Sensitive_Attributes,DecisionTreeClassifier,0.6135,0.6165,"{'criterion': 'gini', 'max_depth': 5, 'max_features': 0.6}"
-COMPAS_Without_Sensitive_Attributes,RandomForestClassifier,0.6944,0.6989,"{'max_depth': 4, 'max_features': 0.6, 'min_samples_leaf': 1, 'n_estimators': 50}"
-COMPAS_Without_Sensitive_Attributes,XGBClassifier,0.6984,0.7027,"{'learning_rate': 0.1, 'max_depth': 5, 'n_estimators': 100, 'objective': 'binary:logistic'}"
-COMPAS_Without_Sensitive_Attributes,KNeighborsClassifier,0.6946,0.6960,"{'metric': 'manhattan', 'n_neighbors': 15, 'weights': 'uniform'}"

@@ -7,9 +7,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from fairlearn.preprocessing import CorrelationRemover
-from aif360.datasets import BinaryLabelDataset, StandardDataset
-from aif360.algorithms.preprocessing import DisparateImpactRemover, OptimPreproc
-from aif360.algorithms.preprocessing.optim_preproc_helpers.opt_tools import OptTools
+from aif360.datasets import BinaryLabelDataset
+from aif360.algorithms.preprocessing import DisparateImpactRemover, LFR
 
 from virny.datasets.data_loaders import BaseDataLoader
 from virny.custom_classes.base_dataset import BaseFlowDataset
@@ -39,67 +38,6 @@ def create_extra_test_sets(extra_data_loaders: list, column_transformer, test_se
         extra_test_sets.append((exp_base_flow_dataset.X_test, exp_base_flow_dataset.y_test))
 
     return extra_test_sets
-
-
-def get_distortion_acs_income(vold, vnew):
-    """Distortion function for the ACS Income Folktables dataset. We set the distortion
-    metric here. See section 4.3 in supplementary material of
-    http://papers.nips.cc/paper/6988-optimized-pre-processing-for-discrimination-prevention
-    for an example
-
-    Note:
-        Users can use this as templates to create other distortion functions.
-
-    Args:
-        vold (dict) : {attr:value} with old values
-        vnew (dict) : dictionary of the form {attr:value} with new values
-
-    Returns:
-        d (value) : distortion value
-    """
-
-    def adjustAge(a):
-        return float(a)
-
-    def adjustwkhp(a):
-        return int(a)
-
-    def adjustLabel(a):
-        if a == True:
-            return 1.0
-        else:
-            return 0.0
-
-    # value that will be returned for events that should not occur
-    bad_val = 3.0
-
-    # adjust age
-    aOld = adjustAge(vold['AGEP'])
-    aNew = adjustAge(vnew['AGEP'])
-
-    # Age cannot be increased or decreased in more than a decade
-    if np.abs(aOld-aNew) > 10.0:
-        return bad_val
-
-    # Penalty of 2 if age is decreased or increased
-    if np.abs(aOld-aNew) > 1e-3:
-        return 2.0
-
-
-    # Adjust hours worked per week
-    wkhpOld = adjustwkhp(vold['WKHP'])
-    wkhpNew = adjustwkhp(vnew['WKHP'])
-
-    if np.abs(wkhpOld-wkhpNew) > 10.0:
-        return bad_val
-
-    labelOld = adjustLabel(vold['PINCP'])
-    labelNew = adjustLabel(vnew['PINCP'])
-
-    if labelOld > labelNew:
-        return 1.0
-    else:
-        return 0.0
 
 
 def create_base_flow_dataset_from_dfs(train_df, test_df, data_loader, column_transformer) -> BaseFlowDataset:
@@ -292,58 +230,51 @@ def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_gro
     return models_in_range_df
 
 
-def optimized_preprocessing(init_data_loader, opt_preproc_options, sensitive_attribute, test_set_fraction, dataset_split_seed):
+def apply_lfr(init_base_flow_dataset, intervention_options, sensitive_attribute):
     """
     Based on this documentation:
-     https://aif360.readthedocs.io/en/latest/modules/generated/aif360.algorithms.preprocessing.OptimPreproc.html
-     https://github.com/Trusted-AI/AIF360/blob/master/examples/demo_optim_data_preproc.ipynb
+     https://aif360.readthedocs.io/en/v0.2.3/modules/preprocessing.html#learning-fair-representations
 
     """
-    print('start optimized_preprocessing', flush=True)
-    data_loader = copy.deepcopy(init_data_loader)
-    X_train_val, X_test, y_train_val, y_test = train_test_split(data_loader.X_data, data_loader.y_data,
-                                                                test_size=test_set_fraction,
-                                                                random_state=dataset_split_seed)
-    train_df = X_train_val
-    train_df[data_loader.target] = y_train_val
-    test_df = X_test
-    test_df[data_loader.target] = y_test
+    base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
+    train_df = base_flow_dataset.X_train_val
+    train_df[base_flow_dataset.target] = base_flow_dataset.y_train_val
+    test_df = base_flow_dataset.X_test
+    test_df[base_flow_dataset.target] = base_flow_dataset.y_test
 
-    train_binary_dataset = StandardDataset(df=train_df,
-                                           label_name=data_loader.target,
-                                           favorable_classes=[1],
-                                           protected_attribute_names=[sensitive_attribute],
-                                           privileged_classes=[[1]],
-                                           categorical_features=data_loader.categorical_columns)
-    test_binary_dataset = StandardDataset(df=test_df,
-                                          label_name=data_loader.target,
-                                          favorable_classes=[1],
-                                          protected_attribute_names=[sensitive_attribute],
-                                          privileged_classes=[[1]],
-                                          categorical_features=data_loader.categorical_columns)
+    train_binary_dataset = BinaryLabelDataset(df=train_df,
+                                              label_names=[base_flow_dataset.target],
+                                              protected_attribute_names=[sensitive_attribute],
+                                              favorable_label=1,
+                                              unfavorable_label=0)
+    test_binary_dataset = BinaryLabelDataset(df=test_df,
+                                             label_names=[base_flow_dataset.target],
+                                             protected_attribute_names=[sensitive_attribute],
+                                             favorable_label=1,
+                                             unfavorable_label=0)
 
-    print('before initialization', flush=True)
-    OP = OptimPreproc(OptTools, opt_preproc_options, verbose=True)
-    print('initialized', flush=True)
-    OP = OP.fit(train_binary_dataset)
-    print('fit completed', flush=True)
-    dataset_trans_train = OP.transform(train_binary_dataset, transform_Y=True)
-    print('train transform', flush=True)
-    # train_trans_df = train_binary_dataset.align_datasets(dataset_trans_train).convert_to_dataframe()
-    train_trans_df = train_binary_dataset.align_datasets(dataset_trans_train)
-    dataset_trans_test = OP.transform(test_binary_dataset, transform_Y=True)
-    print('test transform', flush=True)
-    # test_trans_df = test_binary_dataset.align_datasets(dataset_trans_test).convert_to_dataframe()
-    test_trans_df = test_binary_dataset.align_datasets(dataset_trans_test)
+    # Fair preprocessing
+    privileged_groups = [{sensitive_attribute: 1}]
+    unprivileged_groups = [{sensitive_attribute: 0}]
+    lfr_model = LFR(unprivileged_groups=unprivileged_groups,
+                    privileged_groups=privileged_groups,
+                    k=intervention_options['k'],
+                    Ax=intervention_options['Ax'],
+                    Ay=intervention_options['Ay'],
+                    Az=intervention_options['Az'],
+                    verbose=1)
+    lfr_model = lfr_model.fit(train_binary_dataset, maxiter=5000, maxfun=5000)
+    train_repaired_df = lfr_model.transform(train_binary_dataset).convert_to_dataframe()
+    test_repaired_df = lfr_model.transform(test_binary_dataset).convert_to_dataframe()
+    train_repaired_df.index = train_repaired_df.index.astype(dtype='int64')
+    test_repaired_df.index = test_repaired_df.index.astype(dtype='int64')
 
-    # train_trans_df.index = train_trans_df.index.astype(dtype='int64')
-    # test_trans_df.index = test_trans_df.index.astype(dtype='int64')
-    # # Remove a sensitive attribute since it was created only for the fairness intervention
-    # train_trans_df = train_trans_df.drop([sensitive_attribute], axis=1)
-    # test_trans_df = test_trans_df.drop([sensitive_attribute], axis=1)
+    base_flow_dataset.X_train_val = train_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
+    base_flow_dataset.y_train_val = train_repaired_df[base_flow_dataset.target]
+    base_flow_dataset.X_test = test_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
+    base_flow_dataset.y_test = test_repaired_df[base_flow_dataset.target]
 
-    return train_trans_df, test_trans_df, train_binary_dataset, test_binary_dataset
-    # return train_trans_df, test_trans_df
+    return base_flow_dataset
 
 
 def remove_disparate_impact(init_base_flow_dataset, alpha, sensitive_attribute):

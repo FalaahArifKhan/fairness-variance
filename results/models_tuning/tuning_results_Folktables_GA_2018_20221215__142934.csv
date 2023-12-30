@@ -1,2 +1,0 @@
-,Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-0,Folktables_GA_2018,SVC,0.8247,0.8250,"{'C': 1000, 'gamma': 0.001, 'kernel': 'rbf'}"

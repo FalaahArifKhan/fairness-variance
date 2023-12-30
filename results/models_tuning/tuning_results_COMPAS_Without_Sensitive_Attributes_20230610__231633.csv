@@ -1,5 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-COMPAS_Without_Sensitive_Attributes,DecisionTreeClassifier,0.6473,0.6521,"{'criterion': 'entropy', 'max_depth': 20, 'max_features': 'sqrt', 'min_samples_split': 0.1}"
-COMPAS_Without_Sensitive_Attributes,LogisticRegression,0.6570,0.6629,"{'C': 1, 'max_iter': 250, 'penalty': 'l2', 'solver': 'newton-cg'}"
-COMPAS_Without_Sensitive_Attributes,RandomForestClassifier,0.6644,0.6692,"{'max_depth': 10, 'max_features': 0.6, 'min_samples_leaf': 1, 'n_estimators': 100}"
-COMPAS_Without_Sensitive_Attributes,XGBClassifier,0.6646,0.6692,"{'lambda': 100, 'learning_rate': 0.1, 'max_depth': 7, 'n_estimators': 200}"

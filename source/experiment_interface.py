@@ -15,7 +15,7 @@ from source.utils.model_tuning_utils import tune_ML_models
 from source.utils.custom_logger import get_logger
 from source.preprocessing import (remove_correlation, remove_correlation_for_mult_test_sets,
                                   remove_disparate_impact, get_preprocessor_for_diabetes, preprocess_mult_data_loaders_for_disp_imp,
-                                  remove_disparate_impact_with_mult_sets, get_simple_preprocessor, optimized_preprocessing,
+                                  remove_disparate_impact_with_mult_sets, get_simple_preprocessor, apply_lfr,
                                   create_base_flow_dataset_from_dfs)
 
 
@@ -83,12 +83,12 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
     logger.info("Experiment run was successful!")
 
 
-def run_exp_iter_with_optim_preproc(data_loader, experiment_seed, test_set_fraction, db_writer_func,
-                                    fair_intervention_params_lst, models_params_for_tuning,
-                                    metrics_computation_config, custom_table_fields_dct,
-                                    with_tuning: bool = False, save_results_dir_path: str = None,
-                                    tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
-                                    verbose: bool = False, dataset_name: str = 'ACSIncomeDataset'):
+def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_writer_func,
+                          fair_intervention_params_lst, models_params_for_tuning,
+                          metrics_computation_config, custom_table_fields_dct,
+                          with_tuning: bool = False, save_results_dir_path: str = None,
+                          tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
+                          verbose: bool = False, dataset_name: str = 'ACSIncomeDataset'):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
     custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
@@ -98,7 +98,7 @@ def run_exp_iter_with_optim_preproc(data_loader, experiment_seed, test_set_fract
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
-    # Add RACE column for Optimized Preprocessing and remove 'SEX', 'RAC1P' to create a blind estimator
+    # Add RACE column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
     sensitive_attr_for_intervention = None
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
@@ -108,6 +108,27 @@ def run_exp_iter_with_optim_preproc(data_loader, experiment_seed, test_set_fract
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
+    elif dataset_name == 'StudentPerformancePortugueseDataset':
+        sensitive_attr_for_intervention = 'sex_binary'
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col != 'sex']
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
+
+        # Preprocess the dataset using the defined preprocessor
+        column_transformer = get_simple_preprocessor(data_loader)
+        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+        # Align indexes of base_flow_dataset with data_loader for sensitive_attr_for_intervention column
+        base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+        base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
+
+    if verbose:
+        logger.info("The dataset is preprocessed")
+        print("base_flow_dataset.X_train_val.columns: ", base_flow_dataset.X_train_val.columns)
+        print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
+        print("Top indexes of an y_test in a base flow dataset: ", base_flow_dataset.y_test.index[:20])
+
     for intervention_idx, intervention_options in tqdm(enumerate(fair_intervention_params_lst),
                                                        total=len(fair_intervention_params_lst),
                                                        desc="Multiple alphas",
@@ -116,24 +137,11 @@ def run_exp_iter_with_optim_preproc(data_loader, experiment_seed, test_set_fract
         custom_table_fields_dct['intervention_param'] = str(intervention_options)
 
         # Fair preprocessing
-        train_trans_df, test_trans_df = optimized_preprocessing(data_loader,
-                                                                opt_preproc_options=intervention_options,
-                                                                sensitive_attribute=sensitive_attr_for_intervention,
-                                                                test_set_fraction=test_set_fraction,
-                                                                dataset_split_seed=experiment_seed)
-        print('train_trans_df.columns -- ', train_trans_df.columns)
-        print('test_trans_df.columns -- ', test_trans_df.columns)
-        # Preprocess with column transformer and create a base flow dataset
-        cur_base_flow_dataset = create_base_flow_dataset_from_dfs(train_df=train_trans_df,
-                                                                  test_df=test_trans_df,
-                                                                  data_loader=data_loader,
-                                                                  column_transformer=get_simple_preprocessor(data_loader))
-        cur_base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-
-        if verbose:
-            logger.info("The dataset is preprocessed")
-            print("Top indexes of an X_test in a base flow dataset: ", cur_base_flow_dataset.X_test.index[:20])
-            print("Top indexes of an y_test in a base flow dataset: ", cur_base_flow_dataset.y_test.index[:20])
+        cur_base_flow_dataset = apply_lfr(base_flow_dataset,
+                                          intervention_options=intervention_options,
+                                          sensitive_attribute=sensitive_attr_for_intervention)
+        print('cur_base_flow_dataset.X_train_val.columns -- ', cur_base_flow_dataset.X_train_val.columns)
+        print('cur_base_flow_dataset.X_test.columns -- ', cur_base_flow_dataset.X_test.columns)
 
         # Tune model parameters if needed
         if with_tuning:
