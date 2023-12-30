@@ -1,8 +1,0 @@
-dataset_name: COMPAS_Without_Sensitive_Attributes
-bootstrap_fraction: 0.8
-n_estimators: 10
-#n_estimators: 50
-computation_mode: error_analysis
-num_runs: 2
-runs_seed_lst: [100, 200]
-sensitive_attributes_dct: {'sex': 0, 'race': 'Caucasian', 'sex&race': None}
