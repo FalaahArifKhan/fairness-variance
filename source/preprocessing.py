@@ -40,28 +40,6 @@ def create_extra_test_sets(extra_data_loaders: list, column_transformer, test_se
     return extra_test_sets
 
 
-def create_base_flow_dataset_from_dfs(train_df, test_df, data_loader, column_transformer) -> BaseFlowDataset:
-    X_train_val = train_df.drop([data_loader.target], axis=1)
-    y_train_val = train_df[data_loader.target]
-    X_test = test_df.drop([data_loader.target], axis=1)
-    y_test = test_df[data_loader.target]
-
-    column_transformer = column_transformer.set_output(transform="pandas")  # Set transformer output to a pandas df
-    X_train_features = column_transformer.fit_transform(X_train_val)
-    X_test_features = column_transformer.transform(X_test)
-    print('X_train_features.columns -- ', X_train_features.columns)
-    print('X_test_features.columns -- ', X_test_features.columns)
-
-    return BaseFlowDataset(init_features_df=data_loader.full_df.drop(data_loader.target, axis=1, errors='ignore'),
-                           X_train_val=X_train_features,
-                           X_test=X_test_features,
-                           y_train_val=y_train_val,
-                           y_test=y_test,
-                           target=data_loader.target,
-                           numerical_columns=data_loader.numerical_columns,
-                           categorical_columns=data_loader.categorical_columns)
-
-
 def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_transformer: ColumnTransformer,
                                             test_set_fraction: float, dataset_split_seed: int,
                                             train_set_subsample_size: int = None):
@@ -264,8 +242,8 @@ def apply_lfr(init_base_flow_dataset, intervention_options, sensitive_attribute)
                     Az=intervention_options['Az'],
                     verbose=1)
     lfr_model = lfr_model.fit(train_binary_dataset, maxiter=5000, maxfun=5000)
-    train_repaired_df = lfr_model.transform(train_binary_dataset).convert_to_dataframe()
-    test_repaired_df = lfr_model.transform(test_binary_dataset).convert_to_dataframe()
+    train_repaired_df, _ = lfr_model.transform(train_binary_dataset).convert_to_dataframe()
+    test_repaired_df, _ = lfr_model.transform(test_binary_dataset).convert_to_dataframe()
     train_repaired_df.index = train_repaired_df.index.astype(dtype='int64')
     test_repaired_df.index = test_repaired_df.index.astype(dtype='int64')
 
