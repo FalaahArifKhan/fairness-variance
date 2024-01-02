@@ -7,7 +7,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 from fairlearn.preprocessing import CorrelationRemover
-from aif360.datasets import BinaryLabelDataset
+from aif360.datasets import BinaryLabelDataset, StandardDataset
 from aif360.algorithms.preprocessing import DisparateImpactRemover, LFR
 
 from virny.datasets.data_loaders import BaseDataLoader
@@ -213,6 +213,9 @@ def apply_lfr(init_base_flow_dataset, intervention_options, sensitive_attribute)
     Based on this documentation:
      https://aif360.readthedocs.io/en/v0.2.3/modules/preprocessing.html#learning-fair-representations
 
+    Reference source code:
+     https://github.com/giandos200/Zemel-et-al.-2013-Learning-Fair-Representations-/blob/main/main.py
+
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
     train_df = base_flow_dataset.X_train_val
@@ -230,8 +233,12 @@ def apply_lfr(init_base_flow_dataset, intervention_options, sensitive_attribute)
                                              protected_attribute_names=[sensitive_attribute],
                                              favorable_label=1,
                                              unfavorable_label=0)
+    # Set labels (aka y_test) to zeros since we do not know labels during inference
+    test_binary_dataset.labels = np.zeros(shape=np.shape(test_binary_dataset.labels))
 
-    # Fair preprocessing
+    # Fair preprocessing.
+    # Fit and transform only train and validation sets since the intervention changes also labels,
+    # which we do not know for a test set in the production case.
     privileged_groups = [{sensitive_attribute: 1}]
     unprivileged_groups = [{sensitive_attribute: 0}]
     lfr_model = LFR(unprivileged_groups=unprivileged_groups,
@@ -247,10 +254,12 @@ def apply_lfr(init_base_flow_dataset, intervention_options, sensitive_attribute)
     train_repaired_df.index = train_repaired_df.index.astype(dtype='int64')
     test_repaired_df.index = test_repaired_df.index.astype(dtype='int64')
 
+    # Do NOT change base_flow_dataset.y_train_val and base_flow_dataset.y_test, keep original ones.
+    # Use preprocessed X_train_val and X_test with original y_train_val and y_test for model fitting.
+    # More details are in this part of the code from this repo:
+    # https://github.com/giandos200/Zemel-et-al.-2013-Learning-Fair-Representations-/blob/main/main.py#L62
     base_flow_dataset.X_train_val = train_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
-    base_flow_dataset.y_train_val = train_repaired_df[base_flow_dataset.target]
     base_flow_dataset.X_test = test_repaired_df.drop([base_flow_dataset.target, sensitive_attribute], axis=1)
-    base_flow_dataset.y_test = test_repaired_df[base_flow_dataset.target]
 
     return base_flow_dataset
 
