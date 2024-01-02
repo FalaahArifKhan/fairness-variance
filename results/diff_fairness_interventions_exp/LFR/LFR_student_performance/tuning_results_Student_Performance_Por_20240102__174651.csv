@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Student_Performance_Por,LogisticRegression,0.7820,0.8992,"{'C': 1, 'penalty': 'l2', 'solver': 'newton-cg'}"

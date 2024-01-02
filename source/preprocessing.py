@@ -247,6 +247,7 @@ def apply_lfr(init_base_flow_dataset, intervention_options, sensitive_attribute)
                     Ax=intervention_options['Ax'],
                     Ay=intervention_options['Ay'],
                     Az=intervention_options['Az'],
+                    seed=42,
                     verbose=1)
     lfr_model = lfr_model.fit(train_binary_dataset, maxiter=5000, maxfun=5000)
     train_repaired_df, _ = lfr_model.transform(train_binary_dataset).convert_to_dataframe()

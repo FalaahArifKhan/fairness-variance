@@ -121,12 +121,8 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
         # Align indexes of base_flow_dataset with data_loader for sensitive_attr_for_intervention column
         base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
         base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
-
-    if verbose:
-        logger.info("The dataset is preprocessed")
-        print("base_flow_dataset.X_train_val.columns: ", base_flow_dataset.X_train_val.columns)
-        print("Top indexes of an X_test in a base flow dataset: ", base_flow_dataset.X_test.index[:20])
-        print("Top indexes of an y_test in a base flow dataset: ", base_flow_dataset.y_test.index[:20])
+    else:
+        raise ValueError('Incorrect dataset name')
 
     for intervention_idx, intervention_options in tqdm(enumerate(fair_intervention_params_lst),
                                                        total=len(fair_intervention_params_lst),
@@ -139,8 +135,11 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
         cur_base_flow_dataset = apply_lfr(base_flow_dataset,
                                           intervention_options=intervention_options,
                                           sensitive_attribute=sensitive_attr_for_intervention)
-        print('cur_base_flow_dataset.X_train_val.columns -- ', cur_base_flow_dataset.X_train_val.columns)
-        print('cur_base_flow_dataset.X_test.columns -- ', cur_base_flow_dataset.X_test.columns)
+        if verbose:
+            logger.info("The dataset is preprocessed")
+            print("cur_base_flow_dataset.X_train_val.columns: ", cur_base_flow_dataset.X_train_val.columns)
+            print("Top indexes of an X_test in the current base flow dataset: ", cur_base_flow_dataset.X_test.index[:20])
+            print("Top indexes of an y_test in the current base flow dataset: ", cur_base_flow_dataset.y_test.index[:20])
 
         # Tune model parameters if needed
         if with_tuning:
