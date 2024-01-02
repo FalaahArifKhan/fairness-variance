@@ -97,9 +97,9 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
-    # Add RACE column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator
+    # ACS Income: Add RACE column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
+    # Do similarly for other datasets.
     init_data_loader = copy.deepcopy(data_loader)
-    sensitive_attr_for_intervention = None
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
         sensitive_attr_for_intervention = 'RACE'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
@@ -114,15 +114,16 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
         data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
 
-        # Preprocess the dataset using the defined preprocessor
-        column_transformer = get_simple_preprocessor(data_loader)
-        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
-        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-        # Align indexes of base_flow_dataset with data_loader for sensitive_attr_for_intervention column
-        base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
-        base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
     else:
         raise ValueError('Incorrect dataset name')
+
+    # Preprocess the dataset using the defined preprocessor
+    column_transformer = get_simple_preprocessor(data_loader)
+    base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+    base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+    # Align indexes of base_flow_dataset with data_loader for sensitive_attr_for_intervention column
+    base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+    base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
 
     for intervention_idx, intervention_options in tqdm(enumerate(fair_intervention_params_lst),
                                                        total=len(fair_intervention_params_lst),
