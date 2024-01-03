@@ -114,6 +114,13 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
         data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
 
+    elif dataset_name == 'LawSchoolDataset':
+        sensitive_attr_for_intervention = 'race_binary'
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
+
     else:
         raise ValueError('Incorrect dataset name')
 
