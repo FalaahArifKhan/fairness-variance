@@ -149,7 +149,7 @@ def run_exp_iter_with_eq_odds(data_loader, experiment_seed, test_set_fraction, d
         unprivileged_groups = [{sensitive_attr_for_intervention: 0}]
         postprocessor = EqOddsPostprocessing(privileged_groups=privileged_groups,
                                              unprivileged_groups=unprivileged_groups,
-                                             seed=None)
+                                             seed=42)
 
         if verbose:
             logger.info("The dataset is preprocessed")

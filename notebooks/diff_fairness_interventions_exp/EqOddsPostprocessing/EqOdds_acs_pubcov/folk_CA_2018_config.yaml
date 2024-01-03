@@ -1,4 +1,4 @@
-dataset_name: Folktables_GA_2018_Income
+dataset_name: Folktables_CA_2018_Public_Coverage
 bootstrap_fraction: 0.8
 n_estimators: 200
 computation_mode: error_analysis
