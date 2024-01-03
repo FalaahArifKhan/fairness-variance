@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Student_Performance_Por,LogisticRegression,0.8666,0.9342,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
