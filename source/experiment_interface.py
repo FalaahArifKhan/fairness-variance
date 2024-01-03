@@ -5,6 +5,7 @@ from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 from IPython.display import display
+from aif360.algorithms.postprocessing import EqOddsPostprocessing
 
 from virny.user_interfaces.multiple_models_with_db_writer_api import compute_metrics_with_db_writer
 from virny.user_interfaces.multiple_models_with_multiple_test_sets_api import compute_metrics_with_multiple_test_sets
@@ -76,6 +77,113 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
                                        models_config=models_config,
                                        custom_tbl_fields_dct=custom_table_fields_dct,
                                        db_writer_func=db_writer_func,
+                                       notebook_logs_stdout=True,
+                                       verbose=0)
+
+    logger.info("Experiment run was successful!")
+
+
+def run_exp_iter_with_eq_odds(data_loader, experiment_seed, test_set_fraction, db_writer_func,
+                              fair_intervention_params_lst, models_params_for_tuning,
+                              metrics_computation_config, custom_table_fields_dct,
+                              with_tuning: bool = False, save_results_dir_path: str = None,
+                              tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
+                              verbose: bool = False, dataset_name: str = 'ACSIncomeDataset'):
+    custom_table_fields_dct['dataset_split_seed'] = experiment_seed
+    custom_table_fields_dct['model_init_seed'] = experiment_seed
+    custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
+
+    logger = get_logger()
+    logger.info("Start an experiment iteration for the following custom params:")
+    pprint(custom_table_fields_dct)
+    print('\n', flush=True)
+
+    # ACS Income: Add RACE column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
+    # Do similarly for other datasets.
+    init_data_loader = copy.deepcopy(data_loader)
+    if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
+        sensitive_attr_for_intervention = 'RACE'
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
+
+    elif dataset_name == 'StudentPerformancePortugueseDataset':
+        sensitive_attr_for_intervention = 'sex_binary'
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col != 'sex']
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
+
+    elif dataset_name == 'LawSchoolDataset':
+        sensitive_attr_for_intervention = 'race_binary'
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
+
+    else:
+        raise ValueError('Incorrect dataset name')
+
+    # Preprocess the dataset using the defined preprocessor
+    column_transformer = get_simple_preprocessor(data_loader)
+    base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+    base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+    # Align indexes of base_flow_dataset with data_loader for sensitive_attr_for_intervention column
+    base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+    base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
+
+    for intervention_idx, intervention_option in tqdm(enumerate(fair_intervention_params_lst),
+                                                      total=len(fair_intervention_params_lst),
+                                                      desc="Multiple alphas",
+                                                      colour="#40E0D0"):
+        print('intervention_options: ', intervention_option)
+        if intervention_option is not True:
+            print('Skipping...')
+            continue
+        custom_table_fields_dct['intervention_param'] = str(intervention_option)
+        cur_base_flow_dataset = copy.deepcopy(base_flow_dataset)
+
+        # Define a postprocessor
+        privileged_groups = [{sensitive_attr_for_intervention: 1}]
+        unprivileged_groups = [{sensitive_attr_for_intervention: 0}]
+        postprocessor = EqOddsPostprocessing(privileged_groups=privileged_groups,
+                                             unprivileged_groups=unprivileged_groups,
+                                             seed=None)
+
+        if verbose:
+            logger.info("The dataset is preprocessed")
+            print("cur_base_flow_dataset.X_train_val.columns: ", cur_base_flow_dataset.X_train_val.columns)
+            print("Top indexes of an X_test in the current base flow dataset: ", cur_base_flow_dataset.X_test.index[:20])
+            print("Top indexes of an y_test in the current base flow dataset: ", cur_base_flow_dataset.y_test.index[:20])
+
+        # Tune model parameters if needed
+        if with_tuning:
+            # Tune models and create a models config for metrics computation
+            tuned_params_df, models_config = tune_ML_models(models_params_for_tuning, cur_base_flow_dataset,
+                                                            metrics_computation_config.dataset_name,
+                                                            n_folds=num_folds_for_tuning)
+
+            # Create models_config from the saved tuned_params_df for higher reliability
+            date_time_str = datetime.now(timezone.utc).strftime("%Y%m%d__%H%M%S")
+            os.makedirs(save_results_dir_path, exist_ok=True)
+            tuned_df_path = os.path.join(save_results_dir_path,
+                                         f'tuning_results_{metrics_computation_config.dataset_name}_{date_time_str}.csv')
+            tuned_params_df.to_csv(tuned_df_path, sep=",", columns=tuned_params_df.columns, float_format="%.4f", index=False)
+            logger.info("Models are tuned and saved to a file")
+        else:
+            print('Path for tuned params: ', tuned_params_df_paths[intervention_idx])
+            models_config = create_models_config_from_tuned_params_df(models_params_for_tuning, tuned_params_df_paths[intervention_idx])
+            print(f'{list(models_config.keys())[0]}: ', models_config[list(models_config.keys())[0]].get_params())
+            logger.info("Models config is loaded from the input file")
+
+        # Compute metrics for tuned models
+        compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
+                                       config=metrics_computation_config,
+                                       models_config=models_config,
+                                       custom_tbl_fields_dct=custom_table_fields_dct,
+                                       db_writer_func=db_writer_func,
+                                       postprocessor=postprocessor,
                                        notebook_logs_stdout=True,
                                        verbose=0)
 
