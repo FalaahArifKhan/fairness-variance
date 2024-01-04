@@ -5,7 +5,7 @@ from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 from IPython.display import display
-from aif360.algorithms.postprocessing import EqOddsPostprocessing
+from aif360.algorithms.postprocessing import EqOddsPostprocessing, RejectOptionClassification
 
 from virny.user_interfaces.multiple_models_with_db_writer_api import compute_metrics_with_db_writer
 from virny.user_interfaces.multiple_models_with_multiple_test_sets_api import compute_metrics_with_multiple_test_sets
@@ -88,7 +88,8 @@ def run_exp_iter_with_eq_odds(data_loader, experiment_seed, test_set_fraction, d
                               metrics_computation_config, custom_table_fields_dct,
                               with_tuning: bool = False, save_results_dir_path: str = None,
                               tuned_params_df_paths: list = None, num_folds_for_tuning: int = 3,
-                              verbose: bool = False, dataset_name: str = 'ACSIncomeDataset'):
+                              verbose: bool = False, dataset_name: str = 'ACSIncomeDataset',
+                              postprocessor_name: str = 'EqOddsPostprocessing'):
     custom_table_fields_dct['dataset_split_seed'] = experiment_seed
     custom_table_fields_dct['model_init_seed'] = experiment_seed
     custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
@@ -137,7 +138,7 @@ def run_exp_iter_with_eq_odds(data_loader, experiment_seed, test_set_fraction, d
                                                       total=len(fair_intervention_params_lst),
                                                       desc="Multiple alphas",
                                                       colour="#40E0D0"):
-        print('intervention_options: ', intervention_option)
+        print('intervention_option: ', intervention_option)
         if intervention_option is not True:
             print('Skipping...')
             continue
@@ -147,9 +148,20 @@ def run_exp_iter_with_eq_odds(data_loader, experiment_seed, test_set_fraction, d
         # Define a postprocessor
         privileged_groups = [{sensitive_attr_for_intervention: 1}]
         unprivileged_groups = [{sensitive_attr_for_intervention: 0}]
-        postprocessor = EqOddsPostprocessing(privileged_groups=privileged_groups,
-                                             unprivileged_groups=unprivileged_groups,
-                                             seed=42)
+        if postprocessor_name == 'ROC':
+            print('Using ROC postprocessor')
+            postprocessor = RejectOptionClassification(
+                unprivileged_groups=unprivileged_groups,
+                privileged_groups=privileged_groups,
+                low_class_thresh=0.01, high_class_thresh=0.99,
+                num_class_thresh=100, num_ROC_margin=50,
+                metric_name='Statistical parity difference',
+                metric_ub=0.05, metric_lb=-0.05
+            )
+        else:
+            postprocessor = EqOddsPostprocessing(privileged_groups=privileged_groups,
+                                                 unprivileged_groups=unprivileged_groups,
+                                                 seed=42)
 
         if verbose:
             logger.info("The dataset is preprocessed")
