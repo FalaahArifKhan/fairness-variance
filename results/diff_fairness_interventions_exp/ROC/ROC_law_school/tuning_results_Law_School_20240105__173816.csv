@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Law_School,LGBMClassifier,0.6569,0.9002,"{'max_depth': 9, 'min_data_in_leaf': 100, 'num_leaves': 351}"
