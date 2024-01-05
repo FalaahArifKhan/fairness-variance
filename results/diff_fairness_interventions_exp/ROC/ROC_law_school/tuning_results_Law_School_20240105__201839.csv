@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Law_School,LogisticRegression,0.6574,0.9020,"{'C': 1, 'penalty': 'l2', 'solver': 'newton-cg'}"
