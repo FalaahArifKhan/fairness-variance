@@ -78,15 +78,21 @@ def preprocess_dataset_with_col_transformer(data_loader: BaseDataLoader, column_
 
 
 def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loaders: list, test_set_fraction: float,
-                                              experiment_seed: int, train_set_subsample_size: int):
+                                              experiment_seed: int, train_set_subsample_size: int,
+                                              metrics_computation_config):
     data_loaders = [main_data_loader] + extra_data_loaders
     init_data_loaders = [copy.deepcopy(dl) for dl in data_loaders]
 
-    # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
+    # Add SEX&RAC1P_binary column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     transformed_data_loaders = []
+    sensitive_attr_for_intervention = 'SEX&RAC1P_binary'
+    sensitive_attrs_dct = metrics_computation_config.sensitive_attributes_dct
     for cur_data_loader in data_loaders:
         cur_data_loader.categorical_columns = [col for col in cur_data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
-        cur_data_loader.X_data['RACE'] = cur_data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+        cur_data_loader.X_data[sensitive_attr_for_intervention] = cur_data_loader.X_data.apply(
+            lambda row: 0 if (row['SEX'] == sensitive_attrs_dct['SEX'] and row['RAC1P'] in sensitive_attrs_dct['RAC1P']) else 1,
+            axis=1
+        )
         cur_data_loader.full_df = cur_data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         cur_data_loader.X_data = cur_data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
         transformed_data_loaders.append(cur_data_loader)
@@ -109,8 +115,8 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
     else:
         main_base_flow_dataset.init_features_df = init_data_loaders[0].full_df.drop(init_data_loaders[0].target, axis=1, errors='ignore')
 
-    main_base_flow_dataset.X_train_val['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_train_val.index, 'RACE']
-    main_base_flow_dataset.X_test['RACE'] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_test.index, 'RACE']
+    main_base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+    main_base_flow_dataset.X_test[sensitive_attr_for_intervention] = main_transformed_data_loader.X_data.loc[main_base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
     print('In-domain init_features_df.shape -- ', main_base_flow_dataset.init_features_df.shape)
     print('In-domain number of rows in X_train_val -- ', main_base_flow_dataset.X_train_val.shape[0])
     print('In-domain number of rows in X_test -- ', main_base_flow_dataset.X_test.shape[0])
@@ -135,7 +141,7 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
                                                 categorical_columns=cur_data_loader.categorical_columns)
 
         cur_base_flow_dataset.init_features_df = cur_init_data_loader.full_df.drop(cur_init_data_loader.target, axis=1, errors='ignore')
-        cur_base_flow_dataset.X_test['RACE'] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_test.index, 'RACE']
+        cur_base_flow_dataset.X_test[sensitive_attr_for_intervention] = cur_data_loader.X_data.loc[cur_base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
         print(f'Out-of-domain {idx + 1} init_features_df.shape -- ', cur_base_flow_dataset.init_features_df.shape)
         print(f'Out-of-domain {idx + 1} number of rows in X_train_val -- ', cur_base_flow_dataset.X_train_val.shape[0])
         print(f'Out-of-domain {idx + 1} number of rows in X_test -- ', cur_base_flow_dataset.X_test.shape[0])
@@ -310,7 +316,7 @@ def remove_disparate_impact_with_mult_sets(init_base_flow_dataset, alpha, init_e
     """
     base_flow_dataset = copy.deepcopy(init_base_flow_dataset)
     extra_base_flow_datasets = copy.deepcopy(init_extra_base_flow_datasets)
-    sensitive_attribute = 'RACE'
+    sensitive_attribute = 'SEX&RAC1P_binary'
     other_feature_columns = [col for col in base_flow_dataset.X_train_val.columns if col != sensitive_attribute]
 
     # Rearrange columns for consistency

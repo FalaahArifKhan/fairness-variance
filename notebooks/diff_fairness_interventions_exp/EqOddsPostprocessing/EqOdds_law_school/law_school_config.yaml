@@ -3,4 +3,4 @@ bootstrap_fraction: 0.8
 n_estimators: 200
 computation_mode: error_analysis
 sensitive_attributes_dct: {'male': '0.0', 'race': 'Non-White', 'male & race': None}
-postprocessing_sensitive_attribute: 'race_binary'
+postprocessing_sensitive_attribute: 'male&race_binary'

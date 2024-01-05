@@ -99,27 +99,32 @@ def run_exp_iter_with_eq_odds(data_loader, experiment_seed, test_set_fraction, d
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
-    # ACS Income: Add RACE column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
+    # ACS Income: Add SEX&RAC1P_binary column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
     # Do similarly for other datasets.
     init_data_loader = copy.deepcopy(data_loader)
+    sensitive_attrs_dct = metrics_computation_config.sensitive_attributes_dct
+    sensitive_attr_for_intervention = metrics_computation_config.postprocessing_sensitive_attribute
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
-        sensitive_attr_for_intervention = 'RACE'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
-        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['SEX'] == sensitive_attrs_dct['SEX'] and row['RAC1P'] in sensitive_attrs_dct['RAC1P']) else 1,
+            axis=1
+        )
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
     elif dataset_name == 'StudentPerformancePortugueseDataset':
-        sensitive_attr_for_intervention = 'sex_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col != 'sex']
         data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
         data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
 
     elif dataset_name == 'LawSchoolDataset':
-        sensitive_attr_for_intervention = 'race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
-        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['male'] == sensitive_attrs_dct['male'] and row['race'] == sensitive_attrs_dct['race']) else 1,
+            axis=1
+        )
         data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
 
@@ -217,13 +222,17 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
-    # ACS Income: Add RACE column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
+    # ACS Income: Add SEX&RAC1P_binary column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
     # Do similarly for other datasets.
     init_data_loader = copy.deepcopy(data_loader)
+    sensitive_attrs_dct = metrics_computation_config.sensitive_attributes_dct
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
-        sensitive_attr_for_intervention = 'RACE'
+        sensitive_attr_for_intervention = 'SEX&RAC1P_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
-        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['SEX'] == sensitive_attrs_dct['SEX'] and row['RAC1P'] in sensitive_attrs_dct['RAC1P']) else 1,
+            axis=1
+        )
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
@@ -235,9 +244,13 @@ def run_exp_iter_with_LFR(data_loader, experiment_seed, test_set_fraction, db_wr
         data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
 
     elif dataset_name == 'LawSchoolDataset':
-        sensitive_attr_for_intervention = 'race_binary'
+        sensitive_attr_for_intervention = 'male&race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
         data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['male'] == sensitive_attrs_dct['male'] and row['race'] == sensitive_attrs_dct['race']) else 1,
+            axis=1
+        )
         data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
 
@@ -316,13 +329,17 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
     pprint(custom_table_fields_dct)
     print('\n', flush=True)
 
-    # Add RACE column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
+    # Add SEX&RAC1P_binary column for DisparateImpactRemover and remove 'SEX', 'RAC1P' to create a blind estimator
     init_data_loader = copy.deepcopy(data_loader)
     sensitive_attr_for_intervention = None
+    sensitive_attrs_dct = metrics_computation_config.sensitive_attributes_dct
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
-        sensitive_attr_for_intervention = 'RACE'
+        sensitive_attr_for_intervention = 'SEX&RAC1P_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
-        data_loader.X_data['RACE'] = data_loader.X_data['RAC1P'].apply(lambda x: 1 if x == '1' else 0)
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['SEX'] == sensitive_attrs_dct['SEX'] and row['RAC1P'] in sensitive_attrs_dct['RAC1P']) else 1,
+            axis=1
+        )
         data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
@@ -330,41 +347,16 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         column_transformer = get_simple_preprocessor(data_loader)
         base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
         base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-        base_flow_dataset.X_train_val['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'RACE']
-        base_flow_dataset.X_test['RACE'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'RACE']
-
-    elif dataset_name == 'DiabetesDataset':
-        sensitive_attr_for_intervention = 'race_binary'
-        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('gender', 'race')]
-        data_loader.X_data['race_binary'] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'Caucasian' else 0)
-        data_loader.full_df = data_loader.full_df.drop(['gender', 'race'], axis=1)
-        data_loader.X_data = data_loader.X_data.drop(['gender', 'race'], axis=1)
-
-        # Preprocess the dataset using the defined preprocessor
-        column_transformer = get_preprocessor_for_diabetes(data_loader)
-        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
-        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-        base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
-        base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
-
-    elif dataset_name == 'RicciDataset':
-        sensitive_attr_for_intervention = 'race_binary'
-        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('Race')]
-        data_loader.X_data['race_binary'] = data_loader.X_data['Race'].apply(lambda x: 1 if x == 'White' else 0)
-        data_loader.full_df = data_loader.full_df.drop(['Race'], axis=1)
-        data_loader.X_data = data_loader.X_data.drop(['Race'], axis=1)
-
-        # Preprocess the dataset using the defined preprocessor
-        column_transformer = get_simple_preprocessor(data_loader)
-        base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
-        base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-        base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
-        base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
+        base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+        base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
 
     elif dataset_name == 'LawSchoolDataset':
-        sensitive_attr_for_intervention = 'race_binary'
+        sensitive_attr_for_intervention = 'male&race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
-        data_loader.X_data['race_binary'] = data_loader.X_data['race'].apply(lambda x: 1 if x == 'White' else 0)
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['male'] == sensitive_attrs_dct['male'] and row['race'] == sensitive_attrs_dct['race']) else 1,
+            axis=1
+        )
         data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
 
@@ -372,8 +364,8 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         column_transformer = get_simple_preprocessor(data_loader)
         base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
         base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
-        base_flow_dataset.X_train_val['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, 'race_binary']
-        base_flow_dataset.X_test['race_binary'] = data_loader.X_data.loc[base_flow_dataset.X_test.index, 'race_binary']
+        base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+        base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
 
     elif dataset_name == 'StudentPerformancePortugueseDataset':
         sensitive_attr_for_intervention = 'sex_binary'
@@ -460,7 +452,8 @@ def run_exp_iter_with_disparate_impact_and_mult_sets(data_loader, extra_data_loa
                                                   extra_data_loaders=extra_data_loaders,
                                                   test_set_fraction=test_set_fraction,
                                                   experiment_seed=experiment_seed,
-                                                  train_set_subsample_size=train_set_subsample_size)
+                                                  train_set_subsample_size=train_set_subsample_size,
+                                                  metrics_computation_config=metrics_computation_config)
     logger.info("The dataset is preprocessed")
 
     for intervention_idx, intervention_param in tqdm(enumerate(fair_intervention_params_lst),
