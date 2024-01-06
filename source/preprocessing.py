@@ -6,7 +6,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
-from fairlearn.preprocessing import CorrelationRemover
+# from fairlearn.preprocessing import CorrelationRemover
 from aif360.datasets import BinaryLabelDataset, StandardDataset
 from aif360.algorithms.preprocessing import DisparateImpactRemover, LFR
 
