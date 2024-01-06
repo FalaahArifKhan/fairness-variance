@@ -1,10 +1,13 @@
 import os
 import copy
+# import tensorflow.compat.v1 as tf
+import tensorflow._api.v2.compat.v1 as tf
 from pprint import pprint
 from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
 from IPython.display import display
+from aif360.algorithms.inprocessing import AdversarialDebiasing
 from aif360.algorithms.postprocessing import EqOddsPostprocessing, RejectOptionClassification
 
 from virny.user_interfaces.multiple_models_with_db_writer_api import compute_metrics_with_db_writer
@@ -80,6 +83,108 @@ def run_exp_iter_with_preprocessing_intervention(data_loader, experiment_seed, t
                                        notebook_logs_stdout=True,
                                        verbose=0)
 
+    logger.info("Experiment run was successful!")
+
+
+def run_exp_iter_with_inprocessor(data_loader, experiment_seed, test_set_fraction, db_writer_func,
+                                  fair_intervention_params_lst, metrics_computation_config, custom_table_fields_dct,
+                                  verbose: bool = False, dataset_name: str = 'ACSIncomeDataset',
+                                  inprocessor_name: str = 'AdversarialDebiasing'):
+    tf.disable_eager_execution()
+    custom_table_fields_dct['dataset_split_seed'] = experiment_seed
+    custom_table_fields_dct['model_init_seed'] = experiment_seed
+    custom_table_fields_dct['fair_intervention_params_lst'] = str(fair_intervention_params_lst)
+
+    logger = get_logger()
+    logger.info("Start an experiment iteration for the following custom params:")
+    pprint(custom_table_fields_dct)
+    print('\n', flush=True)
+
+    # ACS Income: Add SEX&RAC1P_binary column for LFR and remove 'SEX', 'RAC1P' to create a blind estimator.
+    # Do similarly for other datasets.
+    init_data_loader = copy.deepcopy(data_loader)
+    sensitive_attrs_dct = metrics_computation_config.sensitive_attributes_dct
+    sensitive_attr_for_intervention = metrics_computation_config.inprocessing_sensitive_attribute
+    if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['SEX'] == sensitive_attrs_dct['SEX'] and row['RAC1P'] in sensitive_attrs_dct['RAC1P']) else 1,
+            axis=1
+        )
+        data_loader.full_df = data_loader.full_df.drop(['SEX', 'RAC1P'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
+
+    elif dataset_name == 'StudentPerformancePortugueseDataset':
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col != 'sex']
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
+        data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
+
+    elif dataset_name == 'LawSchoolDataset':
+        data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
+        data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
+            lambda row: 0 if (row['male'] == sensitive_attrs_dct['male'] and row['race'] == sensitive_attrs_dct['race']) else 1,
+            axis=1
+        )
+        data_loader.full_df = data_loader.full_df.drop(['male', 'race'], axis=1)
+        data_loader.X_data = data_loader.X_data.drop(['male', 'race'], axis=1)
+
+    else:
+        raise ValueError('Incorrect dataset name')
+
+    # Preprocess the dataset using the defined preprocessor
+    column_transformer = get_simple_preprocessor(data_loader)
+    base_flow_dataset = preprocess_dataset(data_loader, column_transformer, test_set_fraction, experiment_seed)
+    base_flow_dataset.init_features_df = init_data_loader.full_df.drop(init_data_loader.target, axis=1, errors='ignore')
+    # Align indexes of base_flow_dataset with data_loader for sensitive_attr_for_intervention column
+    base_flow_dataset.X_train_val[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_train_val.index, sensitive_attr_for_intervention]
+    base_flow_dataset.X_test[sensitive_attr_for_intervention] = data_loader.X_data.loc[base_flow_dataset.X_test.index, sensitive_attr_for_intervention]
+
+    for intervention_idx, intervention_option in tqdm(enumerate(fair_intervention_params_lst),
+                                                      total=len(fair_intervention_params_lst),
+                                                      desc="Multiple alphas",
+                                                      colour="#40E0D0"):
+        print('intervention_option: ', intervention_option)
+        custom_table_fields_dct['intervention_param'] = str(intervention_option)
+        cur_base_flow_dataset = copy.deepcopy(base_flow_dataset)
+        if verbose:
+            logger.info("The dataset is preprocessed")
+            print("cur_base_flow_dataset.X_train_val.columns: ", cur_base_flow_dataset.X_train_val.columns)
+            print("Top indexes of an X_test in the current base flow dataset: ", cur_base_flow_dataset.X_test.index[:20])
+            print("Top indexes of an y_test in the current base flow dataset: ", cur_base_flow_dataset.y_test.index[:20])
+
+        # Define a postprocessor
+        privileged_groups = [{sensitive_attr_for_intervention: 1}]
+        unprivileged_groups = [{sensitive_attr_for_intervention: 0}]
+        sess = tf.Session()
+        if inprocessor_name == 'ExponentiatedGradientReduction':
+            print('Using ExponentiatedGradientReduction postprocessor')
+            debiased_model = None
+
+        elif inprocessor_name == 'AdversarialDebiasing':
+            print('Using AdversarialDebiasing postprocessor')
+            debiased_model = AdversarialDebiasing(privileged_groups=privileged_groups,
+                                                  unprivileged_groups=unprivileged_groups,
+                                                  scope_name=intervention_option,
+                                                  debias=True,
+                                                  sess=sess)
+        else:
+            raise ValueError('inprocessor_name is unknown. Please, select one of the above defined options.')
+
+        models_config = {
+            inprocessor_name: debiased_model
+        }
+        # Compute metrics for tuned models
+        compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
+                                       config=metrics_computation_config,
+                                       models_config=models_config,
+                                       custom_tbl_fields_dct=custom_table_fields_dct,
+                                       db_writer_func=db_writer_func,
+                                       notebook_logs_stdout=True,
+                                       verbose=0)
+        sess.close()
+
+    tf.reset_default_graph()
     logger.info("Experiment run was successful!")
 
 
