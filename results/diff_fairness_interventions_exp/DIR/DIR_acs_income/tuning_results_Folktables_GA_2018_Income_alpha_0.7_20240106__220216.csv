@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Folktables_GA_2018_Income,MLPClassifier,0.7825,0.8044,"{'activation': 'tanh', 'learning_rate': 'adaptive', 'solver': 'sgd'}"
