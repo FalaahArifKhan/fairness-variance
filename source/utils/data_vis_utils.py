@@ -39,6 +39,7 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
         for fairness_intervention in datasets_db_config[dataset_name].keys():
             # Extract experimental data for the defined dataset from MongoDB
             model_metric_df = read_model_metric_dfs_from_db(collection_obj, datasets_db_config[dataset_name][fairness_intervention])
+            model_metric_df = model_metric_df[model_metric_df['Metric'] != 'Sample_Size']  # Remove not a metric
             model_metric_df = model_metric_df.drop(columns=['Model_Params', 'Tag', 'Model_Init_Seed'])
             if dataset_name == 'Student_Performance_Por':
                 if fairness_intervention == 'Baseline':
@@ -52,20 +53,25 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
             all_subgroup_metrics_df = pd.concat([all_subgroup_metrics_df, model_metric_df])
 
             # Compose disparity metrics for the defined dataset
-            models_metrics_dct = create_models_metrics_dct_from_database_df(model_metric_df)
             cur_sensitive_attrs_dct = {attr: None for attr in datasets_sensitive_attrs_dct[dataset_name]}
-            metrics_composer = MetricsComposer(models_metrics_dct, cur_sensitive_attrs_dct)
-            model_composed_metrics_df = metrics_composer.compose_metrics()
-            model_composed_metrics_df['Dataset_Name'] = dataset_name
-            model_composed_metrics_df['Fairness_Intervention'] = fairness_intervention
+            for exp_iter in model_metric_df['Experiment_Iteration'].unique():
+                exp_iter_model_metric_df = model_metric_df[model_metric_df.Experiment_Iteration == exp_iter]
+                models_metrics_dct = create_models_metrics_dct_from_database_df(exp_iter_model_metric_df)
+                metrics_composer = MetricsComposer(models_metrics_dct, cur_sensitive_attrs_dct)
+                model_composed_metrics_df = metrics_composer.compose_metrics()
+                model_composed_metrics_df['Dataset_Name'] = dataset_name
+                model_composed_metrics_df['Fairness_Intervention'] = fairness_intervention
 
-            # Unpivot group columns to align with visualizations API
-            unpivot_composed_metrics_df = unpivot_group_metrics(model_composed_metrics_df, datasets_sensitive_attrs_dct[dataset_name])
-            all_group_metrics_df = pd.concat([all_group_metrics_df, unpivot_composed_metrics_df])
+                # Unpivot group columns to align with visualizations API
+                unpivot_composed_metrics_df = unpivot_group_metrics(model_composed_metrics_df, datasets_sensitive_attrs_dct[dataset_name])
+                all_group_metrics_df = pd.concat([all_group_metrics_df, unpivot_composed_metrics_df])
 
             print(f'Extracted metrics for {dataset_name} dataset and {fairness_intervention} intervention')
 
     client.close()
+    all_subgroup_metrics_df = all_subgroup_metrics_df.reset_index(drop=True)
+    all_group_metrics_df = all_group_metrics_df.reset_index(drop=True)
+
     return all_subgroup_metrics_df, all_group_metrics_df
 
 

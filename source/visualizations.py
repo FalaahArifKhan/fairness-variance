@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from IPython.display import display
 
 from source.preprocessing import create_models_in_range_dct
+from source.utils.data_vis_utils import create_metrics_df_for_diff_dataset_groups
 
 
 def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
@@ -127,7 +128,6 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
                                            ylim: tuple = None, vals_to_replace: dict = None):
     sns.set_style("whitegrid")
 
-    all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
     if vals_to_replace is not None:
         all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
 
@@ -136,14 +136,15 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
         (all_models_metrics_df['Dataset_Name'] == dataset_name) &
         (all_models_metrics_df['Metric'] == metric_name) &
         (all_models_metrics_df[group_col_name] == group)
-    ]
+        ]
 
     plt.figure(figsize=(12, 4))
     sns.boxplot(data=to_plot,
                 x="Model_Name",
                 y="Metric_Value",
                 hue="Fairness_Intervention",
-                gap=.2)
+                gap=.2,
+                order=['LGBM', 'LR', 'RF', 'MLP'])
 
     # Extra configs for the boxplot
     font_increase = 4
