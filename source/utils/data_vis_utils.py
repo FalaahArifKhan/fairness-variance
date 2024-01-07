@@ -1,3 +1,5 @@
+import copy
+
 import pandas as pd
 from virny.utils.custom_initializers import create_models_metrics_dct_from_database_df
 from virny.custom_classes.metrics_composer import MetricsComposer
@@ -41,13 +43,16 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
             model_metric_df = read_model_metric_dfs_from_db(collection_obj, datasets_db_config[dataset_name][fairness_intervention])
             model_metric_df = model_metric_df[model_metric_df['Metric'] != 'Sample_Size']  # Remove not a metric
             model_metric_df = model_metric_df.drop(columns=['Model_Params', 'Tag', 'Model_Init_Seed'])
-            if dataset_name == 'Student_Performance_Por':
+            if dataset_name == 'Student_Performance_Por' and fairness_intervention in ('Baseline', 'DIR'):
                 if fairness_intervention == 'Baseline':
-                    model_metric_df = model_metric_df[model_metric_df['intervention_param'] == 0.0]
+                    model_metric_df = model_metric_df[model_metric_df['Intervention_Param'] == 0.0]
                     print('Filtered to alpha = 0.0 for baseline')
                 elif fairness_intervention == 'DIR':
-                    model_metric_df = model_metric_df[model_metric_df['intervention_param'] == 0.7]
+                    model_metric_df = model_metric_df[model_metric_df['Intervention_Param'] == 0.7]
                     print('Filtered to alpha = 0.7 for DIR')
+
+                # Add epistemic uncertainty
+                model_metric_df = add_epistemic_uncertainty(model_metric_df)
 
             model_metric_df['Fairness_Intervention'] = fairness_intervention
             all_subgroup_metrics_df = pd.concat([all_subgroup_metrics_df, model_metric_df])
@@ -73,6 +78,30 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
     all_group_metrics_df = all_group_metrics_df.reset_index(drop=True)
 
     return all_subgroup_metrics_df, all_group_metrics_df
+
+
+def add_epistemic_uncertainty(model_metric_df):
+    new_model_metric_df = pd.DataFrame()
+    for model_name in model_metric_df.Model_Name.unique():
+        for exp_iter in model_metric_df.Experiment_Iteration.unique():
+            for group in model_metric_df.Subgroup.unique():
+                one_group_metrics_df = model_metric_df[
+                    (model_metric_df.Experiment_Iteration == exp_iter) &
+                    (model_metric_df.Model_Name == model_name) &
+                    (model_metric_df.Subgroup == group)
+                    ]
+                aleatoric_uncertainty = one_group_metrics_df[one_group_metrics_df.Metric == 'Aleatoric_Uncertainty']['Metric_Value'].values[0]
+                overall_uncertainty = one_group_metrics_df[one_group_metrics_df.Metric == 'Overall_Uncertainty']['Metric_Value'].values[0]
+                epistemic_uncertainty = overall_uncertainty - aleatoric_uncertainty
+
+                new_row = one_group_metrics_df[one_group_metrics_df.Metric == 'Aleatoric_Uncertainty'].to_dict('records')[0]
+                new_row['Metric'] = 'Epistemic_Uncertainty'
+                new_row['Metric_Value'] = epistemic_uncertainty
+
+                one_group_metrics_df = one_group_metrics_df.append(new_row, ignore_index=True)
+                new_model_metric_df = pd.concat([new_model_metric_df, one_group_metrics_df])
+
+    return new_model_metric_df
 
 
 def unpivot_group_metrics(model_composed_metrics_df, sensitive_attrs):
