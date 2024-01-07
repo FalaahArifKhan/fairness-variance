@@ -122,6 +122,42 @@ def create_group_base_and_fair_models_box_plot(all_group_metrics_per_model_dct: 
     plt.setp(g._legend.get_title(), fontsize=14 + font_increase)
 
 
+def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, dataset_name: str,
+                                           metric_name: str, group: str = 'overall',
+                                           ylim: tuple = None, vals_to_replace: dict = None):
+    sns.set_style("whitegrid")
+
+    all_models_metrics_df = all_models_metrics_df.reset_index(drop=True)
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
+
+    group_col_name = 'Subgroup' if group == 'overall' else 'Group'
+    to_plot = all_models_metrics_df[
+        (all_models_metrics_df['Dataset_Name'] == dataset_name) &
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name] == group)
+    ]
+
+    plt.figure(figsize=(12, 4))
+    sns.boxplot(data=to_plot,
+                x="Model_Name",
+                y="Metric_Value",
+                hue="Fairness_Intervention",
+                gap=.2)
+
+    # Extra configs for the boxplot
+    font_increase = 4
+    plt.xlabel('')
+    plt.ylabel(metric_name, fontsize=14 + font_increase)
+    # plt.title(dataset_name, fontsize=16 + font_increase)
+    plt.tick_params(axis='both', which='major', labelsize=14 + font_increase)
+    plt.legend(bbox_to_anchor=(0, 1.25),
+               loc='upper left',
+               borderaxespad=0,
+               ncols=4,
+               fontsize=12 + font_increase)
+
+
 def create_group_models_box_plot_per_test_set(all_group_metrics_per_model_dct: dict, metric_name: str, group: str = 'overall',
                                               ylim: tuple = None, vals_to_replace: dict = None):
     sns.set_style("whitegrid")
@@ -226,7 +262,7 @@ def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict
                                         metrics_value_range_dct: dict, group: str):
     # Compute the number of models that satisfy the conditions
     models_in_range_df = create_models_in_range_dct(all_subgroup_metrics_per_model_dct, all_group_metrics_per_model_dct,
-                                                     metrics_value_range_dct, group)
+                                                    metrics_value_range_dct, group)
     # Replace metric groups on their aliases
     metric_name_to_alias_dct = {
         # C1

@@ -1,5 +1,6 @@
 import pandas as pd
 from virny.utils.custom_initializers import create_models_metrics_dct_from_database_df
+from virny.custom_classes.metrics_composer import MetricsComposer
 
 from source.utils.db_functions import connect_to_mongodb
 from source.utils.db_functions import read_model_metric_dfs_from_db
@@ -27,6 +28,54 @@ def create_ext_subgroup_and_group_metrics_dicts_for_datasets(datasets_db_config:
         print(f'Extracted metrics for {dataset_name} dataset')
 
     return datasets_exp_metrics_dct
+
+
+def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dict, datasets_sensitive_attrs_dct: dict,
+                                                         db_collection_name: str):
+    client, collection_obj, db_writer_func = connect_to_mongodb(db_collection_name)
+    all_subgroup_metrics_df = pd.DataFrame()
+    all_group_metrics_df = pd.DataFrame()
+    for dataset_name in datasets_db_config.keys():
+        for fairness_intervention in datasets_db_config[dataset_name].keys():
+            # Extract experimental data for the defined dataset from MongoDB
+            model_metric_df = read_model_metric_dfs_from_db(collection_obj, datasets_db_config[dataset_name][fairness_intervention])
+            model_metric_df = model_metric_df.drop(columns=['Model_Params', 'Tag', 'Model_Init_Seed'])
+            if dataset_name == 'Student_Performance_Por':
+                if fairness_intervention == 'Baseline':
+                    model_metric_df = model_metric_df[model_metric_df['intervention_param'] == 0.0]
+                    print('Filtered to alpha = 0.0 for baseline')
+                elif fairness_intervention == 'DIR':
+                    model_metric_df = model_metric_df[model_metric_df['intervention_param'] == 0.7]
+                    print('Filtered to alpha = 0.7 for DIR')
+
+            model_metric_df['Fairness_Intervention'] = fairness_intervention
+            all_subgroup_metrics_df = pd.concat([all_subgroup_metrics_df, model_metric_df])
+
+            # Compose disparity metrics for the defined dataset
+            models_metrics_dct = create_models_metrics_dct_from_database_df(model_metric_df)
+            cur_sensitive_attrs_dct = {attr: None for attr in datasets_sensitive_attrs_dct[dataset_name]}
+            metrics_composer = MetricsComposer(models_metrics_dct, cur_sensitive_attrs_dct)
+            model_composed_metrics_df = metrics_composer.compose_metrics()
+            model_composed_metrics_df['Dataset_Name'] = dataset_name
+            model_composed_metrics_df['Fairness_Intervention'] = fairness_intervention
+
+            # Unpivot group columns to align with visualizations API
+            unpivot_composed_metrics_df = unpivot_group_metrics(model_composed_metrics_df, datasets_sensitive_attrs_dct[dataset_name])
+            all_group_metrics_df = pd.concat([all_group_metrics_df, unpivot_composed_metrics_df])
+
+            print(f'Extracted metrics for {dataset_name} dataset and {fairness_intervention} intervention')
+
+    client.close()
+    return all_subgroup_metrics_df, all_group_metrics_df
+
+
+def unpivot_group_metrics(model_composed_metrics_df, sensitive_attrs):
+    id_vars = [col for col in model_composed_metrics_df.columns if col not in sensitive_attrs]
+    return pd.melt(model_composed_metrics_df,
+                   id_vars=id_vars,
+                   value_vars=sensitive_attrs,
+                   var_name='Group',
+                   value_name='Metric_Value')
 
 
 def create_metrics_df_for_diff_dataset_groups(group_metrics_df, metric_name, dataset_groups_dct, dataset_names):
