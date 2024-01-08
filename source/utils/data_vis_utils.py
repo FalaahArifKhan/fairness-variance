@@ -41,7 +41,6 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
         for fairness_intervention in datasets_db_config[dataset_name].keys():
             # Extract experimental data for the defined dataset from MongoDB
             model_metric_df = read_model_metric_dfs_from_db(collection_obj, datasets_db_config[dataset_name][fairness_intervention])
-            # model_metric_df = model_metric_df[model_metric_df['Metric'] != 'Sample_Size']  # Remove not a metric
             model_metric_df = model_metric_df.drop(columns=['Model_Params', 'Tag', 'Model_Init_Seed'])
             if dataset_name == 'Student_Performance_Por' and fairness_intervention in ('Baseline', 'DIR'):
                 if fairness_intervention == 'Baseline':
