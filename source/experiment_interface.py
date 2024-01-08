@@ -109,8 +109,8 @@ def run_exp_iter_with_inprocessor(data_loader, experiment_seed, test_set_fractio
     # Do similarly for other datasets.
     init_data_loader = copy.deepcopy(data_loader)
     sensitive_attrs_dct = metrics_computation_config.sensitive_attributes_dct
-    sensitive_attr_for_intervention = metrics_computation_config.inprocessing_sensitive_attribute
     if dataset_name in ('ACSIncomeDataset', 'ACSPublicCoverageDataset'):
+        sensitive_attr_for_intervention = 'SEX&RAC1P_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('SEX', 'RAC1P')]
         data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
             lambda row: 0 if (row['SEX'] == sensitive_attrs_dct['SEX'] and row['RAC1P'] in sensitive_attrs_dct['RAC1P']) else 1,
@@ -120,12 +120,14 @@ def run_exp_iter_with_inprocessor(data_loader, experiment_seed, test_set_fractio
         data_loader.X_data = data_loader.X_data.drop(['SEX', 'RAC1P'], axis=1)
 
     elif dataset_name == 'StudentPerformancePortugueseDataset':
+        sensitive_attr_for_intervention = 'sex_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col != 'sex']
         data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data['sex'].apply(lambda x: 1 if x == 'M' else 0)
         data_loader.full_df = data_loader.full_df.drop(['sex'], axis=1)
         data_loader.X_data = data_loader.X_data.drop(['sex'], axis=1)
 
     elif dataset_name == 'LawSchoolDataset':
+        sensitive_attr_for_intervention = 'male&race_binary'
         data_loader.categorical_columns = [col for col in data_loader.categorical_columns if col not in ('male', 'race')]
         data_loader.X_data[sensitive_attr_for_intervention] = data_loader.X_data.apply(
             lambda row: 0 if (row['male'] == sensitive_attrs_dct['male'] and row['race'] == sensitive_attrs_dct['race']) else 1,
