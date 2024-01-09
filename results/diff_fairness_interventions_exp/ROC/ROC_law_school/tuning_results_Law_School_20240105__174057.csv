@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Law_School,MLPClassifier,0.6534,0.9022,"{'activation': 'logistic', 'learning_rate': 'constant', 'solver': 'adam'}"

@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Folktables_GA_2018_Income,RandomForestClassifier,0.7794,0.8076,"{'bootstrap': True, 'max_depth': 80, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 200}"

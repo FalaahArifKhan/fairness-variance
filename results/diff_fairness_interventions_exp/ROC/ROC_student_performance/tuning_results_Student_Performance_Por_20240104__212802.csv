@@ -1,4 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Student_Performance_Por,LGBMClassifier,0.8441,0.9218,"{'max_depth': 3, 'min_data_in_leaf': 100, 'num_leaves': 20}"
-Student_Performance_Por,LogisticRegression,0.8666,0.9342,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
-Student_Performance_Por,RandomForestClassifier,0.8694,0.9403,"{'bootstrap': False, 'max_depth': 20, 'min_samples_leaf': 2, 'min_samples_split': 5, 'n_estimators': 200}"
