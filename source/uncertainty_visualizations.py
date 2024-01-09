@@ -22,6 +22,7 @@ def create_exp_metrics_dicts_for_mult_train_set_sizes(datasets_db_config: dict, 
         for train_set_size in datasets_db_config[exp_name].keys():
             experiment_session_uuid = datasets_db_config[exp_name][train_set_size]
             model_metric_dfs = read_model_metric_dfs_from_db(collection_obj, experiment_session_uuid)
+            model_metric_dfs = model_metric_dfs[model_metric_dfs['Metric'] != 'Sample_Size']  # Remove non-metric
             models_metrics_dct = create_models_metrics_dct_from_database_df(model_metric_dfs)
 
             # Compose disparity metrics for the defined dataset
