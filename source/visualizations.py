@@ -159,6 +159,75 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
                fontsize=12 + font_increase)
 
 
+def create_box_plot_for_diff_interventions2(all_models_metrics_df: pd.DataFrame, dataset_name: str,
+                                            metric_name: str, group: str = 'overall',
+                                            ylim: tuple = None, vals_to_replace: dict = None):
+    sns.set_style("whitegrid")
+
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
+
+    group_col_name = 'Subgroup' if group == 'overall' else 'Group'
+    to_plot = all_models_metrics_df[
+        (all_models_metrics_df['Dataset_Name'] == dataset_name) &
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name] == group)
+        ]
+
+    base_font_size = 18
+    fair_interventions_order = ['Baseline', 'LFR', 'DIR', 'AdversarialDebiasing',
+                                'ExponentiatedGradientReduction', 'EqOddsPostprocessing', 'ROC']
+    chart = (
+        alt.Chart(to_plot).mark_boxplot(
+            ticks=True,
+            size=20,
+            median={'stroke': 'black', 'strokeWidth': 0.7},
+        ).encode(
+            x=alt.X("Fairness_Intervention:N",
+                    title=None,
+                    sort=fair_interventions_order,
+                    axis=alt.Axis(labels=False)),
+            y=alt.Y("Metric_Value:Q", title=metric_name, scale=alt.Scale(zero=False)),
+            color=alt.Color("Fairness_Intervention:N", title=None, sort=fair_interventions_order),
+            column=alt.Column('Model_Name:N',
+                              title=None,
+                              sort=['LGBM', 'LR', 'RF', 'MLP', 'In-processing'])
+        ).resolve_scale(
+            x='independent'
+        ).properties(
+            width=180
+        ).configure_facet(
+            spacing=10
+        ).configure_view(
+            stroke=None
+        ).configure_header(
+            labelOrient='bottom',
+            labelPadding=5,
+            labelFontSize=base_font_size + 2,
+            titleFontSize=base_font_size + 2,
+        ).configure_axis(
+            labelFontSize=base_font_size + 4,
+            titleFontSize=base_font_size + 6,
+            labelFontWeight='normal',
+            titleFontWeight='normal',
+        ).configure_title(
+            fontSize=base_font_size + 2
+        ).configure_legend(
+            titleFontSize=base_font_size + 4,
+            labelFontSize=base_font_size + 2,
+            symbolStrokeWidth=5,
+            labelLimit=400,
+            titleLimit=300,
+            columns=4,
+            orient='top',
+            direction='horizontal',
+            titleAnchor='middle'
+        )
+    )
+
+    return chart
+
+
 def create_group_models_box_plot_per_test_set(all_group_metrics_per_model_dct: dict, metric_name: str, group: str = 'overall',
                                               ylim: tuple = None, vals_to_replace: dict = None):
     sns.set_style("whitegrid")
