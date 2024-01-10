@@ -144,7 +144,7 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
                 y="Metric_Value",
                 hue="Fairness_Intervention",
                 gap=.2,
-                order=['LGBM', 'LR', 'RF', 'MLP', 'ADB'])
+                order=['LGBM', 'LR', 'RF', 'MLP', 'In-processing'])
 
     # Extra configs for the boxplot
     font_increase = 4
