@@ -7,10 +7,10 @@ from pprint import pprint
 from tqdm.notebook import tqdm
 from datetime import datetime, timezone
 from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LogisticRegression
 from IPython.display import display
-from aif360.algorithms.inprocessing import AdversarialDebiasing
+from aif360.algorithms.inprocessing import AdversarialDebiasing, ExponentiatedGradientReduction
 from aif360.algorithms.postprocessing import EqOddsPostprocessing, RejectOptionClassification
-from aif360.metrics import ClassificationMetric
 
 from virny.user_interfaces.multiple_models_with_db_writer_api import compute_metrics_with_db_writer
 from virny.user_interfaces.multiple_models_with_multiple_test_sets_api import compute_metrics_with_multiple_test_sets
@@ -18,6 +18,7 @@ from virny.utils.custom_initializers import create_models_config_from_tuned_para
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
 from source.custom_classes.adversarial_debiasing_wrapper import AdversarialDebiasingWrapper
+from source.custom_classes.exp_gradient_reduction_wrapper import ExpGradientReductionWrapper
 from source.utils.model_tuning_utils import tune_ML_models
 from source.utils.custom_logger import get_logger
 from source.preprocessing import (remove_correlation, remove_correlation_for_mult_test_sets,
@@ -165,24 +166,32 @@ def run_exp_iter_with_inprocessor(data_loader, experiment_seed, test_set_fractio
         unprivileged_groups = [{sensitive_attr_for_intervention: 0}]
         sess = tf.Session()
         if inprocessor_name == 'ExponentiatedGradientReduction':
-            print('Using ExponentiatedGradientReduction postprocessor')
-            debiased_model = None
+            print('Using ExponentiatedGradientReduction inprocessor')
+            estimator = LogisticRegression(solver='lbfgs', max_iter=1000)
+            debiased_model = ExponentiatedGradientReduction(estimator=estimator,
+                                                            constraints=intervention_option,
+                                                            drop_prot_attr=True)
+            models_config = {
+                inprocessor_name: ExpGradientReductionWrapper(inprocessor=debiased_model,
+                                                              sensitive_attr_for_intervention=sensitive_attr_for_intervention)
+            }
 
         elif inprocessor_name == 'AdversarialDebiasing':
-            print('Using AdversarialDebiasing postprocessor')
+            print('Using AdversarialDebiasing inprocessor')
             debiased_model = AdversarialDebiasing(privileged_groups=privileged_groups,
                                                   unprivileged_groups=unprivileged_groups,
                                                   scope_name=intervention_option,
                                                   debias=True,
                                                   num_epochs=200,
                                                   sess=sess)
+            models_config = {
+                inprocessor_name: AdversarialDebiasingWrapper(inprocessor=debiased_model,
+                                                              sensitive_attr_for_intervention=sensitive_attr_for_intervention)
+            }
+
         else:
             raise ValueError('inprocessor_name is unknown. Please, select one of the above defined options.')
 
-        models_config = {
-            inprocessor_name: AdversarialDebiasingWrapper(inprocessor=debiased_model,
-                                                          sensitive_attr_for_intervention=sensitive_attr_for_intervention)
-        }
         # Compute metrics for tuned models
         compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
                                        config=metrics_computation_config,
