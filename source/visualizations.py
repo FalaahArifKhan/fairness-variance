@@ -139,6 +139,7 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
         ]
 
     base_font_size = 18
+    num_fairness_interventions = len(to_plot['Fairness_Intervention'].unique())
     fair_interventions_order = ['Baseline', 'LFR', 'DIR', 'AdversarialDebiasing',
                                 'ExponentiatedGradientReduction', 'EqOddsPostprocessing', 'ROC']
     chart = (
@@ -182,7 +183,7 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
             symbolStrokeWidth=5,
             labelLimit=400,
             titleLimit=300,
-            columns=4,
+            columns=4 if num_fairness_interventions > 5 else 3,
             orient='top',
             direction='horizontal',
             titleAnchor='middle'
