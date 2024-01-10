@@ -151,6 +151,88 @@ def preprocess_mult_data_loaders_for_disp_imp(main_data_loader, extra_data_loade
     return main_base_flow_dataset, extra_base_flow_datasets
 
 
+def create_models_in_range_df(all_subgroup_metrics_per_model_df: pd.DataFrame, all_group_metrics_per_model_df: pd.DataFrame,
+                              metrics_value_range_dct: dict, dataset_name: str, group: str):
+    # Merge subgroup and group metrics for each model and align their columns
+    all_metrics_for_all_models_df = pd.DataFrame()
+    for model_name in all_subgroup_metrics_per_model_df.Model_Name.unique():
+        group_metrics_per_model_df = all_group_metrics_per_model_df[
+            (all_group_metrics_per_model_df['Dataset_Name'] == dataset_name) &
+            (all_group_metrics_per_model_df['Model_Name'] == model_name) &
+            (all_group_metrics_per_model_df['Group'] == group)
+        ]
+        subgroup_metrics_per_model_df = all_subgroup_metrics_per_model_df[
+            (all_subgroup_metrics_per_model_df['Dataset_Name'] == dataset_name) &
+            (all_subgroup_metrics_per_model_df['Model_Name'] == model_name) &
+            (all_subgroup_metrics_per_model_df['Subgroup'] == 'overall')
+        ]
+        subgroup_metrics_per_model_df['Group'] = subgroup_metrics_per_model_df['Subgroup']
+        aligned_subgroup_metrics_per_model_df = subgroup_metrics_per_model_df[group_metrics_per_model_df.columns]
+
+        combined_metrics_per_model_df = pd.concat([group_metrics_per_model_df, aligned_subgroup_metrics_per_model_df]).reset_index(drop=True)
+        all_metrics_for_all_models_df = pd.concat([all_metrics_for_all_models_df, combined_metrics_per_model_df])
+
+    all_metrics_for_all_models_df = all_metrics_for_all_models_df.reset_index(drop=True)
+    # Drop 'Group' column since we want to have all overall and disparity metrics as column after pivoting.
+    # When the 'Group' column is not dropped, we will have NaNs for disparity metric columns for 'Group' == 'overall',
+    # and NaNs for overall metric columns for 'Group' == 'SEX' etc.
+    all_metrics_for_all_models_df = all_metrics_for_all_models_df.drop(['Group'], axis=1)
+
+    # Create new columns based on values in Metric and Metric_Value columns
+    pivoted_model_metrics_df = all_metrics_for_all_models_df.pivot(columns='Metric', values='Metric_Value',
+                                                                   index=[col for col in all_metrics_for_all_models_df.columns
+                                                                          if col not in ('Metric', 'Metric_Value')]).reset_index()
+    model_names = pivoted_model_metrics_df['Model_Name'].unique()
+
+    # Create a pandas condition for filtering based on the input value ranges
+    models_in_range_df = pd.DataFrame()
+    df_with_models_satisfied_all_constraints = pd.DataFrame()
+    for idx, (metric_group, value_range) in enumerate(metrics_value_range_dct.items()):
+        pd_condition = None
+        if '&' not in metric_group:
+            min_range_val, max_range_val = value_range
+            if max_range_val < min_range_val:
+                raise ValueError('The second element in the input range must be greater than the first element, '
+                                 'so to be in the following format -- (min_range_val, max_range_val)')
+            metric = metric_group
+            pd_condition = (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
+        else:
+            metrics = metric_group.split('&')
+            for idx, metric in enumerate(metrics):
+                min_range_val, max_range_val = metrics_value_range_dct[metric]
+                if max_range_val < min_range_val:
+                    raise ValueError('The second element in the input range must be greater than the first element, '
+                                     'so to be in the following format -- (min_range_val, max_range_val)')
+                if idx == 0:
+                    pd_condition = (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
+                else:
+                    pd_condition &= (pivoted_model_metrics_df[metric] >= min_range_val) & (pivoted_model_metrics_df[metric] <= max_range_val)
+
+        num_satisfied_models_df = pivoted_model_metrics_df[pd_condition]['Model_Name'].value_counts().reset_index()
+        num_satisfied_models_df.rename(columns = {'Model_Name': 'Number_of_Models'}, inplace = True)
+        num_satisfied_models_df.rename(columns = {'index': 'Model_Name'}, inplace = True)
+        # If a constraint for a metric group is not satisfied, add zeros for all model names
+        if num_satisfied_models_df.shape[0] == 0:
+            num_satisfied_models_df = pd.DataFrame({'Model_Name': model_names,
+                                                    'Number_of_Models': [0] * len(model_names)})
+
+        num_satisfied_models_df['Metric_Group'] = metric_group
+        if idx == 0:
+            models_in_range_df = num_satisfied_models_df
+        else:
+            # Concatenate based on rows
+            models_in_range_df = pd.concat([models_in_range_df, num_satisfied_models_df], ignore_index=True, sort=False)
+
+        if metric_group.count('&') == 3:
+            temp_df = pivoted_model_metrics_df[pd_condition][['Model_Name', 'Fairness_Intervention', 'Experiment_Iteration']].reset_index(drop=True)
+            df_with_models_satisfied_all_constraints = pd.DataFrame()
+            df_with_models_satisfied_all_constraints['Model_Name'] = temp_df['Model_Name']
+            df_with_models_satisfied_all_constraints['Fairness_Intervention'] = temp_df['Fairness_Intervention']
+            df_with_models_satisfied_all_constraints['Experiment_Iteration'] = temp_df['Experiment_Iteration']
+
+    return models_in_range_df, df_with_models_satisfied_all_constraints
+
+
 def create_models_in_range_dct(all_subgroup_metrics_per_model_dct: dict, all_group_metrics_per_model_dct: dict,
                                metrics_value_range_dct: dict, group: str):
     # Merge subgroup and group metrics for each model and align their columns

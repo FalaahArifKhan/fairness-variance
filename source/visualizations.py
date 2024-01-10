@@ -4,8 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from IPython.display import display
 
-from source.preprocessing import create_models_in_range_dct
-from source.utils.data_vis_utils import create_metrics_df_for_diff_dataset_groups
+from source.preprocessing import create_models_in_range_dct, create_models_in_range_df
 
 
 def preprocess_metrics(exp_subgroup_metrics_dct, exp_group_metrics_dct):
@@ -291,6 +290,104 @@ def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
     )
 
     return final_chart
+
+
+def create_bar_chart_for_model_selection(all_subgroup_metrics_per_model_df: pd.DataFrame, all_group_metrics_per_model_df: pd.DataFrame,
+                                         metrics_value_range_dct: dict, dataset_name: str, group: str, vals_to_replace: dict):
+    if vals_to_replace is not None:
+        all_subgroup_metrics_per_model_df = all_subgroup_metrics_per_model_df.replace(vals_to_replace)
+        all_group_metrics_per_model_df = all_group_metrics_per_model_df.replace(vals_to_replace)
+
+    # Compute the number of models that satisfy the conditions
+    models_in_range_df, df_with_models_satisfied_all_constraints = (
+        create_models_in_range_df(all_subgroup_metrics_per_model_df=all_subgroup_metrics_per_model_df,
+                                  all_group_metrics_per_model_df=all_group_metrics_per_model_df,
+                                  metrics_value_range_dct=metrics_value_range_dct,
+                                  dataset_name=dataset_name,
+                                  group=group))
+    print('Models that satisfy all 4 constraints:')
+    display(df_with_models_satisfied_all_constraints)
+
+    # Replace metric groups on their aliases
+    metric_name_to_alias_dct = {
+        # C1
+        'TPR': 'C1',
+        'TNR': 'C1',
+        'FNR': 'C1',
+        'FPR': 'C1',
+        'PPV': 'C1',
+        'Accuracy': 'C1',
+        'F1': 'C1',
+        # C2
+        'Equalized_Odds_TPR': 'C2',
+        'Equalized_Odds_FPR': 'C2',
+        'Equalized_Odds_FNR': 'C2',
+        'Disparate_Impact': 'C2',
+        'Statistical_Parity_Difference': 'C2',
+        # C3
+        'Std': 'C3',
+        'IQR': 'C3',
+        'Jitter': 'C3',
+        'Label_Stability': 'C3',
+        'Aleatoric_Uncertainty': 'C3',
+        'Epistemic_Uncertainty': 'C3',
+        # C4
+        'IQR_Parity': 'C4',
+        'Label_Stability_Ratio': 'C4',
+        'Label_Stability_Difference': 'C4',
+        'Std_Parity': 'C4',
+        'Std_Ratio': 'C4',
+        'Jitter_Parity': 'C4',
+        'Aleatoric_Uncertainty_Parity': 'C4',
+        'Aleatoric_Uncertainty_Ratio': 'C4',
+        'Epistemic_Uncertainty_Parity': 'C4',
+        'Epistemic_Uncertainty_Ratio': 'C4',
+    }
+
+    def get_column_alias(metric_group):
+        if '&' not in metric_group:
+            alias = metric_name_to_alias_dct[metric_group]
+        else:
+            metrics = metric_group.split('&')
+            alias = None
+            for idx, metric in enumerate(metrics):
+                if idx == 0:
+                    alias = metric_name_to_alias_dct[metric]
+                else:
+                    alias += ' & ' + metric_name_to_alias_dct[metric]
+
+        return alias
+
+    models_in_range_df['Alias'] = models_in_range_df['Metric_Group'].apply(get_column_alias)
+    models_in_range_df['Title'] = models_in_range_df['Alias']
+
+    base_font_size = 25
+    bar_plot = alt.Chart(models_in_range_df).mark_bar().encode(
+        x=alt.X("Title", type="nominal", title='Metric Group', axis=alt.Axis(labelAngle=-30),
+                sort=alt.Sort(order='ascending')),
+        y=alt.Y("Number_of_Models", title="Number of Models", type="quantitative"),
+        color=alt.Color('Model_Name', legend=alt.Legend(title='Model Name'))
+    ).configure_axis(
+        labelFontSize=base_font_size + 2,
+        titleFontSize=base_font_size + 4,
+        labelFontWeight='normal',
+        titleFontWeight='normal',
+        labelLimit=300,
+        tickMinStep=1,
+    ).configure_title(
+        fontSize=base_font_size + 2
+    ).configure_legend(
+        titleFontSize=base_font_size + 2,
+        labelFontSize=base_font_size,
+        symbolStrokeWidth=4,
+        columns=2,
+        labelLimit=300,
+        titleLimit=220,
+        orient='none',
+        legendX=450, legendY=10,
+    ).properties(width=650, height=450)
+
+    return bar_plot
 
 
 def create_bar_plot_for_model_selection(all_subgroup_metrics_per_model_dct: dict, all_group_metrics_per_model_dct: dict,

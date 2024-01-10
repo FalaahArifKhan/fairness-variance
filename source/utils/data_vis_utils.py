@@ -65,6 +65,7 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
                 model_composed_metrics_df = metrics_composer.compose_metrics()
                 model_composed_metrics_df['Dataset_Name'] = dataset_name
                 model_composed_metrics_df['Fairness_Intervention'] = fairness_intervention
+                model_composed_metrics_df['Experiment_Iteration'] = exp_iter
 
                 # Unpivot group columns to align with visualizations API
                 unpivot_composed_metrics_df = unpivot_group_metrics(model_composed_metrics_df, datasets_sensitive_attrs_dct[dataset_name])
