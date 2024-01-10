@@ -1,4 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Folktables_GA_2018_Income,LGBMClassifier,0.7621,0.7898,"{'max_depth': 11, 'min_data_in_leaf': 100, 'num_leaves': 20}"
-Folktables_GA_2018_Income,LogisticRegression,0.7757,0.7996,"{'C': 1, 'penalty': 'l2', 'solver': 'lbfgs'}"
-Folktables_GA_2018_Income,RandomForestClassifier,0.7740,0.8017,"{'bootstrap': True, 'max_depth': 80, 'min_samples_leaf': 1, 'min_samples_split': 10, 'n_estimators': 500}"

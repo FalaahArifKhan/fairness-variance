@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Folktables_CA_2018_Public_Coverage,LGBMClassifier,0.6666,0.7095,"{'max_depth': 9, 'min_data_in_leaf': 100, 'num_leaves': 351}"
