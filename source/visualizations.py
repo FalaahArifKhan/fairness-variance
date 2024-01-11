@@ -292,6 +292,87 @@ def create_scatter_plot(all_group_metrics_per_model_dct: dict, group: str,
     return final_chart
 
 
+def create_metrics_bar_chart_per_one_model(metrics_df: pd.DataFrame, model_name: str, dataset_name: str,
+                                           fairness_intervention: str, exp_iter: str,
+                                           metrics_names: list, metrics_type: str, vals_to_replace: dict):
+    """
+    This bar chart displays metrics for different groups and one specific model.
+
+    Parameters
+    ----------
+    model_name
+        A model name to display metrics
+    metrics_names
+        A list of metric names to visualize
+    metrics_type
+        A metrics type ('subgroup' or 'group') to visualize
+
+    """
+    metrics_df = metrics_df.replace(vals_to_replace)
+
+    group_col_name = 'Group' if metrics_type == "group" else 'Subgroup'
+    metrics_title = 'Disparity Metrics' if metrics_type == "group" else 'Group Specific Metrics'
+    filtered_groups = [grp for grp in metrics_df[group_col_name].unique() if '_correct' not in grp and '_incorrect' not in grp]
+    filtered_groups = [grp for grp in filtered_groups if grp.lower() != 'overall'] + ['overall']
+    filtered_metrics_df = metrics_df[
+        (metrics_df['Dataset_Name'] == dataset_name) &
+        (metrics_df['Fairness_Intervention'] == fairness_intervention) &
+        (metrics_df['Experiment_Iteration'] == exp_iter) &
+        (metrics_df['Model_Name'] == model_name) &
+        (metrics_df['Metric'].isin(metrics_names)) &
+        (metrics_df[group_col_name].isin(filtered_groups))
+    ]
+
+    base_font_size = 16
+    models_metrics_chart = (
+        alt.Chart().mark_bar().encode(
+            alt.Y(f'{group_col_name}:N', axis=None, sort=filtered_groups),
+            alt.X('Metric_Value:Q', axis=alt.Axis(grid=True), title=''),
+            alt.Color(f'{group_col_name}:N',
+                      scale=alt.Scale(scheme="tableau20"),
+                      sort=filtered_groups,
+                      legend=alt.Legend(title='Disparity' if metrics_type == 'group' else 'Group',
+                                        labelFontSize=base_font_size,
+                                        titleFontSize=base_font_size + 2))
+        )
+    )
+
+    text = (
+        models_metrics_chart.mark_text(
+            align='left',
+            baseline='middle',
+            fontSize=base_font_size,
+            dx=10
+        ).encode(
+            text=alt.Text('Metric_Value:Q', format=",.3f"),
+            color=alt.value("black")
+        )
+    )
+
+    final_chart = (
+        alt.layer(
+            models_metrics_chart, text, data=filtered_metrics_df
+        ).properties(
+            width=500,
+            height=100
+        ).facet(
+            row=alt.Row('Metric:N', title=metrics_title, sort=metrics_names)
+        ).configure(
+            padding={'top':  33},
+        ).configure_headerRow(
+            labelAngle=0,
+            labelPadding=10,
+            labelAlign='left',
+            labelFontSize=base_font_size,
+            titleFontSize=base_font_size + 2
+        ).configure_axis(
+            labelFontSize=base_font_size, titleFontSize=base_font_size + 2
+        )
+    )
+
+    return final_chart
+
+
 def create_bar_chart_for_model_selection(all_subgroup_metrics_per_model_df: pd.DataFrame, all_group_metrics_per_model_df: pd.DataFrame,
                                          metrics_value_range_dct: dict, dataset_name: str, group: str, vals_to_replace: dict):
     if vals_to_replace is not None:
@@ -309,39 +390,12 @@ def create_bar_chart_for_model_selection(all_subgroup_metrics_per_model_df: pd.D
     display(df_with_models_satisfied_all_constraints)
 
     # Replace metric groups on their aliases
+    constraint_names = list(metrics_value_range_dct.keys())
     metric_name_to_alias_dct = {
-        # C1
-        'TPR': 'C1',
-        'TNR': 'C1',
-        'FNR': 'C1',
-        'FPR': 'C1',
-        'PPV': 'C1',
-        'Accuracy': 'C1',
-        'F1': 'C1',
-        # C2
-        'Equalized_Odds_TPR': 'C2',
-        'Equalized_Odds_FPR': 'C2',
-        'Equalized_Odds_FNR': 'C2',
-        'Disparate_Impact': 'C2',
-        'Statistical_Parity_Difference': 'C2',
-        # C3
-        'Std': 'C3',
-        'IQR': 'C3',
-        'Jitter': 'C3',
-        'Label_Stability': 'C3',
-        'Aleatoric_Uncertainty': 'C3',
-        'Epistemic_Uncertainty': 'C3',
-        # C4
-        'IQR_Parity': 'C4',
-        'Label_Stability_Ratio': 'C4',
-        'Label_Stability_Difference': 'C4',
-        'Std_Parity': 'C4',
-        'Std_Ratio': 'C4',
-        'Jitter_Parity': 'C4',
-        'Aleatoric_Uncertainty_Parity': 'C4',
-        'Aleatoric_Uncertainty_Ratio': 'C4',
-        'Epistemic_Uncertainty_Parity': 'C4',
-        'Epistemic_Uncertainty_Ratio': 'C4',
+        constraint_names[0]: 'C1',
+        constraint_names[1]: 'C2',
+        constraint_names[2]: 'C3',
+        constraint_names[3]: 'C4',
     }
 
     def get_column_alias(metric_group):
