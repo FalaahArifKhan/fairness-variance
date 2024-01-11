@@ -118,7 +118,7 @@ def get_line_bands_plot_for_exp_metrics(exp_metrics_dct: dict, model_name: str, 
         x=alt.X(field='Train_Set_Size', type='quantitative', title='Train Set Size',
                 scale=alt.Scale(nice=False), axis=alt.Axis(labelExpr=f"(datum.value == 5000) || (datum.value == 10000) ? '{min_train_set_size[0] + ',' + min_train_set_size[1:]}' : datum.label")),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
-        color='Extended_Model_Name:N',
+        color=alt.Color('Extended_Model_Name:N', title=None),
     )
     if with_band:
         band_chart = alt.Chart(subplot_metrics_df).mark_errorband(extent="ci").encode(
@@ -144,8 +144,8 @@ def create_group_metric_line_bands_per_dataset_plot(metrics_per_exp_dct: dict, e
                                                     ylim=Undefined, with_band=True):
     base_font_size = 20
     exp_name_to_title_dct = {
-        'rich_experiment': 'Trained on a rich set',
-        'poor_experiment': 'Trained on a poor set',
+        'rich_experiment': 'Trained on a high-income set',
+        'poor_experiment': 'Trained on a low-income set',
     }
     base_chart1 = get_line_bands_plot_for_exp_metrics(exp_metrics_dct=metrics_per_exp_dct[experiment_names[0]],
                                                       model_name=model_name,
