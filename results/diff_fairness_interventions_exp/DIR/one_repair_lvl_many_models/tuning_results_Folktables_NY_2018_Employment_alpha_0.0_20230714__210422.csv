@@ -1,2 +1,0 @@
-Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
-Folktables_NY_2018_Employment,MLPClassifier,0.7709,0.7813,"{'activation': 'tanh', 'learning_rate': 'adaptive', 'solver': 'sgd'}"
