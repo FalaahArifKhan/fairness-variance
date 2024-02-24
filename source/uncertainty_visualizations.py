@@ -212,13 +212,13 @@ def create_plot_for_diff_bootstrap_sizes(all_models_metrics_df: pd.DataFrame, da
 
     line_chart = alt.Chart(to_plot).mark_line().encode(
         x=alt.X(field='Num_Estimators', type='quantitative', title='Number of Estimators',
-                scale=alt.Scale(nice=False, zero=False, domain=[50, 200])),
+                scale=alt.Scale(nice=False, zero=False, domain=[10, 200])),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
     )
     if with_band:
         band_chart = alt.Chart(to_plot).mark_errorband(extent="ci").encode(
             x=alt.X(field='Num_Estimators', type='quantitative', title='Number of Estimators',
-                    scale=alt.Scale(nice=False, zero=False, domain=[50, 200])),
+                    scale=alt.Scale(nice=False, zero=False, domain=[10, 200])),
             y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         )
         base_chart = (band_chart + line_chart)
@@ -266,7 +266,7 @@ def create_plot_for_diff_bootstrap_sizes_and_exp_run(all_models_metrics_df: pd.D
 
     line_chart = alt.Chart(to_plot).mark_line().encode(
         x=alt.X(field='Num_Estimators', type='quantitative', title='Number of Estimators',
-                scale=alt.Scale(nice=False, zero=False, domain=[50, 200])),
+                scale=alt.Scale(nice=False, zero=False, domain=[10, 200])),
         y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
         color='Experiment_Iteration:N',
     )
