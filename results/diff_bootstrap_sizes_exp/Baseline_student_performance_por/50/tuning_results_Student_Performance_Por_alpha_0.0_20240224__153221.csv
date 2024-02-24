@@ -1,0 +1,2 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Student_Performance_Por,RandomForestClassifier,0.8693,0.9422,"{'bootstrap': False, 'max_depth': 10, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 500}"
