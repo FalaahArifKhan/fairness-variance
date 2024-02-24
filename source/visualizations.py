@@ -323,7 +323,7 @@ def create_metrics_bar_chart_per_one_model(metrics_df: pd.DataFrame, model_name:
         (metrics_df[group_col_name].isin(filtered_groups))
     ]
 
-    base_font_size = 16
+    base_font_size = 20
     models_metrics_chart = (
         alt.Chart().mark_bar().encode(
             alt.Y(f'{group_col_name}:N', axis=None, sort=filtered_groups),
@@ -333,7 +333,9 @@ def create_metrics_bar_chart_per_one_model(metrics_df: pd.DataFrame, model_name:
                       sort=filtered_groups,
                       legend=alt.Legend(title='Disparity' if metrics_type == 'group' else 'Group',
                                         labelFontSize=base_font_size,
-                                        titleFontSize=base_font_size + 2))
+                                        titleFontSize=base_font_size + 2,
+                                        labelLimit=300,
+                                        titleLimit=220))
         )
     )
 
@@ -341,7 +343,8 @@ def create_metrics_bar_chart_per_one_model(metrics_df: pd.DataFrame, model_name:
         models_metrics_chart.mark_text(
             align='left',
             baseline='middle',
-            fontSize=base_font_size,
+            # fontSize=base_font_size,
+            fontSize=20,
             dx=10
         ).encode(
             text=alt.Text('Metric_Value:Q', format=",.3f"),
@@ -354,7 +357,8 @@ def create_metrics_bar_chart_per_one_model(metrics_df: pd.DataFrame, model_name:
             models_metrics_chart, text, data=filtered_metrics_df
         ).properties(
             width=500,
-            height=100
+            # height=100
+            height=120
         ).facet(
             row=alt.Row('Metric:N', title=metrics_title, sort=metrics_names)
         ).configure(
