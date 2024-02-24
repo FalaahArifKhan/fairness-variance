@@ -530,6 +530,7 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
             logger.info("Models config is loaded from the input file")
 
         # Compute metrics for tuned models
+        custom_table_fields_dct['run_start_date_time'] = datetime.now(timezone.utc)
         compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
                                        config=metrics_computation_config,
                                        models_config=models_config,
