@@ -80,6 +80,45 @@ def create_metrics_dicts_for_diff_fairness_interventions(datasets_db_config: dic
     return all_subgroup_metrics_df, all_group_metrics_df
 
 
+def read_metrics_for_diff_bootstrap_sizes(datasets_db_config: dict, datasets_sensitive_attrs_dct: dict, db_collection_name: str):
+    client, collection_obj, db_writer_func = connect_to_mongodb(db_collection_name)
+    all_subgroup_metrics_df = pd.DataFrame()
+    all_group_metrics_df = pd.DataFrame()
+    for dataset_name in datasets_db_config.keys():
+        for bootstrap_size in datasets_db_config[dataset_name].keys():
+            # Extract experimental data for the defined dataset from MongoDB
+            model_metric_df = read_model_metric_dfs_from_db(collection_obj, datasets_db_config[dataset_name][bootstrap_size])
+            model_metric_df = model_metric_df.drop(columns=['Model_Params', 'Tag', 'Model_Init_Seed'])
+            run_start_date_time = list(model_metric_df['Run_Start_Date_Time'].unique())[0]
+            record_create_date_time = list(model_metric_df['Record_Create_Date_Time'].unique())[0]
+            all_subgroup_metrics_df = pd.concat([all_subgroup_metrics_df, model_metric_df])
+
+            # Compose disparity metrics for the defined dataset
+            cur_sensitive_attrs_dct = {attr: None for attr in datasets_sensitive_attrs_dct[dataset_name]}
+            for exp_iter in model_metric_df['Experiment_Iteration'].unique():
+                exp_iter_model_metric_df = model_metric_df[model_metric_df.Experiment_Iteration == exp_iter]
+                models_metrics_dct = create_models_metrics_dct_from_database_df(exp_iter_model_metric_df)
+                metrics_composer = MetricsComposer(models_metrics_dct, cur_sensitive_attrs_dct)
+                model_composed_metrics_df = metrics_composer.compose_metrics()
+                model_composed_metrics_df['Dataset_Name'] = dataset_name
+                model_composed_metrics_df['Num_Estimators'] = bootstrap_size
+                model_composed_metrics_df['Run_Start_Date_Time'] = run_start_date_time
+                model_composed_metrics_df['Record_Create_Date_Time'] = record_create_date_time
+                model_composed_metrics_df['Experiment_Iteration'] = exp_iter
+
+                # Unpivot group columns to align with visualizations API
+                unpivot_composed_metrics_df = unpivot_group_metrics(model_composed_metrics_df, datasets_sensitive_attrs_dct[dataset_name])
+                all_group_metrics_df = pd.concat([all_group_metrics_df, unpivot_composed_metrics_df])
+
+            print(f'Extracted metrics for {dataset_name} dataset and {bootstrap_size} bootstrap size')
+
+    client.close()
+    all_subgroup_metrics_df = all_subgroup_metrics_df.reset_index(drop=True)
+    all_group_metrics_df = all_group_metrics_df.reset_index(drop=True)
+
+    return all_subgroup_metrics_df, all_group_metrics_df
+
+
 def add_epistemic_uncertainty(model_metric_df):
     new_model_metric_df = pd.DataFrame()
     for model_name in model_metric_df.Model_Name.unique():

@@ -196,6 +196,107 @@ def create_group_metric_line_bands_per_dataset_plot(metrics_per_exp_dct: dict, e
     return final_grid_chart
 
 
+def create_plot_for_diff_bootstrap_sizes(all_models_metrics_df: pd.DataFrame, dataset_name: str,
+                                         model_name: str, metric_name: str, group: str = 'overall',
+                                         ylim=Undefined, vals_to_replace: dict = None, with_band: bool = True):
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
+
+    group_col_name = 'Subgroup' if group == 'overall' else 'Group'
+    to_plot = all_models_metrics_df[
+        (all_models_metrics_df['Dataset_Name'] == dataset_name) &
+        (all_models_metrics_df['Model_Name'] == model_name) &
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name] == group)
+        ]
+
+    line_chart = alt.Chart(to_plot).mark_line().encode(
+        x=alt.X(field='Num_Estimators', type='quantitative', title='Number of Estimators',
+                scale=alt.Scale(nice=False, zero=False, domain=[50, 200])),
+        y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
+    )
+    if with_band:
+        band_chart = alt.Chart(to_plot).mark_errorband(extent="ci").encode(
+            x=alt.X(field='Num_Estimators', type='quantitative', title='Number of Estimators',
+                    scale=alt.Scale(nice=False, zero=False, domain=[50, 200])),
+            y=alt.Y(field='Metric_Value', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
+        )
+        base_chart = (band_chart + line_chart)
+    else:
+        base_chart = line_chart
+
+    base_font_size = 20
+    base_chart = (
+        base_chart.configure_axis(
+            labelFontSize=base_font_size + 4,
+            titleFontSize=base_font_size + 6,
+            labelFontWeight='normal',
+            titleFontWeight='normal',
+        ).configure_title(
+            fontSize=base_font_size + 2
+        ).configure_legend(
+            titleFontSize=base_font_size + 4,
+            labelFontSize=base_font_size + 2,
+            symbolStrokeWidth=10,
+            labelLimit=400,
+            titleLimit=300,
+            columns=2,
+            orient='top',
+            direction='horizontal',
+            titleAnchor='middle'
+        )
+    )
+
+    return base_chart
+
+
+def create_plot_for_diff_bootstrap_sizes_and_exp_run(all_models_metrics_df: pd.DataFrame, dataset_name: str,
+                                                     model_name: str, metric_name: str, group: str = 'overall',
+                                                     ylim=Undefined, vals_to_replace: dict = None):
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
+
+    group_col_name = 'Subgroup' if group == 'overall' else 'Group'
+    to_plot = all_models_metrics_df[
+        (all_models_metrics_df['Dataset_Name'] == dataset_name) &
+        (all_models_metrics_df['Model_Name'] == model_name) &
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name] == group)
+        ]
+
+    line_chart = alt.Chart(to_plot).mark_line().encode(
+        x=alt.X(field='Num_Estimators', type='quantitative', title='Number of Estimators',
+                scale=alt.Scale(nice=False, zero=False, domain=[50, 200])),
+        y=alt.Y('mean(Metric_Value)', type='quantitative', title=metric_name, scale=alt.Scale(zero=False, domain=ylim)),
+        color='Experiment_Iteration:N',
+    )
+
+    base_font_size = 20
+    base_chart = line_chart
+    base_chart = (
+        base_chart.configure_axis(
+            labelFontSize=base_font_size + 4,
+            titleFontSize=base_font_size + 6,
+            labelFontWeight='normal',
+            titleFontWeight='normal',
+        ).configure_title(
+            fontSize=base_font_size + 2
+        ).configure_legend(
+            titleFontSize=base_font_size + 4,
+            labelFontSize=base_font_size + 2,
+            symbolStrokeWidth=10,
+            labelLimit=400,
+            titleLimit=300,
+            columns=3,
+            orient='top',
+            direction='horizontal',
+            titleAnchor='middle'
+        )
+    )
+
+    return base_chart
+
+
 def get_line_bands_per_correct_incorrect_group(metrics_per_exp_df: pd.DataFrame, model_name: str, group_name: str,
                                                metric_name: str, intervention_param: float, test_set_index: int,
                                                title: str, base_font_size: int, ylim=Undefined, with_band=True):
