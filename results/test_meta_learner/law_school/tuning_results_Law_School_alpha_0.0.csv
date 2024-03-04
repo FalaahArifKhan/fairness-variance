@@ -1,0 +1,4 @@
+Dataset_Name,Model_Name,F1_Score,Accuracy_Score,Model_Best_Params
+Law_School,LGBMClassifier,0.6578,0.9017,"{'max_depth': 9, 'min_data_in_leaf': 100, 'num_leaves': 20}"
+Law_School,LogisticRegression,0.6584,0.9020,"{'C': 1, 'penalty': 'l1', 'solver': 'saga'}"
+Law_School,RandomForestClassifier,0.6533,0.8957,"{'bootstrap': False, 'max_depth': 40, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 200}"

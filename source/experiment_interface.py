@@ -531,9 +531,20 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
 
         # Compute metrics for tuned models
         custom_table_fields_dct['run_start_date_time'] = datetime.now(timezone.utc)
+        meta_learner_config = {
+            'model': 'gbt',
+            'params': {
+                "n_estimators": [100, 1000],
+                # "n_estimators": [100],
+                # 'subsample': [0.5, 0.75],
+                'subsample': [0.25, 0.5, 0.75],
+                'max_depth': [4, 5, 6],
+            }
+        }
         compute_metrics_with_db_writer(dataset=cur_base_flow_dataset,
                                        config=metrics_computation_config,
                                        models_config=models_config,
+                                       meta_learner_config=meta_learner_config,
                                        custom_tbl_fields_dct=custom_table_fields_dct,
                                        db_writer_func=db_writer_func,
                                        notebook_logs_stdout=True,
