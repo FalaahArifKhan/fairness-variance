@@ -534,7 +534,8 @@ def run_exp_iter_with_disparate_impact(data_loader, experiment_seed, test_set_fr
         meta_learner_config = {
             'model': 'gbt',
             'params': {
-                "n_estimators": [100, 1000],
+                # "n_estimators": [100, 1000],
+                "n_estimators": [100, 500],
                 # "n_estimators": [100],
                 # 'subsample': [0.5, 0.75],
                 'subsample': [0.25, 0.5, 0.75],
