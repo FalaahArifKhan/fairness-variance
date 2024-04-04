@@ -1,4 +1,4 @@
-Metric,Model_Name,Dataset_Name,Fairness_Intervention,Experiment_Iteration,Group,Metric_Value
+Metric,Model_Name,Dataset_Name,Fairness_Intervention,Experiment_Iteration,Subgroup,Metric_Value
 Accuracy_Difference,LGBMClassifier,Folktables_GA_2018_Income,Baseline,Exp_iter_1,SEX,0.046051478602825324
 Aleatoric_Uncertainty_Difference,LGBMClassifier,Folktables_GA_2018_Income,Baseline,Exp_iter_1,SEX,-0.039453479952288206
 Aleatoric_Uncertainty_Ratio,LGBMClassifier,Folktables_GA_2018_Income,Baseline,Exp_iter_1,SEX,0.9378210667828779
