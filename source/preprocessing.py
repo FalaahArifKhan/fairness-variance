@@ -10,7 +10,7 @@ from fairlearn.preprocessing import CorrelationRemover
 from aif360.datasets import BinaryLabelDataset, StandardDataset
 from aif360.algorithms.preprocessing import DisparateImpactRemover, LFR
 
-from virny.datasets.data_loaders import BaseDataLoader
+from virny.datasets.base import BaseDataLoader
 from virny.custom_classes.base_dataset import BaseFlowDataset
 from virny.preprocessing.basic_preprocessing import preprocess_dataset
 
