@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from IPython.display import display
+from altair.utils.schemapi import Undefined
 
 from source.preprocessing import create_models_in_range_dct, create_models_in_range_df
 
@@ -183,6 +184,83 @@ def create_box_plot_for_diff_interventions(all_models_metrics_df: pd.DataFrame, 
             labelLimit=400,
             titleLimit=300,
             columns=4 if num_fairness_interventions > 5 else 3,
+            orient='top',
+            direction='horizontal',
+            titleAnchor='middle'
+        )
+    )
+
+    return chart
+
+
+def create_dataset_box_plots_for_diff_interventions(all_models_metrics_df: pd.DataFrame, model_type: str,
+                                                    metric_name: str, groups_dct = None,
+                                                    ylim: list = Undefined, vals_to_replace: dict = None):
+    sns.set_style("whitegrid")
+
+    if vals_to_replace is not None:
+        all_models_metrics_df = all_models_metrics_df.replace(vals_to_replace)
+
+    if groups_dct is None:
+        group_col_name = 'Subgroup'
+        groups = ['overall']
+    else:
+        group_col_name = 'Group'
+        groups = [grp for grp in groups_dct.values()]
+
+    to_plot = all_models_metrics_df[
+        (all_models_metrics_df['Model_Name'] == model_type) &
+        (all_models_metrics_df['Metric'] == metric_name) &
+        (all_models_metrics_df[group_col_name].isin(groups))
+        ]
+
+    base_font_size = 18
+    fair_interventions_order = ['Baseline', 'LFR', 'DIR', 'AdversarialDebiasing',
+                                'ExponentiatedGradientReduction', 'EqOddsPostprocessing', 'ROC']
+    chart = (
+        alt.Chart(to_plot).mark_boxplot(
+            ticks=True,
+            size=20,
+            median={'stroke': 'black', 'strokeWidth': 0.7},
+        ).encode(
+            x=alt.X("Fairness_Intervention:N",
+                    title=None,
+                    sort=fair_interventions_order,
+                    axis=alt.Axis(labels=False)),
+            y=alt.Y("Metric_Value:Q", title=metric_name, scale=alt.Scale(zero=False, domain=ylim, nice=True if ylim == Undefined else False)),
+            color=alt.Color("Fairness_Intervention:N", title=None, sort=fair_interventions_order),
+            column=alt.Column('Dataset_Name:N',
+                              title=None,
+                              sort=['Folktables_GA_2018_Income', 'Folktables_CA_2018_Public_Coverage'
+                                    'Law_School', 'Student_Performance_Por'])
+        ).resolve_scale(
+            x='independent'
+        ).properties(
+            width=200
+        ).configure_facet(
+            spacing=10
+        ).configure_view(
+            stroke=None
+        ).configure_header(
+            labelOrient='bottom',
+            labelPadding=5,
+            labelFontSize=base_font_size + 2,
+            titleFontSize=base_font_size + 2,
+        ).configure_axis(
+            labelFontSize=base_font_size + 4,
+            titleFontSize=base_font_size + 6,
+            labelFontWeight='normal',
+            titleFontWeight='normal',
+        ).configure_title(
+            fontSize=base_font_size + 2
+        ).configure_legend(
+            titleFontSize=base_font_size + 4,
+            labelFontSize=base_font_size + 2,
+            symbolStrokeWidth=5,
+            symbolOffset=40,
+            labelLimit=400,
+            titleLimit=300,
+            columns=5,
             orient='top',
             direction='horizontal',
             titleAnchor='middle'
