@@ -6,6 +6,10 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 
 
+def get_secrets_path(secrets_file_name: str):
+    return pathlib.Path(__file__).parent.joinpath('..', '..', 'configs', secrets_file_name)
+
+
 def connect_to_mongodb(collection_name, secrets_path: str = pathlib.Path(__file__).parent.joinpath('..', '..', 'configs', 'secrets.env')):
     load_dotenv(secrets_path)  # Take environment variables from .env
 
